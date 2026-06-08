@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MedRecords — UI/UX Mockups</title>
+<style>
+  :root {
+    --navy: #1E3A5F;
+    --navy-dark: #15293F;
+    --navy-tint: #E8EEF5;
+    --green: #2C5F2D;
+    --green-tint: #E8F0E8;
+    --amber: #B8860B;
+    --amber-tint: #FAF3E0;
+    --red: #B23A48;
+    --red-tint: #FBEAEC;
+    --grey-900: #1A1F26;
+    --grey-700: #3D4754;
+    --grey-500: #6B7280;
+    --grey-300: #D1D5DB;
+    --grey-200: #E5E7EB;
+    --grey-100: #F3F4F6;
+    --grey-50:  #F9FAFB;
+    --white: #FFFFFF;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(15,23,42,0.05);
+    --shadow-lg: 0 10px 25px rgba(15,23,42,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--grey-900); background: var(--grey-50); line-height: 1.5; }
+  body { padding: 40px 24px 80px; }
+  .container { max-width: 1280px; margin: 0 auto; }
+  .doc-header { text-align: center; margin-bottom: 56px; }
+  .doc-header h1 { font-size: 36px; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+  .doc-header .subtitle { color: var(--green); font-size: 18px; font-weight: 600; margin-top: 4px; }
+  .doc-header .tagline { color: var(--grey-500); font-size: 14px; font-style: italic; margin-top: 8px; }
+
+  .section { margin-bottom: 72px; }
+  .section-header { border-bottom: 2px solid var(--navy); padding-bottom: 10px; margin-bottom: 28px; }
+  .section-header h2 { font-size: 24px; color: var(--navy); font-weight: 700; letter-spacing: -0.01em; }
+  .section-header p { color: var(--grey-500); font-size: 14px; margin-top: 4px; }
+
+  .screens-row { display: flex; gap: 28px; flex-wrap: wrap; justify-content: flex-start; }
+  .screen-block { display: flex; flex-direction: column; align-items: center; }
+  .screen-block .caption { margin-top: 10px; font-size: 12px; color: var(--grey-500); text-align: center; max-width: 320px; }
+  .screen-block .caption strong { color: var(--navy); display: block; font-size: 13px; margin-bottom: 2px; }
+
+  /* Phone frame */
+  .phone {
+    width: 320px;
+    height: 640px;
+    background: var(--white);
+    border-radius: 30px;
+    border: 8px solid #2a2a2a;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 18px;
+    background: #2a2a2a;
+    border-radius: 0 0 12px 12px;
+    z-index: 10;
+  }
+  .phone-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* Status bar */
+  .status-bar { background: var(--white); padding: 8px 16px 6px; display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: var(--grey-900); }
+
+  /* App header */
+  .app-header { background: var(--navy); color: var(--white); padding: 14px 16px; }
+  .app-header.green { background: var(--green); }
+  .app-header h3 { font-size: 16px; font-weight: 700; }
+  .app-header .sub { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+  .app-header-with-back { display: flex; align-items: center; gap: 10px; }
+  .back-btn { color: var(--white); font-size: 18px; font-weight: 300; cursor: default; }
+
+  /* Card */
+  .card { background: var(--white); border-radius: 12px; padding: 14px; margin: 10px 14px; box-shadow: var(--shadow); }
+  .card.compact { padding: 10px 12px; }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+  .card-meta { font-size: 11px; color: var(--grey-500); }
+
+  /* Body areas */
+  .phone-body { flex: 1; overflow-y: auto; padding-bottom: 56px; background: var(--grey-50); }
+
+  /* Bottom nav */
+  .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--grey-200); padding: 8px 0 10px; display: flex; justify-content: space-around; align-items: center; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 9px; color: var(--grey-500); }
+  .nav-item.active { color: var(--navy); font-weight: 600; }
+  .nav-icon { font-size: 16px; }
+
+  /* Greeting */
+  .greeting { padding: 18px 16px 4px; }
+  .greeting .hello { color: var(--grey-500); font-size: 12px; }
+  .greeting .name { color: var(--navy); font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+
+  /* MedID card */
+  .medid-card {
+    margin: 14px;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--green) 100%);
+    color: var(--white);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .medid-card .label { font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em; }
+  .medid-card .number { font-size: 22px; font-weight: 700; letter-spacing: 0.04em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .medid-card .name-row { display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; }
+  .medid-card .verified-badge { background: rgba(255,255,255,0.18); padding: 3px 8px; border-radius: 10px; font-size: 9px; font-weight: 600; }
+
+  /* Quick actions */
+  .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 4px 14px 12px; }
+  .qa-btn { background: var(--white); border-radius: 12px; padding: 10px 4px; text-align: center; box-shadow: var(--shadow); }
+  .qa-icon { font-size: 18px; }
+  .qa-label { font-size: 9px; color: var(--grey-700); margin-top: 4px; font-weight: 500; }
+
+  /* Section headers in app */
+  .section-title { padding: 8px 16px 4px; font-size: 11px; color: var(--grey-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* List item */
+  .list-item { padding: 10px 14px; display: flex; gap: 10px; align-items: flex-start; background: var(--white); margin: 4px 14px; border-radius: 8px; }
+  .list-item-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
+  .list-item-icon.navy { background: var(--navy-tint); color: var(--navy); }
+  .list-item-icon.green { background: var(--green-tint); color: var(--green); }
+  .list-item-icon.amber { background: var(--amber-tint); color: var(--amber); }
+  .list-item-icon.red { background: var(--red-tint); color: var(--red); }
+  .list-item-body { flex: 1; min-width: 0; }
+  .list-item-title { font-size: 12px; font-weight: 600; color: var(--grey-900); }
+  .list-item-sub { font-size: 10px; color: var(--grey-500); margin-top: 2px; }
+  .list-item-meta { font-size: 9px; color: var(--grey-500); }
+  .pill { display: inline-block; padding: 2px 7px; border-radius: 8px; font-size: 9px; font-weight: 600; }
+  .pill.green { background: var(--green-tint); color: var(--green); }
+  .pill.amber { background: var(--amber-tint); color: var(--amber); }
+  .pill.red { background: var(--red-tint); color: var(--red); }
+  .pill.navy { background: var(--navy-tint); color: var(--navy); }
+  .pill.grey { background: var(--grey-100); color: var(--grey-700); }
+
+  /* Tab strip */
+  .tab-strip { display: flex; gap: 6px; padding: 8px 14px; overflow-x: auto; background: var(--white); border-bottom: 1px solid var(--grey-200); }
+  .tab { font-size: 11px; padding: 5px 10px; border-radius: 14px; background: var(--grey-100); color: var(--grey-700); white-space: nowrap; font-weight: 500; }
+  .tab.active { background: var(--navy); color: var(--white); }
+
+  /* Detail rows */
+  .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--grey-100); font-size: 11px; }
+  .detail-row:last-child { border-bottom: 0; }
+  .detail-row .k { color: var(--grey-500); }
+  .detail-row .v { color: var(--grey-900); font-weight: 500; text-align: right; }
+
+  /* Consent flow card */
+  .consent-card {
+    margin: 14px;
+    padding: 18px;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border-top: 4px solid var(--navy);
+  }
+  .consent-card h4 { font-size: 14px; color: var(--navy); margin-bottom: 10px; }
+  .consent-card p { font-size: 12px; color: var(--grey-700); margin-bottom: 8px; }
+  .consent-scope { background: var(--grey-50); border-radius: 8px; padding: 10px; margin: 10px 0; }
+  .consent-scope .scope-row { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; }
+  .consent-scope .scope-row .label { color: var(--grey-500); }
+  .consent-scope .scope-row .value { color: var(--navy); font-weight: 600; }
+  .btn-row { display: flex; gap: 8px; margin-top: 12px; }
+  .btn { flex: 1; padding: 10px; border-radius: 10px; text-align: center; font-size: 13px; font-weight: 600; }
+  .btn.primary { background: var(--navy); color: var(--white); }
+  .btn.primary.green { background: var(--green); }
+  .btn.secondary { background: var(--grey-100); color: var(--grey-700); }
+  .btn.danger { background: var(--red-tint); color: var(--red); }
+
+  /* Access code */
+  .access-code { margin: 14px; padding: 24px 16px; background: var(--navy); color: var(--white); border-radius: 16px; text-align: center; }
+  .access-code .code-label { font-size: 11px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.05em; }
+  .access-code .code { font-size: 38px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: 0.1em; margin: 8px 0; }
+  .access-code .timer { font-size: 11px; opacity: 0.85; }
+  .qr-frame { width: 120px; height: 120px; background: var(--white); margin: 12px auto 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .qr-ascii { font-family: ui-monospace, SF Mono, Consolas, monospace; font-size: 7px; line-height: 1; color: var(--navy); white-space: pre; }
+
+  /* DESKTOP BROWSER FRAME */
+  .browser {
+    width: 100%;
+    max-width: 1180px;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    border: 1px solid var(--grey-200);
+  }
+  .browser-bar { background: var(--grey-100); padding: 10px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--grey-200); }
+  .browser-dots { display: flex; gap: 6px; }
+  .browser-dots span { width: 11px; height: 11px; border-radius: 50%; background: var(--grey-300); }
+  .browser-dots span:nth-child(1) { background: #FF5F57; }
+  .browser-dots span:nth-child(2) { background: #FEBC2E; }
+  .browser-dots span:nth-child(3) { background: #28C840; }
+  .browser-url { flex: 1; background: var(--white); border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--grey-500); font-family: ui-monospace, SF Mono, Consolas, monospace; }
+
+  /* Provider workstation */
+  .ws-layout { display: grid; grid-template-columns: 220px 1fr; min-height: 600px; }
+  .ws-sidebar { background: var(--navy-dark); color: var(--white); padding: 16px 0; }
+  .ws-brand { padding: 0 18px 18px; font-size: 16px; font-weight: 800; letter-spacing: -0.02em; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 12px; }
+  .ws-brand .sub { font-size: 10px; font-weight: 400; opacity: 0.75; }
+  .ws-nav { padding: 4px 12px; }
+  .ws-nav-item { padding: 8px 12px; border-radius: 8px; font-size: 13px; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
+  .ws-nav-item.active { background: rgba(255,255,255,0.1); color: var(--white); font-weight: 600; }
+  .ws-nav-section { padding: 12px 18px 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.45); }
+
+  .ws-main { padding: 24px 28px; background: var(--grey-50); }
+  .ws-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .ws-search { background: var(--white); border: 1px solid var(--grey-200); border-radius: 8px; padding: 8px 14px; width: 320px; font-size: 13px; color: var(--grey-500); }
+  .ws-toolbar-actions { display: flex; gap: 10px; align-items: center; }
+  .ws-btn { background: var(--navy); color: var(--white); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+  .ws-btn.secondary { background: var(--white); color: var(--navy); border: 1px solid var(--grey-300); }
+
+  /* Patient banner */
+  .patient-banner {
+    background: var(--white); border-radius: 12px; padding: 18px 22px; margin-bottom: 18px;
+    display: grid; grid-template-columns: 1fr auto auto; gap: 18px; align-items: center; box-shadow: var(--shadow);
+  }
+  .pb-name { font-size: 18px; font-weight: 700; color: var(--navy); }
+  .pb-meta { font-size: 12px; color: var(--grey-500); margin-top: 2px; }
+  .pb-flags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .pb-consent { text-align: right; }
+  .pb-consent .label { font-size: 10px; text-transform: uppercase; color: var(--grey-500); letter-spacing: 0.05em; }
+  .pb-consent .value { font-size: 14px; color: var(--green); font-weight: 700; margin-top: 2px; }
+  .pb-consent .sub { font-size: 11px; color: var(--grey-500); }
+
+  /* Record tabs */
+  .record-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--grey-200); margin-bottom: 16px; flex-wrap: wrap; }
+  .record-tab { padding: 10px 14px; font-size: 13px; color: var(--grey-500); border-bottom: 3px solid transparent; font-weight: 500; }
+  .record-tab.active { color: var(--navy); border-bottom-color: var(--navy); font-weight: 700; }
+  .record-tab .count { background: var(--grey-100); padding: 1px 6px; border-radius: 8px; font-size: 10px; margin-left: 4px; color: var(--grey-700); }
+
+  /* Two-column record body */
+  .record-body { display: grid; grid-template-columns: 1fr 320px; gap: 18px; }
+  .record-main { background: var(--white); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+  .record-aside { background: var(--white); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); height: fit-content; }
+  .record-aside h5 { font-size: 12px; color: var(--grey-500); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+
+  .entry { padding: 12px 0; border-bottom: 1px solid var(--grey-100); }
+  .entry:last-child { border-bottom: 0; }
+  .entry-head { display: flex; justify-content: space-between; align-items: flex-start; }
+  .entry-title { font-size: 14px; font-weight: 600; color: var(--grey-900); }
+  .entry-date { font-size: 11px; color: var(--grey-500); }
+  .entry-meta { font-size: 12px; color: var(--grey-500); margin-top: 2px; }
+  .entry-body { font-size: 13px; color: var(--grey-700); margin-top: 8px; line-height: 1.55; }
+  .entry-attribution { font-size: 11px; color: var(--grey-500); margin-top: 6px; font-style: italic; }
+
+  /* Encounter authoring */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-grid .full { grid-column: 1 / -1; }
+  .form-field { display: flex; flex-direction: column; }
+  .form-field label { font-size: 11px; color: var(--grey-500); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; font-weight: 600; }
+  .form-field .input-box { background: var(--grey-50); border: 1px solid var(--grey-200); border-radius: 8px; padding: 8px 10px; font-size: 13px; color: var(--grey-900); min-height: 32px; }
+  .form-field .input-box.tall { min-height: 70px; }
+  .form-field .input-box.empty { color: var(--grey-500); font-style: italic; font-weight: 300; }
+
+  /* Pharmacy ws */
+  .pharma-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .pharma-card { background: var(--white); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+  .pharma-card h4 { font-size: 14px; color: var(--navy); font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--grey-100); }
+  .rx-detail { font-size: 13px; }
+  .rx-line { display: flex; justify-content: space-between; padding: 6px 0; }
+  .rx-line .k { color: var(--grey-500); }
+  .rx-line .v { color: var(--grey-900); font-weight: 500; }
+  .alert { padding: 10px 12px; border-radius: 8px; margin-top: 12px; font-size: 12px; display: flex; gap: 8px; }
+  .alert.amber { background: var(--amber-tint); color: #7B5C00; border-left: 3px solid var(--amber); }
+  .alert.red { background: var(--red-tint); color: #7A1F2C; border-left: 3px solid var(--red); }
+  .alert.green { background: var(--green-tint); color: #1F4520; border-left: 3px solid var(--green); }
+
+  /* Audit log table */
+  .audit-table { width: 100%; font-size: 12px; }
+  .audit-table th, .audit-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--grey-100); }
+  .audit-table th { font-size: 11px; color: var(--grey-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; background: var(--grey-50); }
+
+  /* Notes */
+  .figure-note { font-size: 11px; color: var(--grey-500); margin-top: 16px; line-height: 1.6; padding: 12px 16px; background: var(--navy-tint); border-radius: 8px; }
+  .figure-note strong { color: var(--navy); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="doc-header">
+    <h1>MedRecords — UI/UX Mockups</h1>
+    <div class="subtitle">Patient app, provider workstation, pharmacy, and core flows</div>
+    <div class="tagline">Visual reference for the v1 surface area. Not pixel-perfect spec; intent only.</div>
+  </header>
+
+  <!-- ============================================== -->
+  <!-- SECTION 1: PATIENT APP -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-header">
+      <h2>1. Patient Mobile App</h2>
+      <p>iOS / Android. Mobile-first. USSD fallback for feature phones (not shown).</p>
+    </div>
+
+    <div class="screens-row">
+
+      <!-- Home -->
+      <div class="screen-block">
+        <div class="phone"><div class="phone-content">
+          <div class="status-bar"><span>9:41</span><span>●●● 4G</span></div>
+          <div class="greeting">
+            <div class="hello">Good morning</div>
+            <div class="name">Adaeze</div>
+          </div>
+          <div class="medid-card">
+            <div class="label">MedRecords ID</div>
+            <div class="number">MR-9482-1735-2210</div>
+            <div class="name-row">
+              <span>Adaeze Okonkwo · 34</span>
+              <span class="verified-badge">✓ NIN verified</span>
+            </div>
+          </div>
+          <div class="quick-actions">
+            <div class="qa-btn"><div class="qa-icon">📱</div><div class="qa-label">Share record</div></div>
+            <div class="qa-btn"><div class="qa-icon">🔐</div><div class="qa-label">Consents</div></div>
+            <div class="qa-btn"><div class="qa-icon">📋</div><div class="qa-label">My record</div></div>
+            <div class="qa-btn"><div class="qa-icon">👥</div><div class="qa-label">Dependents</div></div>
+          </div>
+          <div class="section-title">Recent activity</div>
+          <div class="list-item">
+            <div class="list-item-icon green">℞</div>
+            <div class="list-item-body">
+              <div class="list-item-title">Metformin dispensed</div>
+              <div class="list-item-sub">HealthPlus Pharmacy · Lekki</div>
+            </div>
+            <div class="list-item-meta">2h ago</div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-icon navy">🩺</div>
+            <div class="list-item-body">
+              <div class="list-item-title">Visit recorded</div>
+              <div class="list-item-sub">Dr Tunde Adeyemi · Reddington</div>
+            </div>
+            <div class="list-item-meta">3 days</div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-icon amber">🧪</div>
+            <div class="list-item-body">
+              <div class="list-item-title">Lab results available</div>
+              <div class="list-item-sub">FBC + Lipid panel · Synlab</div>
+            </div>
+            <div class="list-item-meta">5 days</div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item active"><div class="nav-icon">🏠</div>Home</div>
+            <div class="nav-item"><div class="nav-icon">📋</div>Record</div>
+            <div class="nav-item"><div class="nav-icon">🔐</div>Consent</div>
+            <div class="nav-item"><div class="nav-icon">👤</div>Profile</div>
+          </div>
+        </div></div>
+        <div class="caption"><strong>Home</strong>The MedRecords ID is the heart of the experience. Quick actions cover the most common patient jobs.</div>
+      </div>
+
+      <!-- Records overview with tabs -->
+      <div class="screen-block">
+        <div class="phone"><div class="phone-content">
+          <div class="status-bar"><span>9:41</span><span>●●● 4G</span></div>
+          <div class="app-header"><h3>My Medical Record</h3><div class="sub">All categories · last updated 2 hours ago</div></div>
+          <div class="tab-strip">
+            <span class="tab active">All</span>
+            <span class="tab">History</span>
+            <span class="tab">Rx</span>
+            <span class="tab">Labs</span>
+            <span class="tab">Dental</span>
+            <span class="tab">Eye</span>
+            <span class="tab">Vax</span>
+            <span class="tab">Allergies</span>
+          </div>
+          <div class="phone-body">
+            <div class="section-title">Active medications</div>
+            <div class="list-item">
+              <div class="list-item-icon green">℞</div>
+              <div class="list-item-body">
+                <div class="list-item-title">Metformin 500mg</div>
+                <div class="list-item-sub">Twice daily · Dr Tunde · 30-day supply</div>
+              </div>
+              <span class="pill green">active</span>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon green">℞</div>
+              <div class="list-item-body">
+                <div class="list-item-title">Lisinopril 10mg</div>
+                <div class="list-item-sub">Once daily · Dr Tunde</div>
+              </div>
+              <span class="pill green">active</span>
+            </div>
+            <div class="section-title">Allergies & conditions</div>
+            <div class="list-item">
+              <div class="list-item-icon red">⚠</div>
+              <div class="list-item-body">
+                <div class="list-item-title">Penicillin allergy</div>
+                <div class="list-item-sub">Severe · confirmed 2019</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon amber">●</div>
+              <div class="list-item-body">
+                <div class="list-item-title">Type 2 diabetes</div>
+                <div class="list-item-sub">Diagnosed 2023 · stable</div>
+              </div>
+            </div>
+            <div class="section-title">Recent encounters</div>
+            <div class="list-item">
+              <div class="list-item-icon navy">🩺</div>
+              <div class="list-item-body">
+                <div class="list-item-title">GP follow-up</div>
+                <div class="list-item-sub">Dr Tunde Adeyemi · 24 May</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon navy">🦷</div>
+              <div class="list-item-body">
+                <div class="list-item-title">Cavity filling</div>
+                <div class="list-item-sub">Dr Bola Adekunle · 12 Apr</div>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+            <div class="nav-item active"><div class="nav-icon">📋</div>Record</div>
+            <div class="nav-item"><div class="nav-icon">🔐</div>Consent</div>
+            <div class="nav-item"><div class="nav-icon">👤</div>Profile</div>
+          </div>
+        </div></div>
+        <div class="caption"><strong>My Record (all)</strong>Tabs map to the 12 record categories. Allergies and active meds always surface.</div>
+      </div>
+
+      <!-- Prescription detail / Lab detail / Vaccination -->
+      <div class="screen-block">
+        <div class="phone"><div class="phone-content">
+          <div class="status-bar"><span>9:41</span><span>●●● 4G</span></div>
+          <div class="app-header app-header-with-back"><span class="back-btn">←</span><div><h3>Metformin 500mg</h3><div class="sub">Active prescription</div></div></div>
+          <div class="phone-body">
+            <div class="card">
+              <div class="detail-row"><span class="k">Prescribed by</span><span class="v">Dr Tunde Adeyemi</span></div>
+              <div class="detail-row"><span class="k">Facility</span><span class="v">Reddington Hospital</span></div>
+              <div class="detail-row"><span class="k">Date</span><span class="v">24 May 2026</span></div>
+              <div class="detail-row"><span class="k">Dose</span><span class="v">500mg</span></div>
+              <div class="detail-row"><span class="k">Frequency</span><span class="v">Twice daily, with meals</span></div>
+              <div class="detail-row"><span class="k">Duration</span><span class="v">30 days</span></div>
+              <div class="detail-row"><span class="k">Diagnosis</span><span class="v">Type 2 diabetes (E11.9)</span></div>
+            </div>
+            <div class="section-title">Dispenses</div>
+            <div class="card compact">
+              <div class="card-title">HealthPlus Pharmacy</div>
+              <div class="card-meta">25 May 2026 · 30 tablets dispensed · NGN 4,200</div>
+            </div>
+            <div class="section-title">Drug information</div>
+            <div class="card">
+              <div style="font-size:12px;color:var(--grey-700);line-height:1.55;">Take with food to reduce GI side effects. Avoid alcohol. Report persistent nausea or muscle pain to your doctor. Stop and seek care if breathing changes.</div>
+            </div>
+            <div style="padding:14px;">
+              <div class="btn primary">Refill request</div>
+            </div>
+          </div>
+        </div></div>
+        <div class="caption"><strong>Prescription detail</strong>Single source of truth for active meds, including who prescribed and where it was dispensed.</div>
+      </div>
+
+      <!-- Consent grants list -->
+      <div class="screen-block">
+        <div class="phone"><div class="phone-content">
+          <div class="status-bar"><span>9:41</span><span>●●● 4G</span></div>
+          <div class="app-header"><h3>My Consents</h3><div class="sub">Who can see what, for how long</div></div>
+          <div class="tab-strip">
+            <span class="tab active">Active</span>
+            <span class="tab">Expired</span>
+            <span class="tab">Revoked</span>
+          </div>
+          <div class="phone-body">
+            <div class="card">
+              <div class="card-title">Dr Tunde Adeyemi <span class="pill green" style="float:right">Full</span></div>
+              <div class="card-meta">Reddington Hospital · GP</div>
+              <div style="margin-top:8px;font-size:11px;color:var(--grey-500);">Expires 24 May 2027 · 365-day grant</div>
+              <div class="btn-row" style="margin-top:10px;"><span class="btn secondary">Modify</span><span class="btn danger">Revoke</span></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Dr Bola Adekunle <span class="pill navy" style="float:right">Dental</span></div>
+              <div class="card-meta">SmileBright Dental Clinic</div>
+              <div style="margin-top:8px;font-size:11px;color:var(--grey-500);">Expires 30 Jun 2026 · category-limited</div>
+              <div class="btn-row" style="margin-top:10px;"><span class="btn secondary">Modify</span><span class="btn danger">Revoke</span></div>
+            </div>
+            <div class="card">
+              <div class="card-title">HealthPlus Pharmacy <span class="pill amber" style="float:right">Dispense</span></div>
+              <div class="card-meta">Lekki branch · pharmacy</div>
+              <div style="margin-top:8px;font-size:11px;color:var(--grey-500);">Per-visit · auto-expires after dispense</div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+            <div class="nav-item"><div class="nav-icon">📋</div>Record</div>
+            <div class="nav-item active"><div class="nav-icon">🔐</div>Consent</div>
+            <div class="nav-item"><div class="nav-icon">👤</div>Profile</div>
+          </div>
+        </div></div>
+        <div class="caption"><strong>My Consents</strong>Active grants with scope and expiry. One tap to modify or revoke.</div>
+      </div>
+
+      <!-- Consent grant request -->
+      <div class="screen-block">
+        <div class="phone"><div class="phone-content">
+          <div class="status-bar"><span>9:41</span><span>●●● 4G</span></div>
+          <div class="app-header"><h3>Consent Request</h3><div class="sub">New request from a provider</div></div>
+          <div class="phone-body">
+            <div class="consent-card">
+              <h4>Synlab Diagnostics wants access</h4>
+              <p>Lab technician at Synlab Lekki is requesting access to upload your blood test results.</p>
+              <div class="consent-scope">
+                <div class="scope-row"><span class="label">Scope</span><span class="value">Lab results only</span></div>
+                <div class="scope-row"><span class="label">Duration</span><span class="value">7 days</span></div>
+                <div class="scope-row"><span class="label">Access type</span><span class="value">Read + write</span></div>
+                <div class="scope-row"><span class="label">Facility</span><span class="value">Synlab Lekki</span></div>
+              </div>
+              <p style="font-size:11px;color:var(--grey-500);">You can revoke this at any time. All access is logged.</p>
+              <div class="btn-row">
+                <span class="btn secondary">Decline</span>
+                <span class="btn primary green">Approve</span>
+              </div>
+            </div>
+            <div style="padding:0 14px;font-size:11px;color:var(--grey-500);">
+              ❓ Why this request? <span style="color:var(--navy);text-decoration:underline;">See provider details</span>
+            </div>
+          </div>
+        </div></div>
+        <div class="caption"><strong>Consent request</strong>Clean scope display so the patient knows exactly what they are agreeing to.</div>
+      </div>
+
+      <!-- Generate access code -->
+      <div class="screen-block">
+        <div class="phone"><div class="phone-content">
+          <div class="status-bar"><span>9:41</span><span>●●● 4G</span></div>
+          <div class="app-header"><h3>Share at Reception</h3><div class="sub">Use this code for in-person access</div></div>
+          <div class="phone-body">
+            <div class="access-code">
+              <div class="code-label">One-time access code</div>
+              <div class="code">472&nbsp;891</div>
+              <div class="timer">Valid for 9:47</div>
+              <div class="qr-frame"><div class="qr-ascii">██ ▄▄ ██ ▄▄
+▄▄ ██ ▄▄ ██
+██ ▄▄ ██ ▄▄
+▄▄ ██ ▄▄ ██
+██ ▄▄ ██ ▄▄
+▄▄ ██ ▄▄ ██</div></div>
+            </div>
+            <div style="padding:0 22px;text-align:center;">
+              <div style="font-size:12px;color:var(--grey-700);margin-bottom:6px;font-weight:600;">Show this to your provider</div>
+              <div style="font-size:11px;color:var(--grey-500);">After they enter the code, you'll be asked to confirm what they can see. Works without internet.</div>
+            </div>
+          </div>
+        </div></div>
+        <div class="caption"><strong>Share at reception</strong>Offline-capable in-person consent: QR + 6-digit code, 10-minute TTL.</div>
+      </div>
+
+      <!-- Audit log -->
+      <div class="screen-block">
+        <div class="phone"><div class="phone-content">
+          <div class="status-bar"><span>9:41</span><span>●●● 4G</span></div>
+          <div class="app-header"><h3>Who saw my record</h3><div class="sub">Full access history</div></div>
+          <div class="tab-strip">
+            <span class="tab active">This month</span>
+            <span class="tab">All time</span>
+            <span class="tab">Filter</span>
+          </div>
+          <div class="phone-body">
+            <div class="list-item">
+              <div class="list-item-icon green">👁</div>
+              <div class="list-item-body">
+                <div class="list-item-title">Dr Tunde Adeyemi viewed full record</div>
+                <div class="list-item-sub">Reddington Hospital · today 09:12</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon green">✎</div>
+              <div class="list-item-body">
+                <div class="list-item-title">Dr Tunde wrote encounter notes</div>
+                <div class="list-item-sub">Reddington Hospital · today 09:24</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon amber">℞</div>
+              <div class="list-item-body">
+                <div class="list-item-title">HealthPlus Pharmacy dispensed Metformin</div>
+                <div class="list-item-sub">Lekki branch · yesterday 17:08</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon navy">👁</div>
+              <div class="list-item-body">
+                <div class="list-item-title">Dr Bola viewed dental record</div>
+                <div class="list-item-sub">SmileBright Dental · Mon 14:33</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon red">⚡</div>
+              <div class="list-item-body">
+                <div class="list-item-title">Break-glass access — Lagos Island General</div>
+                <div class="list-item-sub">12 May 02:14 · "Suspected hypoglycemia"</div>
+                <div style="margin-top:4px;"><span class="pill red">Dispute</span> <span class="pill grey">View detail</span></div>
+              </div>
+            </div>
+          </div>
+        </div></div>
+        <div class="caption"><strong>Audit log</strong>Every access is visible. Break-glass entries are flagged with reason and a dispute path.</div>
+      </div>
+
+      <!-- Dependents -->
+      <div class="screen-block">
+        <div class="phone"><div class="phone-content">
+          <div class="status-bar"><span>9:41</span><span>●●● 4G</span></div>
+          <div class="app-header"><h3>My Family</h3><div class="sub">Dependents under your care</div></div>
+          <div class="phone-body">
+            <div class="card">
+              <div class="card-title">Chioma Okonkwo, 7</div>
+              <div class="card-meta">Daughter · linked under guardianship</div>
+              <div style="margin-top:6px;"><span class="pill green">Up to date on vaccines</span></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Emeka Okonkwo, 4</div>
+              <div class="card-meta">Son · linked under guardianship</div>
+              <div style="margin-top:6px;"><span class="pill amber">MMR-2 due next month</span></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Mrs Grace Okonkwo, 71</div>
+              <div class="card-meta">Mother · power of attorney (verified)</div>
+              <div style="margin-top:6px;"><span class="pill navy">3 active prescriptions</span></div>
+            </div>
+            <div style="padding:14px;">
+              <div class="btn secondary" style="background:var(--navy-tint);color:var(--navy);">+ Add a dependent</div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+            <div class="nav-item"><div class="nav-icon">📋</div>Record</div>
+            <div class="nav-item"><div class="nav-icon">🔐</div>Consent</div>
+            <div class="nav-item active"><div class="nav-icon">👤</div>Profile</div>
+          </div>
+        </div></div>
+        <div class="caption"><strong>Dependents</strong>One account, multiple lives. Auto-promotes child accounts at age 16.</div>
+      </div>
+
+    </div> <!-- /screens-row -->
+  </section>
+
+  <!-- ============================================== -->
+  <!-- SECTION 2: PROVIDER WORKSTATION -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-header">
+      <h2>2. Provider Workstation</h2>
+      <p>Web-based clinician interface. Designed for one-screen visibility of patient context and rapid encounter authoring.</p>
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">app.medrecords.ng / patients / MR-9482-1735-2210</div>
+      </div>
+      <div class="ws-layout">
+        <aside class="ws-sidebar">
+          <div class="ws-brand">MedRecords<div class="sub">Reddington Hospital</div></div>
+          <div class="ws-nav">
+            <div class="ws-nav-item">📋 My patients</div>
+            <div class="ws-nav-item active">🩺 Current patient</div>
+            <div class="ws-nav-item">📅 Today's schedule</div>
+            <div class="ws-nav-item">📨 Inbox <span style="margin-left:auto;background:var(--amber);color:var(--white);padding:0 6px;border-radius:8px;font-size:10px;">3</span></div>
+            <div class="ws-nav-section">Tools</div>
+            <div class="ws-nav-item">✎ New encounter</div>
+            <div class="ws-nav-item">℞ New prescription</div>
+            <div class="ws-nav-item">🧪 Order labs</div>
+            <div class="ws-nav-item">📤 Refer</div>
+            <div class="ws-nav-section">Account</div>
+            <div class="ws-nav-item">👤 Dr Tunde Adeyemi</div>
+            <div class="ws-nav-item">⚙ Settings</div>
+          </div>
+        </aside>
+        <main class="ws-main">
+          <div class="ws-toolbar">
+            <div class="ws-search">🔍&nbsp;&nbsp;Search by MedID, NIN, phone, or name…</div>
+            <div class="ws-toolbar-actions">
+              <span class="ws-btn secondary">Request consent</span>
+              <span class="ws-btn">+ New encounter</span>
+            </div>
+          </div>
+
+          <!-- Patient banner -->
+          <div class="patient-banner">
+            <div>
+              <div class="pb-name">Adaeze Okonkwo</div>
+              <div class="pb-meta">F · 34 · MR-9482-1735-2210 · NIN •••• 2210 · 080•••2748</div>
+              <div class="pb-flags">
+                <span class="pill red">⚠ Penicillin allergy</span>
+                <span class="pill amber">● Type 2 diabetes</span>
+                <span class="pill amber">● Hypertension</span>
+                <span class="pill navy">3 active Rx</span>
+              </div>
+            </div>
+            <div class="pb-consent">
+              <div class="label">Consent scope</div>
+              <div class="value">Full</div>
+              <div class="sub">expires 24 May 2027</div>
+            </div>
+            <div>
+              <span class="ws-btn secondary">View audit</span>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="record-tabs">
+            <div class="record-tab active">Summary</div>
+            <div class="record-tab">Encounters <span class="count">42</span></div>
+            <div class="record-tab">Conditions <span class="count">5</span></div>
+            <div class="record-tab">Medications <span class="count">3</span></div>
+            <div class="record-tab">Labs <span class="count">18</span></div>
+            <div class="record-tab">Imaging <span class="count">2</span></div>
+            <div class="record-tab">Vaccinations <span class="count">12</span></div>
+            <div class="record-tab">Documents</div>
+          </div>
+
+          <div class="record-body">
+            <div class="record-main">
+              <h4 style="font-size:14px;color:var(--navy);margin-bottom:14px;">Recent encounters</h4>
+              <div class="entry">
+                <div class="entry-head">
+                  <div>
+                    <div class="entry-title">GP follow-up — diabetes management</div>
+                    <div class="entry-meta">Dr Tunde Adeyemi · Reddington Hospital</div>
+                  </div>
+                  <div class="entry-date">24 May 2026</div>
+                </div>
+                <div class="entry-body">
+                  HbA1c trending down from 8.2 to 7.4. Patient reports good adherence to metformin. BP 132/86, slightly elevated. Increased lisinopril to 10mg daily. Lifestyle counseling reinforced. Follow-up in 12 weeks with repeat labs.
+                </div>
+                <div class="entry-attribution">Authored by Dr Tunde Adeyemi, MDCN/2018/4471 · signed 24 May 17:42</div>
+              </div>
+              <div class="entry">
+                <div class="entry-head">
+                  <div>
+                    <div class="entry-title">Dental — molar restoration</div>
+                    <div class="entry-meta">Dr Bola Adekunle · SmileBright Dental</div>
+                  </div>
+                  <div class="entry-date">12 Apr 2026</div>
+                </div>
+                <div class="entry-body">
+                  Composite filling on tooth 36 (lower-left first molar). Pre-op X-ray attached. Patient tolerated procedure well. Post-op care advised. Next routine cleaning in 6 months.
+                </div>
+              </div>
+              <div class="entry">
+                <div class="entry-head">
+                  <div>
+                    <div class="entry-title">Lab — fasting glucose + HbA1c + lipid panel</div>
+                    <div class="entry-meta">Synlab Diagnostics · ordered by Dr Tunde</div>
+                  </div>
+                  <div class="entry-date">22 May 2026</div>
+                </div>
+                <div class="entry-body">
+                  FBG 142 mg/dL (↑), HbA1c 7.4% (↑), Total chol 198 mg/dL, LDL 118 mg/dL (↑), HDL 52 mg/dL, Trigs 142 mg/dL.
+                </div>
+              </div>
+            </div>
+            <aside class="record-aside">
+              <h5>Active medications</h5>
+              <div style="font-size:13px;">
+                <div style="padding:8px 0;border-bottom:1px solid var(--grey-100);">
+                  <strong>Metformin</strong> 500mg BD<br>
+                  <span style="color:var(--grey-500);font-size:11px;">Since Mar 2023 · Dr Tunde</span>
+                </div>
+                <div style="padding:8px 0;border-bottom:1px solid var(--grey-100);">
+                  <strong>Lisinopril</strong> 10mg OD<br>
+                  <span style="color:var(--grey-500);font-size:11px;">Updated today · Dr Tunde</span>
+                </div>
+                <div style="padding:8px 0;">
+                  <strong>Atorvastatin</strong> 20mg ON<br>
+                  <span style="color:var(--grey-500);font-size:11px;">Since Jan 2024 · Dr Tunde</span>
+                </div>
+              </div>
+              <h5 style="margin-top:14px;">Vital signs (last visit)</h5>
+              <div style="font-size:13px;color:var(--grey-700);line-height:1.7;">
+                BP 132/86 · HR 78 · Temp 36.7°C<br>
+                Weight 78 kg · Height 165 cm · BMI 28.7
+              </div>
+              <h5 style="margin-top:14px;">Care team</h5>
+              <div style="font-size:12px;color:var(--grey-700);">
+                Dr Tunde Adeyemi — GP<br>
+                Dr Bola Adekunle — Dental<br>
+                Dr Funmi Eze — Ophthalmology
+              </div>
+            </aside>
+          </div>
+        </main>
+      </div>
+    </div>
+    <div class="figure-note"><strong>Provider workstation — patient view.</strong> The pinned patient banner keeps allergies and active conditions visible regardless of which tab the clinician is in. Consent scope is always shown; clinicians cannot accidentally request data outside their grant.</div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- SECTION 3: ENCOUNTER AUTHORING -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-header">
+      <h2>3. Encounter Authoring</h2>
+      <p>Structured fields where they matter (diagnosis, prescription); free text for the clinical narrative.</p>
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">app.medrecords.ng / patients / MR-9482-1735-2210 / encounter / new</div>
+      </div>
+      <div style="padding: 28px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <div>
+            <h3 style="font-size:20px;color:var(--navy);">New encounter — Adaeze Okonkwo</h3>
+            <div style="font-size:12px;color:var(--grey-500);">Reddington Hospital · Outpatient · today 09:12</div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <span class="ws-btn secondary">Save draft</span>
+            <span class="ws-btn">Sign & close</span>
+          </div>
+        </div>
+        <div class="record-main" style="padding:24px;">
+          <div class="form-grid">
+            <div class="form-field">
+              <label>Encounter type</label>
+              <div class="input-box">Outpatient — follow-up</div>
+            </div>
+            <div class="form-field">
+              <label>Chief complaint</label>
+              <div class="input-box">Routine diabetes follow-up; mild fatigue</div>
+            </div>
+            <div class="form-field full">
+              <label>History of presenting illness</label>
+              <div class="input-box tall">Patient is 12 weeks post initiation of metformin. Reports good adherence, minor GI discomfort first 2 weeks, now resolved. Energy slightly low in afternoons. No polyuria or polydipsia. No chest pain, no peripheral edema.</div>
+            </div>
+            <div class="form-field">
+              <label>Diagnosis (ICD-10)</label>
+              <div class="input-box">E11.9 — Type 2 diabetes mellitus without complications<br>I10 — Essential hypertension</div>
+            </div>
+            <div class="form-field">
+              <label>Vital signs</label>
+              <div class="input-box">BP 132/86 · HR 78 · Temp 36.7 · Wt 78kg</div>
+            </div>
+            <div class="form-field full">
+              <label>Assessment & plan</label>
+              <div class="input-box tall">HbA1c trend favorable (8.2→7.4). Continue metformin 500mg BD. BP marginally elevated — increase lisinopril to 10mg OD (from 5mg). Reinforce diet and exercise. Repeat HbA1c, lipid panel in 12 weeks. Schedule return visit.</div>
+            </div>
+            <div class="form-field">
+              <label>Prescriptions issued</label>
+              <div class="input-box">Lisinopril 10mg OD × 90 days (renewal)<br>Metformin 500mg BD × 90 days (renewal)</div>
+            </div>
+            <div class="form-field">
+              <label>Orders</label>
+              <div class="input-box">Lab: HbA1c, lipid panel — in 12 weeks</div>
+            </div>
+          </div>
+          <div class="alert green" style="margin-top:18px;">
+            <span>✓</span><span><strong>Ready to sign.</strong> All required fields complete. This will commit the encounter, notify the patient, and update the medication record.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- SECTION 4: PHARMACY MODULE -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-header">
+      <h2>4. Pharmacy Module</h2>
+      <p>Scan a prescription, verify it is real and not duplicated, see relevant allergies and interactions, record the dispense.</p>
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">pharmacy.medrecords.ng / dispense / RX-4471-2210</div>
+      </div>
+      <div style="padding: 28px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <div>
+            <h3 style="font-size:20px;color:var(--navy);">Dispense — HealthPlus Lekki</h3>
+            <div style="font-size:12px;color:var(--grey-500);">Pharmacist: Mrs Okafor (PCN/2015/0987)</div>
+          </div>
+        </div>
+        <div class="pharma-grid">
+          <div class="pharma-card">
+            <h4>Prescription</h4>
+            <div class="rx-detail">
+              <div class="rx-line"><span class="k">Prescription ID</span><span class="v">RX-4471-2210</span></div>
+              <div class="rx-line"><span class="k">Patient</span><span class="v">Adaeze Okonkwo (M••••2210)</span></div>
+              <div class="rx-line"><span class="k">Prescriber</span><span class="v">Dr Tunde Adeyemi</span></div>
+              <div class="rx-line"><span class="k">Date issued</span><span class="v">today, 09:24</span></div>
+              <div class="rx-line"><span class="k">Drug</span><span class="v">Metformin 500mg, tablets</span></div>
+              <div class="rx-line"><span class="k">Dose</span><span class="v">Twice daily with meals</span></div>
+              <div class="rx-line"><span class="k">Quantity</span><span class="v">60 tablets (30-day supply)</span></div>
+              <div class="rx-line"><span class="k">Diagnosis context</span><span class="v">Type 2 diabetes (E11.9)</span></div>
+            </div>
+            <div class="alert green"><span>✓</span><span><strong>Prescription verified.</strong> Signed by Dr Tunde Adeyemi (MDCN/2018/4471), not yet dispensed.</span></div>
+          </div>
+
+          <div class="pharma-card">
+            <h4>Safety check</h4>
+            <div class="rx-detail">
+              <div class="rx-line"><span class="k">Allergies on file</span><span class="v" style="color:var(--red)">Penicillin (severe)</span></div>
+              <div class="rx-line"><span class="k">Active medications</span><span class="v">Lisinopril 10mg, Atorvastatin 20mg</span></div>
+              <div class="rx-line"><span class="k">Recent labs</span><span class="v">HbA1c 7.4% (22 May)</span></div>
+            </div>
+            <div class="alert green"><span>✓</span><span>No drug interactions detected with current regimen.</span></div>
+            <div class="alert green"><span>✓</span><span>No duplicate dispense found at other pharmacies.</span></div>
+            <div class="alert amber"><span>!</span><span>Patient is on lisinopril. Monitor renal function — concomitant use is fine but worth noting.</span></div>
+          </div>
+
+          <div class="pharma-card" style="grid-column: 1 / -1;">
+            <h4>Record dispense</h4>
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Quantity dispensed</label>
+                <div class="input-box">60 tablets</div>
+              </div>
+              <div class="form-field">
+                <label>Batch / lot</label>
+                <div class="input-box">MET-2604-A · expires Jan 2027</div>
+              </div>
+              <div class="form-field">
+                <label>Price</label>
+                <div class="input-box">NGN 4,200</div>
+              </div>
+              <div class="form-field">
+                <label>Payment method</label>
+                <div class="input-box">NHIA covered</div>
+              </div>
+              <div class="form-field full">
+                <label>Counseling provided</label>
+                <div class="input-box">Take with food. Avoid alcohol. Report persistent nausea, muscle pain, or breathing changes.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;">
+              <span class="ws-btn secondary">Partial dispense</span>
+              <span class="ws-btn">Confirm dispense</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- SECTION 5: SPECIALTY VIEWS - DENTAL & OPTICAL -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-header">
+      <h2>5. Specialty Views</h2>
+      <p>Same patient, different lens. Each specialist sees the categories scoped to their consent and their practice.</p>
+    </div>
+
+    <div class="screens-row">
+      <!-- Dental view (desktop, smaller) -->
+      <div class="screen-block" style="flex:1;min-width:420px;">
+        <div class="browser" style="max-width:none;">
+          <div class="browser-bar">
+            <div class="browser-dots"><span></span><span></span><span></span></div>
+            <div class="browser-url">app.medrecords.ng — dental view</div>
+          </div>
+          <div style="padding: 20px; background: var(--grey-50);">
+            <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+              <div>
+                <div style="font-size:15px;color:var(--navy);font-weight:700;">Adaeze Okonkwo · Dental</div>
+                <div style="font-size:11px;color:var(--grey-500);">Consent: dental + allergies + active meds</div>
+              </div>
+              <span class="pill navy">Dental scope</span>
+            </div>
+            <div class="record-main" style="padding:16px;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="form-field"><label>Tooth chart</label><div class="input-box" style="min-height:80px;font-family:ui-monospace,monospace;color:var(--grey-700);">18 17 16 15 14 13 12 11 | 21 22 23 24 25 26 27 28
+                  ●  ●  ▲  ●  ●  ●  ●  ●  | ●  ●  ●  ●  ●  ●  ●  ●
+                  ●  ●  ●  ●  ●  ●  ●  ●  | ●  ●  ●  ●  ●  ●  ●  ●
+                48 47 46 45 44 43 42 41 | 31 32 33 34 35 36 37 38
+                                                            ▲
+                  ▲ = restoration · ● = healthy</div></div>
+                <div class="form-field"><label>Last cleaning</label><div class="input-box">15 Oct 2025 — Dr Bola Adekunle</div></div>
+                <div class="form-field"><label>Restorations</label><div class="input-box">Composite filling — tooth 36 (12 Apr 2026)</div></div>
+                <div class="form-field"><label>Allergies (scope-visible)</label><div class="input-box" style="color:var(--red);">Penicillin (severe)</div></div>
+                <div class="form-field full"><label>Notes</label><div class="input-box tall">Routine 6-month cleaning recommended. Mild gingival inflammation on lower posterior; reinforce flossing technique. No active caries.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optical view -->
+      <div class="screen-block" style="flex:1;min-width:420px;">
+        <div class="browser" style="max-width:none;">
+          <div class="browser-bar">
+            <div class="browser-dots"><span></span><span></span><span></span></div>
+            <div class="browser-url">app.medrecords.ng — optical view</div>
+          </div>
+          <div style="padding: 20px; background: var(--grey-50);">
+            <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+              <div>
+                <div style="font-size:15px;color:var(--navy);font-weight:700;">Adaeze Okonkwo · Eye Care</div>
+                <div style="font-size:11px;color:var(--grey-500);">Consent: eye care + allergies + diabetes (relevant)</div>
+              </div>
+              <span class="pill navy">Optical scope</span>
+            </div>
+            <div class="record-main" style="padding:16px;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="form-field"><label>Latest prescription</label><div class="input-box">OD: -2.25 / -0.50 × 175<br>OS: -2.00 / -0.75 × 165</div></div>
+                <div class="form-field"><label>Last exam</label><div class="input-box">14 Feb 2026 — Dr Funmi Eze</div></div>
+                <div class="form-field"><label>Visual acuity</label><div class="input-box">OD 20/25 · OS 20/20 (corrected)</div></div>
+                <div class="form-field"><label>IOP</label><div class="input-box">OD 15 · OS 14 mmHg</div></div>
+                <div class="form-field full"><label>Diabetic retinopathy screen</label><div class="input-box">No retinopathy on fundus exam. Annual screening due Feb 2027 given T2DM diagnosis.</div></div>
+                <div class="form-field full"><label>Notes</label><div class="input-box">Mild myopia, stable. Patient cleared for new glasses prescription. Discussed importance of annual screening given diabetes.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- SECTION 6: TAB GALLERY — record categories -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-header">
+      <h2>6. Record Category Reference</h2>
+      <p>The 12 record categories defined in the PRD, each rendered as a tab in the patient and provider apps.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+      <!-- 12 tab cards -->
+      <div class="card" style="margin:0;"><div class="card-title">🩺 General Medical History</div><div class="card-meta">FHIR: Patient, Condition, FamilyMemberHistory. Demographics, family history, chronic conditions, problem list.</div></div>
+      <div class="card" style="margin:0;"><div class="card-title">🏥 Encounters & Visits</div><div class="card-meta">FHIR: Encounter, ClinicalImpression, CarePlan. Outpatient, inpatient, and emergency visits with full notes.</div></div>
+      <div class="card" style="margin:0;"><div class="card-title">🔪 Surgeries & Procedures</div><div class="card-meta">FHIR: Procedure. Surgical history with operative notes, complications, surgeon attribution.</div></div>
+      <div class="card" style="margin:0;"><div class="card-title">🛏️ Hospitalizations</div><div class="card-meta">FHIR: Encounter (IMP), EpisodeOfCare. Admissions with discharge summaries and length of stay.</div></div>
+      <div class="card" style="margin:0;"><div class="card-title">℞ Prescriptions</div><div class="card-meta">FHIR: MedicationRequest. Active and historical Rx with dosing, prescriber, indication.</div></div>
+      <div class="card" style="margin:0;"><div class="card-title">💊 Pharmacy Dispenses</div><div class="card-meta">FHIR: MedicationDispense. What was actually dispensed, when, by whom, in what quantity.</div></div>
+      <div class="card" style="margin:0;"><div class="card-title">🦷 Dental Records</div><div class="card-meta">FHIR: Procedure, Observation, DocumentReference. Tooth chart, restorations, X-rays, cleanings.</div></div>
+      <div class="card" style="margin:0;"><div class="card-title">👁 Eye Care</div><div class="card-meta">FHIR: Observation, VisionPrescription. Refractions, IOP, fundus, optical prescriptions.</div></div>
+      <div class="card" style="margin:0;"><div class="card-title">🧪 Lab Results</div><div class="card-meta">FHIR: DiagnosticReport, Observation, Specimen. LOINC-coded results with reference ranges.</div></div>
+      <div class="card" style="margin:0;"><div class="card-title">💉 Vaccinations</div><div class="card-meta">FHIR: Immunization. Childhood and adult vaccines, due dates, batch numbers.</div></div>
+      <div class="card" style="margin:0;"><div class="card-title">⚠ Allergies & Conditions</div><div class="card-meta">FHIR: AllergyIntolerance, Condition. Surfaced prominently across all provider views.</div></div>
+      <div class="card" style="margin:0;"><div class="card-title">📤 Referrals & Documents</div><div class="card-meta">FHIR: ServiceRequest, DocumentReference. Structured referrals, attached letters and imaging.</div></div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- SECTION 7: BREAK-GLASS -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-header">
+      <h2>7. Break-Glass — Emergency Access</h2>
+      <p>A protocol, not a button. The provider sees friction. The patient sees a notification. Compliance sees every event.</p>
+    </div>
+
+    <div class="screens-row">
+      <!-- Provider triggering -->
+      <div class="screen-block" style="flex:1;min-width:480px;">
+        <div class="browser" style="max-width:none;">
+          <div class="browser-bar">
+            <div class="browser-dots"><span></span><span></span><span></span></div>
+            <div class="browser-url">app.medrecords.ng — emergency access</div>
+          </div>
+          <div style="padding: 24px; background: var(--grey-50);">
+            <div class="alert red" style="margin-bottom:14px;">
+              <span>⚡</span>
+              <span><strong>Break-glass access.</strong> Patient consent is not on file. Invoking emergency access will be reviewed by compliance. The patient will be notified immediately.</span>
+            </div>
+            <div class="record-main">
+              <h4 style="font-size:14px;color:var(--navy);margin-bottom:14px;">Justification required</h4>
+              <div class="form-field">
+                <label>Reason code</label>
+                <div class="input-box">Life-threatening emergency — patient unconscious</div>
+              </div>
+              <div class="form-field" style="margin-top:12px;">
+                <label>Justification (minimum 20 characters)</label>
+                <div class="input-box tall">Patient presented unconscious by family to A&E. Hypoglycaemia suspected based on family history of T2DM. Need to confirm medications and allergies before administering glucose and starting workup.</div>
+              </div>
+              <div class="form-field" style="margin-top:12px;">
+                <label>Re-authenticate to proceed</label>
+                <div class="input-box">●●●●●●  · Yubikey: ✓ tapped</div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end;">
+                <span class="ws-btn secondary">Cancel</span>
+                <span class="ws-btn" style="background:var(--red);">Proceed with break-glass</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patient sees notification -->
+      <div class="screen-block">
+        <div class="phone"><div class="phone-content">
+          <div class="status-bar"><span>2:14</span><span>●● 3G</span></div>
+          <div class="app-header" style="background:var(--red);"><h3>Emergency Access Alert</h3><div class="sub">Your record was just accessed</div></div>
+          <div class="phone-body">
+            <div class="card" style="border-left:3px solid var(--red);">
+              <div class="card-title">Break-glass access invoked</div>
+              <div style="margin-top:8px;font-size:12px;color:var(--grey-700);line-height:1.55;">
+                Dr Adekunle Lawal at Lagos Island General Hospital invoked emergency access to your full medical record just now (02:14).
+              </div>
+              <div style="margin-top:10px;padding:10px;background:var(--grey-50);border-radius:8px;font-size:11px;color:var(--grey-700);">
+                <strong>Reason:</strong> Life-threatening emergency — patient unconscious. Suspected hypoglycaemia.
+              </div>
+              <div style="margin-top:10px;font-size:11px;color:var(--grey-500);">
+                Access is valid for 24 hours and will be reviewed by MedRecords compliance within 7 days.
+              </div>
+              <div class="btn-row" style="margin-top:14px;">
+                <span class="btn danger">Dispute access</span>
+                <span class="btn secondary">View detail</span>
+              </div>
+            </div>
+            <div style="padding:0 18px;font-size:11px;color:var(--grey-500);text-align:center;">
+              If you believe this was unauthorized, dispute the access and our compliance team will investigate within 14 days.
+            </div>
+          </div>
+        </div></div>
+        <div class="caption"><strong>Immediate patient notification</strong>Push + SMS sent the instant break-glass is invoked.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- SECTION 8: PROVIDER ONBOARDING -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-header">
+      <h2>8. Provider Onboarding</h2>
+      <p>The shortest path from "I want to try this" to "I just wrote my first encounter."</p>
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">join.medrecords.ng / onboard / facility</div>
+      </div>
+      <div style="padding:24px;background:var(--grey-50);">
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px;">
+          <div style="text-align:center;"><div style="background:var(--green);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700;">✓</div><div style="font-size:11px;color:var(--green);font-weight:600;margin-top:4px;">Facility</div></div>
+          <div style="text-align:center;"><div style="background:var(--green);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700;">✓</div><div style="font-size:11px;color:var(--green);font-weight:600;margin-top:4px;">Verify license</div></div>
+          <div style="text-align:center;"><div style="background:var(--navy);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700;">3</div><div style="font-size:11px;color:var(--navy);font-weight:600;margin-top:4px;">Add clinicians</div></div>
+          <div style="text-align:center;"><div style="background:var(--grey-300);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700;">4</div><div style="font-size:11px;color:var(--grey-500);margin-top:4px;">Connect HMS</div></div>
+          <div style="text-align:center;"><div style="background:var(--grey-300);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700;">5</div><div style="font-size:11px;color:var(--grey-500);margin-top:4px;">Go live</div></div>
+        </div>
+        <div class="record-main">
+          <h4 style="font-size:14px;color:var(--navy);margin-bottom:14px;">Step 3 — Add clinicians (Reddington Hospital · Ikoyi)</h4>
+          <div class="form-grid">
+            <div class="form-field"><label>Name</label><div class="input-box">Dr Tunde Adeyemi</div></div>
+            <div class="form-field"><label>Role</label><div class="input-box">General Practitioner</div></div>
+            <div class="form-field"><label>MDCN folio number</label><div class="input-box">MDCN/2018/4471 — ✓ verified, full registration</div></div>
+            <div class="form-field"><label>Email</label><div class="input-box">tunde.adeyemi@reddington.ng</div></div>
+            <div class="form-field full"><label>Default consent template for new patients</label><div class="input-box">Full access · 365 days (renewable on each visit)</div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end;">
+            <span class="ws-btn secondary">+ Add another clinician</span>
+            <span class="ws-btn">Continue</span>
+          </div>
+        </div>
+        <div style="margin-top:16px;font-size:12px;color:var(--grey-500);text-align:center;">
+          ✓ Field-tested target: a new clinician can complete onboarding and write their first encounter in under 15 minutes.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- FOOTER NOTE -->
+  <!-- ============================================== -->
+  <div class="figure-note">
+    <strong>Note on this document.</strong> These mockups are an intent specification, not a visual design system. Final color, typography, iconography, motion, and accessibility tokens will be defined in a separate design system document during Phase 0. Every flow shown here is in v1 scope per the PRD.
+  </div>
+
+</div>
+</body>
+</html>
