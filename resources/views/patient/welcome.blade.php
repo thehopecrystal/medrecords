@@ -122,7 +122,7 @@
     <div class="feature-icon">📲</div>
     <div class="feature-body">
       <div class="feature-title">Works everywhere</div>
-      <div class="feature-desc">Access codes work via SMS and USSD (*384*CODE#) — even without internet at the clinic.</div>
+      <div class="feature-desc">Access codes work via SMS — share a one-time code with your provider at reception.</div>
     </div>
   </div>
 </div>

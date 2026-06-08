@@ -270,7 +270,7 @@ body {
       </div>
       <div class="auth-feature">
         <div class="auth-feature-dot">📲</div>
-        <span>Works offline via SMS and USSD (*384*CODE#)</span>
+        <span>Share access codes instantly via SMS</span>
       </div>
       <div class="auth-feature">
         <div class="auth-feature-dot">🏥</div>

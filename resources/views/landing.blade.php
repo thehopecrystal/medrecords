@@ -421,8 +421,8 @@ a { text-decoration: none; color: inherit; }
       </div>
       <div class="hero-card">
         <div class="hc-icon">📲</div>
-        <div class="hc-value">USSD</div>
-        <div class="hc-label">Offline access via *384#</div>
+        <div class="hc-value">SMS</div>
+        <div class="hc-label">Instant access codes</div>
       </div>
     </div>
   </div>
@@ -453,8 +453,8 @@ a { text-decoration: none; color: inherit; }
       </div>
       <div class="feature-card">
         <div class="feature-icon fi-red">📲</div>
-        <div class="feature-title">SMS & USSD Fallback</div>
-        <div class="feature-desc">Share access codes via SMS. Clinics can look you up via USSD (*384*CODE#) even without internet — critical for rural Nigeria.</div>
+        <div class="feature-title">SMS Access Codes</div>
+        <div class="feature-desc">Share one-time access codes via SMS. Providers verify your identity at reception without requiring a smartphone or internet connection.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon fi-navy">👨‍👩‍👧</div>

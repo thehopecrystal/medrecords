@@ -20,7 +20,7 @@ class SmsService
 
     public function sendAccessCode(string $phone, string $code, string $medId): bool
     {
-        $message = "MedRecords access code: {$code}. Valid 10 mins. Your MedID: {$medId}. Or dial *384*{$code}# at any health facility.";
+        $message = "MedRecords access code: {$code}. Valid 10 mins. Your MedID: {$medId}. Show this code to your provider at reception.";
         return $this->send($phone, $message);
     }
 }
