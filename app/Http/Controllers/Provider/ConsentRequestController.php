@@ -25,6 +25,15 @@ class ConsentRequestController extends Controller
 
         $patient = Patient::findOrFail($patientId);
 
+        abort_if(
+            Consent::where('patient_id', $patient->id)
+                ->where('grantee_id', auth()->id())
+                ->where('status', 'pending')
+                ->exists(),
+            409,
+            'You already have a pending consent request with this patient.'
+        );
+
         $consent = Consent::create([
             'patient_id' => $patient->id,
             'grantee_id' => auth()->id(),

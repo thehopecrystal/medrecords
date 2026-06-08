@@ -57,7 +57,14 @@ class DispenseController extends Controller
         ]);
 
         $prescription = Prescription::with('patient')->findOrFail($prescriptionId);
-        $pharmacist   = $this->currentUser();
+
+        abort_if(
+            $prescription->status === 'dispensed' || Dispense::where('prescription_id', $prescription->id)->exists(),
+            422,
+            'This prescription has already been dispensed and cannot be dispensed again.'
+        );
+
+        $pharmacist = $this->currentUser();
 
         $facilityId = $pharmacist->provider?->facility_id;
         abort_if($facilityId === null, 422, 'Pharmacist is not linked to a facility.');

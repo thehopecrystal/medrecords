@@ -63,7 +63,7 @@ Route::prefix('patient')->middleware(['auth', 'role:patient'])->name('patient.')
     // Access code
     Route::get('/access-code',            [PatientDashboard::class, 'showAccessCode'])->name('access-code');
     Route::post('/access-code/generate',  [PatientDashboard::class, 'generateCode'])->name('access-code.generate');
-    Route::post('/access-code/{id}/sms',  [PatientDashboard::class, 'sendSms'])->name('access-code.sms');
+    Route::post('/access-code/{id}/sms',  [PatientDashboard::class, 'sendSms'])->name('access-code.sms')->middleware('throttle:3,5');
 
     // Audit log
     Route::get('/audit-log',              [AuditLogController::class, 'index'])->name('audit-log');

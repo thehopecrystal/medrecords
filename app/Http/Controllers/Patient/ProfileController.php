@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
@@ -73,7 +74,15 @@ class ProfileController extends Controller
 
         $user->update(['password' => Hash::make($request->password)]);
 
-        return back()->with('success', 'Password changed successfully.');
+        // Invalidate all other active sessions so stolen sessions can't be reused.
+        DB::table('sessions')
+            ->where('user_id', $user->id)
+            ->where('id', '!=', $request->session()->getId())
+            ->delete();
+
+        $request->session()->regenerate();
+
+        return back()->with('success', 'Password changed successfully. All other active sessions have been signed out.');
     }
 
     public function toggle2fa(Request $request)

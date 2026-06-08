@@ -78,9 +78,9 @@ class AuthController extends Controller
         ], [
             'phone.regex'  => 'Phone must be a valid 11-digit Nigerian number (e.g. 08045678901).',
             'nin.regex'    => 'NIN must be exactly 11 digits.',
-            'nin.unique'   => 'This NIN is already registered.',
-            'email.unique' => 'This email address is already registered.',
-            'phone.unique' => 'This phone number is already registered.',
+            'nin.unique'   => 'This NIN is unavailable.',
+            'email.unique' => 'This email address is unavailable.',
+            'phone.unique' => 'This phone number is unavailable.',
         ]);
 
         $user = User::create([
@@ -92,8 +92,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $medId = 'MR-' . strtoupper(Str::random(4)) . '-'
-               . rand(1000, 9999) . '-' . rand(1000, 9999);
+        $medId = 'MR-' . strtoupper(Str::random(6)) . '-' . strtoupper(Str::random(6));
 
         Patient::create([
             'user_id'    => $user->id,
@@ -129,7 +128,7 @@ class AuthController extends Controller
 
         $user = User::findOrFail($userId);
 
-        if ($user->otp_code !== $request->otp || now()->isAfter($user->otp_expires_at)) {
+        if (!hash_equals($user->otp_code ?? '', $request->otp) || now()->isAfter($user->otp_expires_at)) {
             return back()->withErrors(['otp' => 'Invalid or expired code. Try again.']);
         }
 

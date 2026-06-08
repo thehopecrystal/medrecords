@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\BreakGlassEvent;
 use App\Models\Consent;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Encounter;
 use App\Models\Patient;
 use App\Models\Prescription;
@@ -49,13 +48,7 @@ class WorkstationController extends Controller
 
     public function patient(int $id, string $tab = 'summary')
     {
-        $patient = Patient::with([
-            'user', 'allergies', 'conditions',
-            'encounters.facility', 'encounters.provider',
-            'prescriptions.prescribedBy',
-            'labResults',
-            'vaccinations',
-        ])->findOrFail($id);
+        $patient = Patient::with(['user', 'allergies', 'conditions'])->findOrFail($id);
 
         $consent = Consent::where('patient_id', $id)
             ->where('grantee_id', auth()->id())
@@ -63,29 +56,23 @@ class WorkstationController extends Controller
             ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
             ->first();
 
-        if ($consent) {
-            AuditLog::record($id, auth()->id(), 'record_viewed', 'Provider viewed patient record', 'Patient', $id);
-        }
-
-        return view('provider.patient', compact('patient', 'consent', 'tab'));
-    }
-
-    private function requireConsent(int $patientId): void
-    {
-        $hasConsent = Consent::where('patient_id', $patientId)
-            ->where('grantee_id', Auth::id())
-            ->where('status', 'active')
-            ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
-            ->exists();
-
-        $hasBreakGlass = BreakGlassEvent::where('patient_id', $patientId)
-            ->where('provider_id', Auth::id())
+        $hasBreakGlass = BreakGlassEvent::where('patient_id', $id)
+            ->where('provider_id', auth()->id())
             ->where('status', 'active')
             ->where('expires_at', '>', now())
             ->exists();
 
-        abort_unless($hasConsent || $hasBreakGlass, 403,
-            'You do not have consent to access this patient\'s record. Request consent first or use break-glass for emergencies.');
+        if ($consent || $hasBreakGlass) {
+            $patient->load([
+                'encounters.facility', 'encounters.provider',
+                'prescriptions.prescribedBy',
+                'labResults',
+                'vaccinations',
+            ]);
+            AuditLog::record($id, auth()->id(), 'record_viewed', 'Provider viewed patient record', 'Patient', $id);
+        }
+
+        return view('provider.patient', compact('patient', 'consent', 'tab'));
     }
 
     public function newEncounter(int $patientId)
@@ -166,6 +153,16 @@ class WorkstationController extends Controller
         ]);
 
         $patient = Patient::findOrFail($patientId);
+
+        abort_if(
+            BreakGlassEvent::where('patient_id', $patient->id)
+                ->where('provider_id', auth()->id())
+                ->where('status', 'active')
+                ->where('expires_at', '>', now())
+                ->exists(),
+            409,
+            'You already have an active emergency access session for this patient.'
+        );
 
         $event = BreakGlassEvent::create([
             'patient_id'    => $patient->id,

@@ -12,12 +12,14 @@ class ReferralController extends Controller
 {
     public function create(int $patientId)
     {
+        $this->requireConsent($patientId);
         $patient = Patient::with('user')->findOrFail($patientId);
         return view('provider.referral-new', compact('patient'));
     }
 
     public function store(Request $request, int $patientId)
     {
+        $this->requireConsent($patientId);
         $request->validate([
             'referred_to' => 'required|string|max:200',
             'specialty'   => 'required|string|max:100',

@@ -12,12 +12,14 @@ class LabResultController extends Controller
 {
     public function create(int $patientId)
     {
+        $this->requireConsent($patientId);
         $patient = Patient::with('user')->findOrFail($patientId);
         return view('provider.lab-result-new', compact('patient'));
     }
 
     public function store(Request $request, int $patientId)
     {
+        $this->requireConsent($patientId);
         $request->validate([
             'test_name'    => 'required|string|max:200',
             'result'       => 'required|string|max:100',
