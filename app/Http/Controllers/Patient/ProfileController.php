@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Http\Controllers\Patient;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+class ProfileController extends Controller
+{
+    public function edit()
+    {
+        $patient = $this->currentPatient();
+        $user    = $this->currentUser();
+        return view('patient.profile', compact('patient', 'user'));
+    }
+
+    public function update(Request $request)
+    {
+        $user    = $this->currentUser();
+        $patient = $this->currentPatient();
+
+        $request->validate([
+            'name'                    => 'required|string|max:120',
+            'email'                   => 'required|email|unique:users,email,' . $user->id,
+            'phone'                   => ['required', 'regex:/^0[789][01]\d{8}$/', 'unique:users,phone,' . $user->id],
+            'dob'                     => 'nullable|date|before:today',
+            'gender'                  => 'nullable|in:male,female,other',
+            'blood_type'              => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'genotype'                => 'nullable|in:AA,AS,SS,AC,SC',
+            'state'                   => 'nullable|string|max:60',
+            'city'                    => 'nullable|string|max:60',
+            'address'                 => 'nullable|string|max:255',
+            'emergency_contact_name'  => 'nullable|string|max:120',
+            'emergency_contact_phone' => 'nullable|string|max:20',
+        ], [
+            'phone.regex' => 'Phone must be a valid 11-digit Nigerian number (e.g. 08045678901).',
+        ]);
+
+        $user->update([
+            'name'  => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
+
+        $patient->update([
+            'dob'                     => $request->dob ?: null,
+            'gender'                  => $request->gender ?: null,
+            'blood_type'              => $request->blood_type ?: null,
+            'genotype'                => $request->genotype ?: null,
+            'state'                   => $request->state ?: null,
+            'city'                    => $request->city ?: null,
+            'address'                 => $request->address ?: null,
+            'emergency_contact_name'  => $request->emergency_contact_name ?: null,
+            'emergency_contact_phone' => $request->emergency_contact_phone ?: null,
+        ]);
+
+        return back()->with('success', 'Profile updated successfully.');
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password'         => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = $this->currentUser();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.'])->withInput();
+        }
+
+        $user->update(['password' => Hash::make($request->password)]);
+
+        return back()->with('success', 'Password changed successfully.');
+    }
+}

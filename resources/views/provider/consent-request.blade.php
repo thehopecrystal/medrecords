@@ -2,16 +2,6 @@
 @section('title', 'Request Consent')
 @section('topbar-title', 'Request Consent')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">MedRecords<div class="sub">Provider</div></div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('provider.dashboard') }}" class="nav-item">🏥 Dashboard</a>
-    <a href="{{ route('provider.search') }}" class="nav-item active">🔍 Patient lookup</a>
-  </nav>
-  <div class="sidebar-footer"><div class="name">{{ auth()->user()->name }}</div>Provider</div>
-</aside>
-@endsection
 
 @section('content')
 <div style="margin-bottom:16px;">

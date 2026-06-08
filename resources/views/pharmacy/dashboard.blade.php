@@ -2,17 +2,6 @@
 @section('title', 'Pharmacy Dashboard')
 @section('topbar-title', 'Pharmacy Workstation')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">MedRecords<div class="sub">Pharmacy</div></div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('pharmacy.dashboard') }}" class="nav-item active">🏥 Dashboard</a>
-    <a href="{{ route('pharmacy.lookup') }}" class="nav-item">🔍 Verify prescription</a>
-    <a href="{{ route('pharmacy.history') }}" class="nav-item">📋 Dispense history</a>
-  </nav>
-  <div class="sidebar-footer"><div class="name">{{ auth()->user()->name }}</div>Pharmacist</div>
-</aside>
-@endsection
 
 @section('content')
 <div class="page-header-row">

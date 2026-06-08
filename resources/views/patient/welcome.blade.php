@@ -2,23 +2,6 @@
 @section('title', 'Welcome to MedRecords')
 @section('topbar-title', 'Welcome')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">MedRecords<div class="sub">Patient Portal</div></div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('patient.dashboard') }}" class="nav-item">🏠 Dashboard</a>
-    <a href="{{ route('patient.record') }}"    class="nav-item">📁 My Records</a>
-    <a href="{{ route('patient.consents') }}"  class="nav-item">🔐 Consent</a>
-    <a href="{{ route('patient.access-code') }}" class="nav-item">🔑 Access Code</a>
-    <a href="{{ route('patient.family') }}"    class="nav-item">👨‍👩‍👧 Family</a>
-    <a href="{{ route('patient.audit-log') }}" class="nav-item">📋 Audit log</a>
-  </nav>
-  <div class="sidebar-footer">
-    <div class="name">{{ auth()->user()->name }}</div>
-    {{ $patient->med_id }}
-  </div>
-</aside>
-@endsection
 
 @section('content')
 

@@ -2,17 +2,6 @@
 @section('title', 'Dispense History')
 @section('topbar-title', 'Dispense History')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">MedRecords<div class="sub">Pharmacy</div></div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('pharmacy.dashboard') }}" class="nav-item">🏥 Dashboard</a>
-    <a href="{{ route('pharmacy.lookup') }}" class="nav-item">🔍 Verify prescription</a>
-    <a href="{{ route('pharmacy.history') }}" class="nav-item active">📋 Dispense history</a>
-  </nav>
-  <div class="sidebar-footer"><div class="name">{{ auth()->user()->name }}</div>Pharmacist</div>
-</aside>
-@endsection
 
 @section('content')
 <div class="page-header"><h1>Dispense History</h1><p>All prescriptions you have dispensed</p></div>

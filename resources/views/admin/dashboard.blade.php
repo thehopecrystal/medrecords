@@ -2,22 +2,6 @@
 @section('title', 'Admin Dashboard')
 @section('topbar-title', 'Admin Dashboard')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">MedRecords<div class="sub">Administration</div></div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('admin.dashboard') }}" class="nav-item active">📊 Dashboard</a>
-    <a href="{{ route('admin.facilities') }}" class="nav-item">🏥 Facilities</a>
-    <a href="{{ route('admin.break-glass') }}" class="nav-item">⚡ Break-glass review
-      @if($stats['break_glass'] > 0)
-        <span class="badge">{{ $stats['break_glass'] }}</span>
-      @endif
-    </a>
-    <a href="{{ route('admin.providers') }}" class="nav-item">🩺 MDCN verification</a>
-  </nav>
-  <div class="sidebar-footer"><div class="name">{{ auth()->user()->name }}</div>Administrator</div>
-</aside>
-@endsection
 
 @section('content')
 <div class="page-header"><h1>System Overview</h1><p>{{ now()->format('l, d F Y') }}</p></div>

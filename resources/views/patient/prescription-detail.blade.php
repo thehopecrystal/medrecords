@@ -2,19 +2,6 @@
 @section('title', $prescription->drug_name)
 @section('topbar-title', 'Prescription Detail')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">MedRecords<div class="sub">Patient Portal</div></div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('patient.dashboard') }}" class="nav-item">🏠 Home</a>
-    <a href="{{ route('patient.record') }}" class="nav-item active">📋 My Record</a>
-    <a href="{{ route('patient.consents') }}" class="nav-item">🔐 Consents</a>
-    <a href="{{ route('patient.access-code') }}" class="nav-item">📱 Share Record</a>
-    <a href="{{ route('patient.audit-log') }}" class="nav-item">👁 Access History</a>
-  </nav>
-  <div class="sidebar-footer"><div class="name">{{ auth()->user()->name }}</div>Patient</div>
-</aside>
-@endsection
 
 @section('content')
 <div style="margin-bottom:16px;">

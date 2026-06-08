@@ -2,21 +2,6 @@
 @section('title', 'Provider Workstation')
 @section('topbar-title', 'Provider Workstation')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">MedRecords<div class="sub">{{ $provider?->facility->name ?? 'Provider' }}</div></div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('provider.dashboard') }}" class="nav-item active">🏥 Dashboard</a>
-    <a href="{{ route('provider.search') }}" class="nav-item">🔍 Patient lookup</a>
-    <div class="nav-section">Tools</div>
-    <a href="{{ route('provider.search') }}" class="nav-item">✎ New encounter</a>
-  </nav>
-  <div class="sidebar-footer">
-    <div class="name">{{ auth()->user()->name }}</div>
-    {{ $provider?->specialty ?? 'Provider' }}
-  </div>
-</aside>
-@endsection
 
 @section('content')
 <div class="page-header-row">

@@ -2,20 +2,6 @@
 @section('title', 'My Family')
 @section('topbar-title', 'My Family')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">MedRecords<div class="sub">Patient Portal</div></div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('patient.dashboard') }}" class="nav-item">🏠 Home</a>
-    <a href="{{ route('patient.record') }}" class="nav-item">📋 My Record</a>
-    <a href="{{ route('patient.consents') }}" class="nav-item">🔐 Consents</a>
-    <a href="{{ route('patient.access-code') }}" class="nav-item">📱 Share Record</a>
-    <a href="{{ route('patient.audit-log') }}" class="nav-item">👁 Access History</a>
-    <a href="{{ route('patient.family') }}" class="nav-item active">👥 My Family</a>
-  </nav>
-  <div class="sidebar-footer"><div class="name">{{ auth()->user()->name }}</div>Patient</div>
-</aside>
-@endsection
 
 @section('content')
 <div class="page-header-row">

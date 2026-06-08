@@ -2,16 +2,6 @@
 @section('title', 'Break-Glass Access')
 @section('topbar-title', 'Emergency Access')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">MedRecords<div class="sub">Provider</div></div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('provider.dashboard') }}" class="nav-item">🏥 Dashboard</a>
-    <a href="{{ route('provider.search') }}" class="nav-item">🔍 Patient lookup</a>
-  </nav>
-  <div class="sidebar-footer"><div class="name">{{ auth()->user()->name }}</div>Provider</div>
-</aside>
-@endsection
 
 @section('content')
 <div class="alert red" style="margin-bottom:20px;">

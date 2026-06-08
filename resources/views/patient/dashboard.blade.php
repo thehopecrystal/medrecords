@@ -2,31 +2,13 @@
 @section('title', 'Dashboard')
 @section('topbar-title', 'Patient Dashboard')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">
-    MedRecords
-    <div class="sub">Patient Portal</div>
-  </div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('patient.dashboard') }}" class="nav-item active">🏠 Home</a>
-    <a href="{{ route('patient.record') }}" class="nav-item">📋 My Record</a>
-    <a href="{{ route('patient.consents') }}" class="nav-item">🔐 Consents</a>
-    <a href="{{ route('patient.access-code') }}" class="nav-item">📱 Share Record</a>
-    <a href="{{ route('patient.audit-log') }}" class="nav-item">👁 Access History</a>
-    <a href="{{ route('patient.family') }}" class="nav-item">👥 My Family</a>
-  </nav>
-  <div class="sidebar-footer">
-    <div class="name">{{ auth()->user()->name }}</div>
-    Patient
-  </div>
-</aside>
-@endsection
 
 @section('content')
-<div class="page-header">
-  <p style="color:var(--grey-500);font-size:13px;">Good {{ now()->hour < 12 ? 'morning' : (now()->hour < 17 ? 'afternoon' : 'evening') }},</p>
-  <h1>{{ explode(' ', auth()->user()->name)[0] }}</h1>
+<div class="page-header-row">
+  <div>
+    <p class="page-header-sub">Good {{ now()->hour < 12 ? 'morning' : (now()->hour < 17 ? 'afternoon' : 'evening') }},</p>
+    <h1 class="page-header">{{ explode(' ', auth()->user()->name)[0] }}</h1>
+  </div>
 </div>
 
 {{-- MedID card --}}

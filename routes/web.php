@@ -3,12 +3,14 @@
 use App\Http\Controllers\Admin\BreakGlassController as AdminBreakGlass;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\MdcnController;
+use App\Http\Controllers\Admin\SettingsController as AdminSettings;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Patient\AuditLogController;
 use App\Http\Controllers\Patient\ConsentController;
 use App\Http\Controllers\Patient\ConsentRequestController as PatientConsentRequest;
 use App\Http\Controllers\Patient\DashboardController as PatientDashboard;
 use App\Http\Controllers\Patient\DependentController;
+use App\Http\Controllers\Patient\ProfileController as PatientProfile;
 use App\Http\Controllers\Patient\RecordController;
 use App\Http\Controllers\Pharmacy\DispenseController;
 use App\Http\Controllers\Provider\ConsentRequestController as ProviderConsentRequest;
@@ -19,7 +21,7 @@ use App\Http\Controllers\Provider\WorkstationController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public ───────────────────────────────────────────────────────────────────
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', fn () => view('landing'))->name('home');
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
@@ -56,6 +58,11 @@ Route::prefix('patient')->middleware(['auth', 'role:patient'])->name('patient.')
     Route::get('/family',                 [DependentController::class, 'index'])->name('family');
     Route::get('/family/add',             [DependentController::class, 'create'])->name('family.add');
     Route::post('/family',                [DependentController::class, 'store'])->name('family.store');
+
+    // Profile
+    Route::get('/profile',                [PatientProfile::class, 'edit'])->name('profile');
+    Route::put('/profile',                [PatientProfile::class, 'update'])->name('profile.update');
+    Route::put('/profile/password',       [PatientProfile::class, 'changePassword'])->name('profile.password');
 });
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
@@ -97,4 +104,9 @@ Route::prefix('admin')->middleware(['auth', 'role:facility_admin,super_admin'])-
     Route::post('/break-glass/{id}/close', [AdminBreakGlass::class, 'close'])->name('break-glass.close');
     Route::get('/providers',               [MdcnController::class, 'providers'])->name('providers');
     Route::post('/providers/{id}/verify',  [MdcnController::class, 'verify'])->name('mdcn.verify');
+
+    // Settings
+    Route::get('/settings',               [AdminSettings::class, 'index'])->name('settings');
+    Route::post('/settings',              [AdminSettings::class, 'update'])->name('settings.update');
+    Route::post('/settings/smtp-test',    [AdminSettings::class, 'testSmtp'])->name('settings.smtp-test');
 });

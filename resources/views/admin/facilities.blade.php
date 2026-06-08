@@ -2,18 +2,6 @@
 @section('title', 'Facilities')
 @section('topbar-title', 'Facilities')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">MedRecords<div class="sub">Administration</div></div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('admin.dashboard') }}" class="nav-item">📊 Dashboard</a>
-    <a href="{{ route('admin.facilities') }}" class="nav-item active">🏥 Facilities</a>
-    <a href="{{ route('admin.break-glass') }}" class="nav-item">⚡ Break-glass review</a>
-    <a href="{{ route('admin.providers') }}" class="nav-item">🩺 MDCN verification</a>
-  </nav>
-  <div class="sidebar-footer"><div class="name">{{ auth()->user()->name }}</div>Administrator</div>
-</aside>
-@endsection
 
 @section('content')
 <div class="page-header"><h1>Facilities</h1><p>All registered facilities on MedRecords</p></div>

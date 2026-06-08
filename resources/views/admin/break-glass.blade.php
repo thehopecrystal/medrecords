@@ -2,18 +2,6 @@
 @section('title', 'Break-Glass Review')
 @section('topbar-title', 'Break-Glass Review')
 
-@section('sidebar')
-<aside class="sidebar">
-  <div class="sidebar-brand">MedRecords<div class="sub">Administration</div></div>
-  <nav class="sidebar-nav">
-    <a href="{{ route('admin.dashboard') }}" class="nav-item">📊 Dashboard</a>
-    <a href="{{ route('admin.facilities') }}" class="nav-item">🏥 Facilities</a>
-    <a href="{{ route('admin.break-glass') }}" class="nav-item active">⚡ Break-glass review</a>
-    <a href="{{ route('admin.providers') }}" class="nav-item">🩺 MDCN verification</a>
-  </nav>
-  <div class="sidebar-footer"><div class="name">{{ auth()->user()->name }}</div>Administrator</div>
-</aside>
-@endsection
 
 @section('content')
 <div class="page-header">
