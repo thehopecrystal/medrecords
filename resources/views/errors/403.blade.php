@@ -1,0 +1,5 @@
+@extends('errors.layout')
+@section('code', '403')
+@section('icon', '🚫')
+@section('title', 'Access Denied')
+@section('message', $exception->getMessage() ?: 'You don\'t have permission to view this page. If you believe this is an error, please contact your administrator.')

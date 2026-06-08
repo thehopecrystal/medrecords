@@ -1,0 +1,7 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Forward everything to public/ without exposing it in the URL.
+    # The public/.htaccess then hands requests to index.php as normal.
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

@@ -1,0 +1,5 @@
+@extends('errors.layout')
+@section('code', '503')
+@section('icon', '🛠️')
+@section('title', 'Down for Maintenance')
+@section('message', 'MedRecords is temporarily offline for scheduled maintenance. We\'ll be back shortly. Thank you for your patience.')
