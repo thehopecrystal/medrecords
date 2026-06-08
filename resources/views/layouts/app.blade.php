@@ -40,6 +40,48 @@ body {
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font-family: inherit; }
 
+/* ─── Dark mode ─────────────────────────────────── */
+[data-theme="dark"] {
+  --navy:      #4A9CF8;
+  --navy-dk:   #0A0F1A;
+  --navy-md:   #2563EB;
+  --navy-lt:   #1E2D45;
+  --green:     #4ADE80;
+  --green-lt:  #0D2E1A;
+  --amber:     #FCD34D;
+  --amber-lt:  #2D2008;
+  --red:       #F87171;
+  --red-lt:    #2D1218;
+
+  --sb-bg:     #070D18;
+  --page-bg:   #0F172A;
+  --text:      #E2E8F0;
+  --text-2:    #94A3B8;
+  --text-3:    #475569;
+  --border:    #1E293B;
+  --card:      #0F1C2E;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow:    0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.5);
+  --grey-900: #E2E8F0;
+  --grey-700: #94A3B8;
+  --grey-500: #64748B;
+  --grey-300: #1E293B;
+  --grey-200: #1E293B;
+  --grey-100: #0F1C2E;
+  --grey-50:  #0D1627;
+  --white:    #0F1C2E;
+}
+[data-theme="dark"] body { background: var(--page-bg); color: var(--text); }
+[data-theme="dark"] thead th { background: #0D1627; }
+[data-theme="dark"] tbody tr:hover { background: rgba(255,255,255,0.03); }
+[data-theme="dark"] .form-field input,
+[data-theme="dark"] .form-field select,
+[data-theme="dark"] .form-field textarea { background: #0D1627; color: var(--text); border-color: var(--border); }
+[data-theme="dark"] .user-dropdown { background: #0F1C2E; }
+[data-theme="dark"] .topbar { background: #0F1C2E; }
+[data-theme="dark"] pre { background: #0D1627 !important; color: #94A3B8 !important; }
+
 /* ─── Design tokens ─────────────────────────────── */
 :root {
   --navy:      #1E3A5F;
@@ -625,6 +667,26 @@ tbody tr:hover { background: #FAFCFF; }
         <a href="{{ route('patient.family') }}" class="sb-item {{ request()->routeIs('patient.family*') ? 'active' : '' }}">
           <span class="sb-icon">👨‍👩‍👧</span> My Family
         </a>
+        <a href="{{ route('patient.family.summary') }}" class="sb-item {{ request()->routeIs('patient.family.summary') ? 'active' : '' }}">
+          <span class="sb-icon">📊</span> Family Summary
+        </a>
+        <div class="sb-section">Health Tools</div>
+        <a href="{{ route('patient.appointments') }}" class="sb-item {{ request()->routeIs('patient.appointments*') ? 'active' : '' }}">
+          <span class="sb-icon">📅</span> Appointments
+        </a>
+        <a href="{{ route('patient.vitals') }}" class="sb-item {{ request()->routeIs('patient.vitals*') ? 'active' : '' }}">
+          <span class="sb-icon">❤️</span> Vitals Diary
+        </a>
+        <a href="{{ route('patient.refills') }}" class="sb-item {{ request()->routeIs('patient.refills*') ? 'active' : '' }}">
+          <span class="sb-icon">💊</span> Refill Requests
+        </a>
+        <a href="{{ route('patient.lab-upload') }}" class="sb-item {{ request()->routeIs('patient.lab-upload*') ? 'active' : '' }}">
+          <span class="sb-icon">🧪</span> Lab Upload
+        </a>
+        <a href="{{ route('patient.notifications') }}" class="sb-item {{ request()->routeIs('patient.notifications*') ? 'active' : '' }}">
+          <span class="sb-icon">🔔</span> Notifications
+          @if($unreadCount > 0)<span class="sb-badge">{{ $unreadCount }}</span>@endif
+        </a>
         <div class="sb-section">Account</div>
         <a href="{{ route('patient.audit-log') }}" class="sb-item {{ request()->routeIs('patient.audit-log') ? 'active' : '' }}">
           <span class="sb-icon">👁</span> Access History
@@ -640,6 +702,15 @@ tbody tr:hover { background: #FAFCFF; }
         </a>
         <a href="{{ route('provider.search') }}" class="sb-item {{ request()->routeIs('provider.search','provider.patient') ? 'active' : '' }}">
           <span class="sb-icon">🔍</span> Patient Search
+        </a>
+        <a href="{{ route('provider.appointments') }}" class="sb-item {{ request()->routeIs('provider.appointments*') ? 'active' : '' }}">
+          <span class="sb-icon">📅</span> My Schedule
+        </a>
+        <a href="{{ route('provider.refills') }}" class="sb-item {{ request()->routeIs('provider.refills*') ? 'active' : '' }}">
+          <span class="sb-icon">💊</span> Refill Requests
+        </a>
+        <a href="{{ route('provider.referrals') }}" class="sb-item {{ request()->routeIs('provider.referrals*') ? 'active' : '' }}">
+          <span class="sb-icon">📋</span> Referral Inbox
         </a>
 
       @elseif($userRole === 'pharmacist')
@@ -662,6 +733,9 @@ tbody tr:hover { background: #FAFCFF; }
         <a href="{{ route('admin.facilities') }}" class="sb-item {{ request()->routeIs('admin.facilities') ? 'active' : '' }}">
           <span class="sb-icon">🏥</span> Facilities
         </a>
+        <a href="{{ route('admin.facilities.import') }}" class="sb-item {{ request()->routeIs('admin.facilities.import*') ? 'active' : '' }}">
+          <span class="sb-icon">📥</span> Import Facilities
+        </a>
         <a href="{{ route('admin.break-glass') }}" class="sb-item {{ request()->routeIs('admin.break-glass') ? 'active' : '' }}">
           <span class="sb-icon">⚡</span> Break-glass Review
           @if($activeBreakGlass > 0)<span class="sb-badge">{{ $activeBreakGlass }}</span>@endif
@@ -669,6 +743,15 @@ tbody tr:hover { background: #FAFCFF; }
         <a href="{{ route('admin.providers') }}" class="sb-item {{ request()->routeIs('admin.providers') ? 'active' : '' }}">
           <span class="sb-icon">🩺</span> MDCN Verification
         </a>
+        @if($userRole === 'super_admin')
+          <div class="sb-section">Super Admin</div>
+          <a href="{{ route('admin.users') }}" class="sb-item {{ request()->routeIs('admin.users*') ? 'active' : '' }}">
+            <span class="sb-icon">👥</span> Users &amp; Roles
+          </a>
+          <a href="{{ route('admin.plans') }}" class="sb-item {{ request()->routeIs('admin.plans*') ? 'active' : '' }}">
+            <span class="sb-icon">💳</span> Plans &amp; Pricing
+          </a>
+        @endif
         <div class="sb-section">System</div>
         <a href="{{ route('admin.settings') }}" class="sb-item {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
           <span class="sb-icon">⚙️</span> Settings
@@ -697,11 +780,14 @@ tbody tr:hover { background: #FAFCFF; }
       <button class="topbar-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
       <div class="topbar-title">@yield('topbar-title', $siteName)</div>
       <div class="topbar-right">
+        {{-- Dark mode toggle --}}
+        <button class="notif-btn" id="darkToggle" title="Toggle dark mode" onclick="toggleDark()">☀️</button>
+
         {{-- Notifications --}}
-        <button class="notif-btn" title="Notifications" onclick="window.location='{{ $userRole === 'patient' ? route('patient.audit-log') : '#' }}'">
+        <a href="{{ $userRole === 'patient' ? route('patient.notifications') : '#' }}" class="notif-btn" title="Notifications">
           🔔
           @if($unreadCount > 0)<span class="notif-dot"></span>@endif
-        </button>
+        </a>
 
         {{-- User menu --}}
         <div class="user-menu" id="userMenu">
@@ -770,6 +856,22 @@ tbody tr:hover { background: #FAFCFF; }
 </div>
 
 <script>
+// Dark mode
+(function() {
+  const saved = localStorage.getItem('medrecords_theme') || 'light';
+  applyTheme(saved);
+})();
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('darkToggle');
+  if (btn) btn.textContent = t === 'dark' ? '🌙' : '☀️';
+}
+function toggleDark() {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('medrecords_theme', next);
+  applyTheme(next);
+}
+
 // Sidebar toggle
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('mobile-open');

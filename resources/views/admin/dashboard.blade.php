@@ -1,95 +1,269 @@
 @extends('layouts.app')
 @section('title', 'Admin Dashboard')
-@section('topbar-title', 'Admin Dashboard')
-
+@section('topbar-title', 'Dashboard')
 
 @section('content')
-<div class="page-header"><h1>System Overview</h1><p>{{ now()->format('l, d F Y') }}</p></div>
-
-<div class="stat-grid">
-  <div class="stat-card navy"><div class="stat-label">Total patients</div><div class="stat-value">{{ number_format($stats['patients']) }}</div></div>
-  <div class="stat-card green"><div class="stat-label">Providers</div><div class="stat-value">{{ number_format($stats['providers']) }}</div></div>
-  <div class="stat-card"><div class="stat-label">Facilities</div><div class="stat-value">{{ number_format($stats['facilities']) }}</div></div>
-  <div class="stat-card {{ $stats['break_glass'] > 0 ? 'red' : '' }}">
-    <div class="stat-label">Active break-glass</div>
+{{-- Stats row --}}
+<div class="stat-grid" style="grid-template-columns:repeat(6,1fr);margin-bottom:28px;">
+  <div class="stat-card">
+    <div class="stat-label">Patients</div>
+    <div class="stat-value">{{ number_format($stats['patients']) }}</div>
+    <div class="stat-sub">Registered</div>
+    <div class="stat-icon">👤</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Providers</div>
+    <div class="stat-value">{{ number_format($stats['providers']) }}</div>
+    <div class="stat-sub">Clinicians</div>
+    <div class="stat-icon">🩺</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Pharmacists</div>
+    <div class="stat-value">{{ number_format($stats['pharmacists']) }}</div>
+    <div class="stat-sub">Dispensing</div>
+    <div class="stat-icon">💊</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Facilities</div>
+    <div class="stat-value">{{ number_format($stats['facilities']) }}</div>
+    <div class="stat-sub">Registered</div>
+    <div class="stat-icon">🏥</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-label">Break-glass</div>
     <div class="stat-value">{{ $stats['break_glass'] }}</div>
-    @if($stats['break_glass'] > 0)
-      <div class="stat-sub"><a href="{{ route('admin.break-glass') }}" style="color:var(--red);">Review →</a></div>
-    @endif
+    <div class="stat-sub">Active events</div>
+    <div class="stat-icon">⚡</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Total Users</div>
+    <div class="stat-value">{{ number_format($stats['total_users']) }}</div>
+    <div class="stat-sub">All roles</div>
+    <div class="stat-icon">🌐</div>
   </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-  {{-- Facilities --}}
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Facilities</div>
-      <div class="card-sub">Active facilities on the platform</div>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Facility</th><th>Type</th><th>Providers</th></tr></thead>
-        <tbody>
-          @foreach($facilities as $f)
-            <tr>
-              <td><strong>{{ $f->name }}</strong><br><span style="font-size:11px;color:var(--grey-500);">{{ $f->city }}</span></td>
-              <td><span class="pill navy">{{ $f->type }}</span></td>
-              <td>{{ $f->providers_count }}</td>
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
-    </div>
-    <div style="margin-top:12px;"><a href="{{ route('admin.facilities') }}" style="font-size:13px;color:var(--navy);">View all →</a></div>
-  </div>
+{{-- Charts row 1 --}}
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px;">
 
-  {{-- Break-glass alerts --}}
+  {{-- Registrations line chart --}}
   <div class="card">
-    <div class="card-header">
-      <div class="card-title">Active break-glass events</div>
-      <div class="card-sub">Emergency accesses pending review</div>
-    </div>
-    @forelse($breakGlass as $e)
-      <div class="entry">
-        <div class="entry-head">
-          <div>
-            <div class="entry-title">{{ $e->patient->user->name }}</div>
-            <div class="entry-meta">{{ $e->provider->name }} · {{ $e->reason_code }}</div>
-          </div>
-          <span class="pill red">Active</span>
-        </div>
-        <div class="entry-body" style="font-size:12px;">{{ Str::limit($e->justification, 120) }}</div>
+    <div class="card-header" style="padding-bottom:16px;">
+      <div>
+        <div class="card-title">New Registrations</div>
+        <div class="card-sub">Users registered per day — last 30 days</div>
       </div>
-    @empty
-      <div style="padding:16px;color:var(--grey-500);font-size:13px;">No active break-glass events.</div>
-    @endforelse
-    @if($breakGlass->count())
-      <div style="margin-top:12px;"><a href="{{ route('admin.break-glass') }}" style="font-size:13px;color:var(--navy);">View all →</a></div>
-    @endif
+      <a href="{{ route('admin.users') }}" class="btn btn-secondary btn-sm">View Users</a>
+    </div>
+    <div class="card-body" style="padding-top:0;">
+      <canvas id="regChart" height="90"></canvas>
+    </div>
+  </div>
+
+  {{-- Role doughnut --}}
+  <div class="card">
+    <div class="card-header" style="padding-bottom:16px;">
+      <div>
+        <div class="card-title">User Roles</div>
+        <div class="card-sub">Distribution by role</div>
+      </div>
+    </div>
+    <div class="card-body" style="padding-top:0;display:flex;align-items:center;justify-content:center;">
+      <canvas id="roleChart" height="200" style="max-height:200px;"></canvas>
+    </div>
   </div>
 </div>
 
-{{-- Audit log --}}
-<div class="card" style="margin-top:20px;">
-  <div class="card-header">
-    <div class="card-title">Recent audit events</div>
-    <div class="card-sub">All system activity across all patients</div>
+{{-- Charts row 2 --}}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+
+  {{-- Encounters bar chart --}}
+  <div class="card">
+    <div class="card-header" style="padding-bottom:16px;">
+      <div>
+        <div class="card-title">Clinical Encounters</div>
+        <div class="card-sub">Encounters per week — last 8 weeks</div>
+      </div>
+    </div>
+    <div class="card-body" style="padding-top:0;">
+      <canvas id="encChart" height="120"></canvas>
+    </div>
   </div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Action</th><th>Patient</th><th>By</th><th>Description</th><th>When</th></tr></thead>
-      <tbody>
-        @foreach($recentLogs as $log)
-          <tr>
-            <td><span class="pill navy">{{ $log->action }}</span></td>
-            <td>{{ $log->patient->user->name }}</td>
-            <td>{{ $log->actor->name }}</td>
-            <td style="max-width:300px;font-size:12px;">{{ Str::limit($log->description, 80) }}</td>
-            <td style="font-size:11px;color:var(--grey-500);white-space:nowrap;">{{ $log->created_at->format('d M H:i') }}</td>
-          </tr>
-        @endforeach
-      </tbody>
-    </table>
+
+  {{-- Dispenses bar chart --}}
+  <div class="card">
+    <div class="card-header" style="padding-bottom:16px;">
+      <div>
+        <div class="card-title">Pharmacy Dispenses</div>
+        <div class="card-sub">Prescriptions dispensed per month — last 6 months</div>
+      </div>
+    </div>
+    <div class="card-body" style="padding-top:0;">
+      <canvas id="dispChart" height="120"></canvas>
+    </div>
   </div>
 </div>
+
+{{-- Bottom row: recent audit log + active break-glass --}}
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;">
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Recent Audit Events</div>
+        <div class="card-sub">Latest access and system events</div>
+      </div>
+    </div>
+    <div class="card-body" style="padding:0;">
+      @forelse($recentLogs as $log)
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 22px;border-bottom:1px solid var(--border);font-size:12px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--navy-lt);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">
+          @php
+            $icon = '🔵';
+            if(str_contains($log->action??'','view')) $icon = '👁';
+            elseif(str_contains($log->action??'','break')) $icon = '⚡';
+            elseif(str_contains($log->action??'','dispense')) $icon = '💊';
+            elseif(str_contains($log->action??'','encounter')) $icon = '📋';
+          @endphp
+          {{ $icon }}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;color:var(--text);">{{ $log->actor?->name ?? 'System' }}</div>
+          <div style="color:var(--text-2);margin-top:1px;">{{ ucfirst(str_replace('_',' ',$log->action ?? '')) }}</div>
+        </div>
+        <div style="color:var(--text-3);white-space:nowrap;">{{ $log->created_at->diffForHumans() }}</div>
+      </div>
+      @empty
+      <div class="empty-state" style="padding:32px;">
+        <div class="empty-icon" style="font-size:28px;">📋</div>
+        <p>No audit events yet.</p>
+      </div>
+      @endforelse
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title" style="color:var(--red);">⚡ Active Break-glass</div>
+        <div class="card-sub">Requires review</div>
+      </div>
+      <a href="{{ route('admin.break-glass') }}" class="btn btn-secondary btn-sm">All</a>
+    </div>
+    <div class="card-body" style="padding:0;">
+      @forelse($breakGlass as $event)
+      <div style="padding:12px 22px;border-bottom:1px solid var(--border);font-size:12px;">
+        <div style="font-weight:600;color:var(--text);">{{ $event->patient?->user?->name ?? 'Unknown patient' }}</div>
+        <div style="color:var(--text-2);margin-top:2px;">Dr. {{ $event->provider?->name ?? '—' }}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+          <span class="pill amber">{{ ucfirst($event->status) }}</span>
+          <span style="color:var(--text-3);">{{ $event->created_at->diffForHumans() }}</span>
+        </div>
+      </div>
+      @empty
+      <div class="empty-state" style="padding:32px;">
+        <div class="empty-icon" style="font-size:28px;">✅</div>
+        <p>No active break-glass events.</p>
+      </div>
+      @endforelse
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+Chart.defaults.font = { family: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif', size: 11 };
+Chart.defaults.color = '#64748B';
+
+new Chart(document.getElementById('regChart'), {
+  type: 'line',
+  data: {
+    labels: {!! json_encode($charts['regLabels']) !!},
+    datasets: [{
+      label: 'Registrations',
+      data: {!! json_encode($charts['regCounts']) !!},
+      borderColor: '#1E3A5F',
+      backgroundColor: 'rgba(30,58,95,0.07)',
+      borderWidth: 2,
+      pointRadius: 2,
+      pointHoverRadius: 5,
+      fill: true,
+      tension: 0.4,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } },
+      y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#F1F5F9' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('roleChart'), {
+  type: 'doughnut',
+  data: {
+    labels: {!! json_encode($charts['roleLabels']) !!},
+    datasets: [{
+      data: {!! json_encode($charts['roleValues']) !!},
+      backgroundColor: ['#1E3A5F','#2C5F2D','#3B8C6E','#B8860B','#B23A48'],
+      borderWidth: 2, borderColor: '#fff',
+      hoverOffset: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 11 } } }
+    }
+  }
+});
+
+new Chart(document.getElementById('encChart'), {
+  type: 'bar',
+  data: {
+    labels: {!! json_encode($charts['encLabels']) !!},
+    datasets: [{
+      label: 'Encounters',
+      data: {!! json_encode($charts['encCounts']) !!},
+      backgroundColor: 'rgba(44,95,45,0.75)',
+      borderRadius: 5,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#F1F5F9' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('dispChart'), {
+  type: 'bar',
+  data: {
+    labels: {!! json_encode($charts['dispLabels']) !!},
+    datasets: [{
+      label: 'Dispenses',
+      data: {!! json_encode($charts['dispCounts']) !!},
+      backgroundColor: 'rgba(30,58,95,0.65)',
+      borderRadius: 5,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#F1F5F9' } }
+    }
+  }
+});
+</script>
 @endsection

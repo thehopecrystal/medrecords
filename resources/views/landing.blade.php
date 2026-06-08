@@ -24,6 +24,7 @@
   $ig          = SiteSetting::get('social_instagram');
   $li          = SiteSetting::get('social_linkedin');
   $footerAbout = SiteSetting::get('footer_about', "Nigeria's patient-owned electronic health record platform.");
+  $plans = \App\Models\Plan::active()->get();
 @endphp
 <title>{{ $siteName }} — {{ $siteTagline }}</title>
 <style>
@@ -252,6 +253,61 @@ a { text-decoration: none; color: inherit; }
 .testimonial-role { font-size: 12px; color: var(--text-3); }
 .stars { color: #F59E0B; font-size: 13px; margin-bottom: 12px; }
 
+/* ─── Pricing ───────────────────────────────────── */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px; margin-top: 52px; align-items: start;
+}
+.pricing-card {
+  background: #fff; border-radius: 20px;
+  border: 1.5px solid var(--border);
+  padding: 32px 28px;
+  position: relative; overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.pricing-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(15,23,42,0.12); }
+.pricing-card.featured {
+  border-color: var(--navy);
+  box-shadow: 0 8px 32px rgba(30,58,95,0.15);
+}
+.pricing-badge {
+  position: absolute; top: 16px; right: -24px;
+  background: var(--navy); color: #fff;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+  padding: 4px 32px; transform: rotate(35deg);
+}
+.pricing-name  { font-size: 18px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+.pricing-price { font-size: 36px; font-weight: 900; color: var(--navy); line-height: 1; margin: 16px 0 6px; }
+.pricing-price .period { font-size: 14px; font-weight: 500; color: var(--text-2); }
+.pricing-desc  { font-size: 13px; color: var(--text-2); margin-bottom: 22px; min-height: 36px; line-height: 1.5; }
+.pricing-features { list-style: none; margin: 0 0 28px; padding: 0; }
+.pricing-features li {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 13px; color: var(--text-2); padding: 5px 0;
+  border-bottom: 1px solid #F8FAFC;
+}
+.pricing-features li:last-child { border-bottom: 0; }
+.pricing-features .check { color: var(--green); font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.pricing-cta {
+  display: block; text-align: center;
+  padding: 12px 24px; border-radius: 10px;
+  font-size: 14px; font-weight: 700;
+  background: var(--navy); color: #fff;
+  transition: all 0.15s;
+}
+.pricing-cta:hover { background: #163050; }
+.pricing-cta.free  { background: var(--green); }
+.pricing-cta.free:hover { filter: brightness(1.08); }
+.pricing-cta.contact { background: var(--text-2); }
+.pricing-cta.contact:hover { background: var(--text); }
+@media (max-width: 900px) {
+  .pricing-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .pricing-grid { grid-template-columns: 1fr; }
+}
+
 /* ─── CTA section ───────────────────────────────── */
 .cta-section {
   background: linear-gradient(135deg, var(--navy) 0%, var(--green) 100%);
@@ -326,6 +382,7 @@ a { text-decoration: none; color: inherit; }
       <a href="#features" class="nav-link">Features</a>
       <a href="#how-it-works" class="nav-link">How it works</a>
       <a href="#why-us" class="nav-link">Why MedRecords</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
       <a href="#contact" class="nav-link">Contact</a>
     </nav>
     <div class="header-cta">
@@ -512,6 +569,51 @@ a { text-decoration: none; color: inherit; }
     </div>
   </div>
 </section>
+
+{{-- ── Pricing ──────────────────────────────────── --}}
+@if($plans->isNotEmpty())
+<section class="section bg-light" id="pricing">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:0;">
+      <div class="section-label" style="display:inline-block;">Simple, transparent pricing</div>
+      <h2 class="section-title">Choose the plan that fits you</h2>
+      <p class="section-sub" style="margin:0 auto;">Start free. Upgrade anytime. No hidden fees, no contracts.</p>
+    </div>
+    <div class="pricing-grid">
+      @foreach($plans as $plan)
+      <div class="pricing-card {{ $plan->is_featured ? 'featured' : '' }}">
+        @if($plan->badge)
+          <div class="pricing-badge">{{ $plan->badge }}</div>
+        @endif
+        <div class="pricing-name">{{ $plan->name }}</div>
+        <div class="pricing-price">
+          @if($plan->isFree())
+            Free
+          @elseif($plan->billing_period === 'one-time')
+            <span style="font-size:20px;">Contact us</span>
+          @else
+            ₦{{ number_format($plan->price, 0) }}<span class="period">/{{ $plan->billing_period === 'monthly' ? 'mo' : 'yr' }}</span>
+          @endif
+        </div>
+        <div class="pricing-desc">{{ $plan->description }}</div>
+        <ul class="pricing-features">
+          @foreach($plan->features ?? [] as $feature)
+            <li><span class="check">✓</span> {{ $feature }}</li>
+          @endforeach
+        </ul>
+        @if($plan->billing_period === 'one-time')
+          <a href="#contact" class="pricing-cta contact">Contact Sales</a>
+        @elseif($plan->isFree())
+          <a href="{{ route('register') }}" class="pricing-cta free">Get started free →</a>
+        @else
+          <a href="{{ route('register') }}" class="pricing-cta">Start {{ $plan->name }} →</a>
+        @endif
+      </div>
+      @endforeach
+    </div>
+  </div>
+</section>
+@endif
 
 {{-- ── CTA ──────────────────────────────────────── --}}
 <section class="cta-section">

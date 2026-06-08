@@ -32,7 +32,10 @@ class Patient extends Model
     public function consents() { return $this->hasMany(Consent::class); }
     public function auditLogs() { return $this->hasMany(AuditLog::class); }
     public function breakGlassEvents() { return $this->hasMany(BreakGlassEvent::class); }
-    public function dependents() { return $this->hasMany(Dependent::class, 'guardian_patient_id'); }
+    public function dependents()    { return $this->hasMany(Dependent::class, 'guardian_patient_id'); }
+    public function appointments()  { return $this->hasMany(\App\Models\Appointment::class); }
+    public function vitalsLogs()    { return $this->hasMany(\App\Models\VitalLog::class); }
+    public function refillRequests(){ return $this->hasMany(\App\Models\RefillRequest::class); }
 
     public function getAgeAttribute(): int
     {

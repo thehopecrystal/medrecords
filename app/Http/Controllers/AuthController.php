@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Patient;
 use App\Models\User;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -28,7 +29,29 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return $this->redirectByRole(Auth::user()->role);
+            $user = Auth::user();
+
+            if (!$user->is_active) {
+                Auth::logout();
+                return back()->withErrors(['login' => 'Your account has been deactivated. Please contact support.'])->withInput();
+            }
+
+            // 2FA check
+            if ($user->two_factor_enabled && $user->phone) {
+                $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                $user->update(['otp_code' => $otp, 'otp_expires_at' => now()->addMinutes(10)]);
+                $userId = $user->id;
+                Auth::logout();
+                // Regenerate session after logout so the pre-OTP session ID differs
+                // from both the unauthenticated and authenticated session IDs.
+                $request->session()->regenerate();
+                $request->session()->put('2fa_user_id', $userId);
+                (new SmsService())->send($user->phone, "MedRecords login code: {$otp}. Valid for 10 minutes. Do not share this code.");
+                return redirect()->route('auth.otp');
+            }
+
+            $user->update(['last_login_at' => now()]);
+            return $this->redirectByRole($user->role);
         }
 
         return back()->withErrors(['login' => 'Invalid credentials.'])->withInput();
@@ -72,7 +95,7 @@ class AuthController extends Controller
         $medId = 'MR-' . strtoupper(Str::random(4)) . '-'
                . rand(1000, 9999) . '-' . rand(1000, 9999);
 
-        $patient = Patient::create([
+        Patient::create([
             'user_id'    => $user->id,
             'med_id'     => $medId,
             'dob'        => $request->dob ?: null,
@@ -85,6 +108,38 @@ class AuthController extends Controller
         Auth::login($user);
 
         return redirect()->route('patient.welcome');
+    }
+
+    public function showOtp(Request $request)
+    {
+        if (!$request->session()->has('2fa_user_id')) {
+            return redirect()->route('login');
+        }
+        return view('auth.otp');
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate(['otp' => 'required|string|digits:6']);
+
+        $userId = $request->session()->get('2fa_user_id');
+        if (!$userId) {
+            return redirect()->route('login')->withErrors(['otp' => 'Session expired. Please log in again.']);
+        }
+
+        $user = User::findOrFail($userId);
+
+        if ($user->otp_code !== $request->otp || now()->isAfter($user->otp_expires_at)) {
+            return back()->withErrors(['otp' => 'Invalid or expired code. Try again.']);
+        }
+
+        $user->update(['otp_code' => null, 'otp_expires_at' => null, 'last_login_at' => now()]);
+        $request->session()->forget('2fa_user_id');
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return $this->redirectByRole($user->role);
     }
 
     public function logout(Request $request)

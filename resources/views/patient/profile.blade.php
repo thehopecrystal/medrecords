@@ -73,6 +73,7 @@
           <a href="#medical"  class="profile-nav-item">🩺 Medical Profile</a>
           <a href="#emergency" class="profile-nav-item">🚨 Emergency Contact</a>
           <a href="#security" class="profile-nav-item">🔒 Password & Security</a>
+          <a href="#two-factor" class="profile-nav-item">🛡 Two-Factor Auth</a>
         </nav>
       </div>
     </div>
@@ -279,6 +280,55 @@
             <button type="submit" class="btn btn-primary">Change password</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    {{-- Two-Factor Authentication --}}
+    <div class="card" id="two-factor">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Two-Factor Authentication</div>
+          <div class="card-sub">Add an extra layer of security with SMS OTP</div>
+        </div>
+        <span class="pill {{ $user->two_factor_enabled ? 'green' : 'grey' }}">
+          {{ $user->two_factor_enabled ? '✓ Enabled' : 'Disabled' }}
+        </span>
+      </div>
+      <div class="card-body">
+        @if($user->two_factor_enabled)
+          <div class="alert green" style="margin-bottom:16px;">
+            <span>✓</span>
+            <span>Two-factor authentication is active. You will receive a 6-digit OTP via SMS each time you log in.</span>
+          </div>
+          <form method="POST" action="{{ route('patient.profile.2fa') }}">
+            @csrf
+            <input type="hidden" name="action" value="disable">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Disable two-factor authentication?')">
+              Disable 2FA
+            </button>
+          </form>
+        @else
+          <div class="alert amber" style="margin-bottom:16px;">
+            <span>⚠</span>
+            <span>2FA is currently disabled. Enable it to receive an OTP on your phone number each time you sign in.</span>
+          </div>
+          @if($user->phone)
+            <p style="font-size:13px;color:var(--text-2);margin-bottom:16px;">
+              OTPs will be sent to <strong>{{ $user->phone }}</strong>.
+              <a href="#personal" style="color:var(--navy);">Change phone number</a>
+            </p>
+            <form method="POST" action="{{ route('patient.profile.2fa') }}">
+              @csrf
+              <input type="hidden" name="action" value="enable">
+              <button type="submit" class="btn btn-primary">Enable 2FA</button>
+            </form>
+          @else
+            <div class="alert red">
+              <span>✗</span>
+              <span>You need to add a phone number before enabling 2FA. Update your personal info above.</span>
+            </div>
+          @endif
+        @endif
       </div>
     </div>
 

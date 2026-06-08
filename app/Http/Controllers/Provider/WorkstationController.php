@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\BreakGlassEvent;
 use App\Models\Consent;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Encounter;
 use App\Models\Patient;
 use App\Models\Prescription;
@@ -69,8 +70,28 @@ class WorkstationController extends Controller
         return view('provider.patient', compact('patient', 'consent', 'tab'));
     }
 
+    private function requireConsent(int $patientId): void
+    {
+        $hasConsent = Consent::where('patient_id', $patientId)
+            ->where('grantee_id', Auth::id())
+            ->where('status', 'active')
+            ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->exists();
+
+        $hasBreakGlass = BreakGlassEvent::where('patient_id', $patientId)
+            ->where('provider_id', Auth::id())
+            ->where('status', 'active')
+            ->where('expires_at', '>', now())
+            ->exists();
+
+        abort_unless($hasConsent || $hasBreakGlass, 403,
+            'You do not have consent to access this patient\'s record. Request consent first or use break-glass for emergencies.');
+    }
+
     public function newEncounter(int $patientId)
     {
+        $this->requireConsent($patientId);
+
         $patient  = Patient::with('user')->findOrFail($patientId);
         $provider = $this->currentProvider();
 
@@ -79,6 +100,8 @@ class WorkstationController extends Controller
 
     public function storeEncounter(Request $request, int $patientId)
     {
+        $this->requireConsent($patientId);
+
         $request->validate([
             'type'            => 'required|string',
             'chief_complaint' => 'required|string|max:300',

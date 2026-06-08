@@ -42,7 +42,10 @@
               <div class="entry-title">{{ $enc->chief_complaint ?: ucfirst($enc->type) }}</div>
               <div class="entry-meta">{{ $enc->provider->name }} · {{ $enc->facility->name }}</div>
             </div>
-            <div class="entry-date">{{ $enc->created_at->format('d M Y') }}</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="entry-date">{{ $enc->created_at->format('d M Y') }}</div>
+              <a href="{{ route('patient.encounter.print', $enc->id) }}" target="_blank" class="btn btn-ghost btn-sm" title="Print / Export PDF">🖨</a>
+            </div>
           </div>
           @if($enc->assessment_plan)
             <div class="entry-body">{{ Str::limit($enc->assessment_plan, 200) }}</div>

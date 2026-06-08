@@ -75,4 +75,20 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Password changed successfully.');
     }
+
+    public function toggle2fa(Request $request)
+    {
+        $user    = $this->currentUser();
+        $enabled = !$user->two_factor_enabled;
+
+        if ($enabled && !$user->phone) {
+            return back()->with('error', 'A verified phone number is required to enable two-factor authentication.');
+        }
+
+        $user->update(['two_factor_enabled' => $enabled]);
+
+        return back()->with('success', $enabled
+            ? 'Two-factor authentication enabled. You will receive an SMS code on each login.'
+            : 'Two-factor authentication disabled.');
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 
 class SettingsController extends Controller
 {
@@ -42,9 +43,9 @@ class SettingsController extends Controller
             SiteSetting::set($key, $request->input($key, ''));
         }
 
-        // Password handled separately — only update if filled
+        // Password handled separately — only update if filled; stored encrypted
         if ($request->filled('smtp_password')) {
-            SiteSetting::set('smtp_password', $request->smtp_password);
+            SiteSetting::set('smtp_password', Crypt::encryptString($request->smtp_password));
         }
 
         return back()->with('success', 'Settings saved successfully.');
@@ -52,7 +53,8 @@ class SettingsController extends Controller
 
     public function testSmtp(Request $request)
     {
-        $to = $request->input('test_email', auth()->user()->email);
+        $request->validate(['test_email' => 'required|email|max:120']);
+        $to = $request->test_email;
 
         try {
             \Illuminate\Support\Facades\Mail::raw(
