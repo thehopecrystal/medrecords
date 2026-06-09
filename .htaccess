@@ -2,6 +2,10 @@
     RewriteEngine On
     RewriteBase /
 
+    # Exclude phpMyAdmin, webmail and other server tools from Laravel routing.
+    RewriteRule ^phpmyadmin(/.*)?$ - [L]
+    RewriteRule ^webmail(/.*)?$ - [L]
+
     # If the path already begins with public/, stop to prevent infinite rewrite loop.
     RewriteRule ^public/ - [L]
 
