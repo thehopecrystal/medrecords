@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\MdcnController;
 use App\Http\Controllers\Admin\PlanController as AdminPlans;
 use App\Http\Controllers\Admin\SettingsController as AdminSettings;
 use App\Http\Controllers\Admin\UserController as AdminUsers;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Patient\AppointmentController as PatientAppointment;
 use App\Http\Controllers\Patient\AuditLogController;
@@ -45,6 +47,11 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
     Route::get('/verify-otp',  [AuthController::class, 'showOtp'])->name('auth.otp');
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->middleware('throttle:5,1');
+
+    Route::get('/forgot-password',         [ForgotPasswordController::class, 'showForm'])->name('password.request');
+    Route::post('/forgot-password',        [ForgotPasswordController::class, 'sendLink'])->name('password.email')->middleware('throttle:5,1');
+    Route::get('/reset-password/{token}',  [ResetPasswordController::class, 'showForm'])->name('password.reset');
+    Route::post('/reset-password',         [ResetPasswordController::class, 'reset'])->name('password.update');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');

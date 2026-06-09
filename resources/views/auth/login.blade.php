@@ -35,10 +35,13 @@
       </button>
     </div>
   </div>
-  <div class="form-field" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-    <input type="checkbox" name="remember" id="rememberMe"
-           style="width:auto;accent-color:var(--navy);cursor:pointer;">
-    <label for="rememberMe" style="font-size:13px;color:var(--grey-500);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;margin-bottom:0;">Keep me signed in</label>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" name="remember" id="rememberMe"
+             style="width:auto;accent-color:var(--navy);cursor:pointer;">
+      <label for="rememberMe" style="font-size:13px;color:var(--grey-500);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;margin-bottom:0;">Keep me signed in</label>
+    </div>
+    <a href="{{ route('password.request') }}" style="font-size:13px;color:var(--navy);font-weight:500;">Forgot password?</a>
   </div>
   <button type="submit" class="btn-submit" id="submitBtn">Sign in</button>
 </form>
@@ -47,7 +50,7 @@
   No account? <a href="{{ route('register') }}">Register as patient</a>
 </div>
 
-<style>
+<style nonce="{{ $cspNonce }}">
 .alert-success {
   background: #EDF7ED;
   color: #1B5E20;
@@ -82,7 +85,7 @@
 }
 </style>
 
-<script>
+<script nonce="{{ $cspNonce }}">
 function togglePassword() {
   const input = document.getElementById('passwordInput');
   const icon  = document.getElementById('eyeIcon');

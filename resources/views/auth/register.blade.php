@@ -204,7 +204,7 @@
 
 </form>
 
-<style>
+<style nonce="{{ $cspNonce }}">
 /* ─── Auth card override ─────────────────────────── */
 .auth-card { max-width: 480px; }
 
@@ -345,7 +345,7 @@
 }
 </style>
 
-<script>
+<script nonce="{{ $cspNonce }}">
 /* ── Helpers ─────────────────────────────────────── */
 function togglePwd(inputId, iconId) {
   const el = document.getElementById(inputId);

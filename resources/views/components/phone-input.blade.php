@@ -129,7 +129,7 @@ if ($value && str_starts_with($value, '+')) {
   </div>
 </div>
 
-<style>
+<style nonce="{{ $cspNonce }}">
 /* ── Phone input component ─────────────────────────── */
 .pi-wrap  { position: relative; }
 .pi-row   { display: flex; }
@@ -191,7 +191,7 @@ if ($value && str_starts_with($value, '+')) {
 .pi-item-code { color: #6B7280; font-size: 12px; font-weight: 600; flex-shrink: 0; }
 </style>
 
-<script>
+<script nonce="{{ $cspNonce }}">
 (function () {
   var uid      = {{ json_encode($id) }};
   var wrap     = document.getElementById(uid + '_wrap');

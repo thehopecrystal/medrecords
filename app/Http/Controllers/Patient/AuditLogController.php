@@ -55,7 +55,7 @@ class AuditLogController extends Controller
             $query->where('created_at', '<=', $request->to . ' 23:59:59');
         }
 
-        $logs = $query->latest()->get();
+        $logs = $query->latest()->limit(10000)->get();
 
         $filename = 'audit-log-' . now()->format('Y-m-d') . '.csv';
 

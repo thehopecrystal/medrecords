@@ -4,12 +4,16 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
 class SecurityHeaders
 {
     public function handle(Request $request, Closure $next): Response
     {
+        $nonce = base64_encode(random_bytes(16));
+        View::share('cspNonce', $nonce);
+
         $response = $next($request);
 
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
@@ -26,12 +30,10 @@ class SecurityHeaders
             );
         }
 
-        // CSP allows same-origin + jsdelivr (Chart.js CDN) + inline scripts/styles
-        // that already exist throughout the Blade templates.
         $response->headers->set('Content-Security-Policy',
             "default-src 'self'; " .
-            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " .
-            "style-src 'self' 'unsafe-inline'; " .
+            "script-src 'self' 'nonce-{$nonce}' https://cdn.jsdelivr.net; " .
+            "style-src 'self' 'nonce-{$nonce}'; " .
             "img-src 'self' data: blob:; " .
             "font-src 'self'; " .
             "connect-src 'self'; " .

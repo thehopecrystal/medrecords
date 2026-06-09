@@ -58,16 +58,22 @@ class DispenseController extends Controller
 
         $prescription = Prescription::with('patient')->findOrFail($prescriptionId);
 
+        $pharmacist = $this->currentUser();
+        $facilityId = $pharmacist->provider?->facility_id;
+        abort_if($facilityId === null, 422, 'Pharmacist is not linked to a facility.');
+
+        // Scope check: only dispense prescriptions issued by a provider at this facility.
+        abort_if(
+            $prescription->facility_id && $prescription->facility_id !== $facilityId,
+            403,
+            'This prescription was not issued at your facility.'
+        );
+
         abort_if(
             $prescription->status === 'dispensed' || Dispense::where('prescription_id', $prescription->id)->exists(),
             422,
             'This prescription has already been dispensed and cannot be dispensed again.'
         );
-
-        $pharmacist = $this->currentUser();
-
-        $facilityId = $pharmacist->provider?->facility_id;
-        abort_if($facilityId === null, 422, 'Pharmacist is not linked to a facility.');
 
         $dispense = Dispense::create([
             'prescription_id' => $prescription->id,

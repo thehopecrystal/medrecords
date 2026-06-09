@@ -40,7 +40,7 @@
           </div>
           <div class="form-field">
             <label>Role *</label>
-            <select name="role" required>
+            <select name="role" id="roleSelect" required onchange="toggleProviderFields()">
               <option value="">— Select role —</option>
               <option value="patient"        {{ old('role')=='patient'        ? 'selected' : '' }}>Patient</option>
               <option value="provider"       {{ old('role')=='provider'       ? 'selected' : '' }}>Provider (Doctor/Nurse)</option>
@@ -60,8 +60,35 @@
             <input type="password" name="password_confirmation" required placeholder="Repeat password">
           </div>
         </div>
+
+        {{-- Provider / Pharmacist fields --}}
+        <div id="providerFields" style="display:none;margin-bottom:16px;">
+          <div style="border-top:1px solid var(--border);margin:16px 0 14px;"></div>
+          <div class="form-grid">
+            <div class="form-field span-2">
+              <label>Facility *</label>
+              <select name="facility_id">
+                <option value="">— Select facility —</option>
+                @foreach($facilities as $f)
+                  <option value="{{ $f->id }}" {{ old('facility_id') == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
+                @endforeach
+              </select>
+              @error('facility_id')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-field">
+              <label>Specialty *</label>
+              <input type="text" name="specialty" value="{{ old('specialty') }}" placeholder="e.g. General Practice, Pharmacy">
+              @error('specialty')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-field">
+              <label>Licence / MDCN No.</label>
+              <input type="text" name="license_no" value="{{ old('license_no') }}" placeholder="Optional">
+            </div>
+          </div>
+        </div>
+
         <div class="alert navy" style="font-size:12px;">
-          ℹ️ If role is <strong>Patient</strong>, a health record (MedID) will be automatically generated. Provider / Pharmacist profiles can be set up from the user detail page.
+          ℹ️ <strong>Patient</strong>: MedID auto-generated. &nbsp;|&nbsp; <strong>Provider / Pharmacist</strong>: facility and specialty required.
         </div>
         <div class="form-actions" style="margin-top:20px;">
           <button type="submit" class="btn btn-primary">Create User</button>
@@ -71,4 +98,13 @@
     </div>
   </div>
 </div>
+
+<script nonce="{{ $cspNonce }}">
+function toggleProviderFields() {
+  var role = document.getElementById('roleSelect').value;
+  var show = role === 'provider' || role === 'pharmacist';
+  document.getElementById('providerFields').style.display = show ? '' : 'none';
+}
+document.addEventListener('DOMContentLoaded', toggleProviderFields);
+</script>
 @endsection

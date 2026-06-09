@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Patient;
 use App\Http\Controllers\Controller;
 use App\Models\AccessCode;
 use App\Services\SmsService;
+use Illuminate\Support\Facades\Crypt;
 
 class DashboardController extends Controller
 {
@@ -47,7 +48,7 @@ class DashboardController extends Controller
 
         $accessCode = AccessCode::create([
             'patient_id' => $patient->id,
-            'code'       => $code,
+            'code'       => Crypt::encryptString($code),
             'expires_at' => now()->addMinutes(10),
             'sms_sent'   => false,
         ]);
@@ -68,7 +69,7 @@ class DashboardController extends Controller
             return back()->with('error', 'No phone number on your account.');
         }
 
-        (new SmsService())->sendAccessCode($phone, $accessCode->code, $patient->med_id);
+        (new SmsService())->sendAccessCode($phone, $accessCode->decrypted_code, $patient->med_id);
         $accessCode->update(['sms_sent' => true]);
 
         return back()->with('success', "Access code sent to {$phone} via SMS.");

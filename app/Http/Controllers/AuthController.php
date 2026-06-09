@@ -39,7 +39,7 @@ class AuthController extends Controller
             // 2FA check
             if ($user->two_factor_enabled && $user->phone) {
                 $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-                $user->update(['otp_code' => $otp, 'otp_expires_at' => now()->addMinutes(10)]);
+                $user->update(['otp_code' => Hash::make($otp), 'otp_expires_at' => now()->addMinutes(10)]);
                 $userId = $user->id;
                 Auth::logout();
                 // Regenerate session after logout so the pre-OTP session ID differs
@@ -128,7 +128,7 @@ class AuthController extends Controller
 
         $user = User::findOrFail($userId);
 
-        if (!hash_equals($user->otp_code ?? '', $request->otp) || now()->isAfter($user->otp_expires_at)) {
+        if (!Hash::check($request->otp, $user->otp_code ?? '') || now()->isAfter($user->otp_expires_at)) {
             return back()->withErrors(['otp' => 'Invalid or expired code. Try again.']);
         }
 

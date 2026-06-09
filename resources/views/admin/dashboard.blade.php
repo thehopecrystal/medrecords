@@ -172,7 +172,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
+<script nonce="{{ $cspNonce }}">
 Chart.defaults.font = { family: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif', size: 11 };
 Chart.defaults.color = '#64748B';
 

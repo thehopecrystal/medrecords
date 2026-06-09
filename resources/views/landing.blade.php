@@ -27,7 +27,7 @@
   $plans = \App\Models\Plan::active()->get();
 @endphp
 <title>{{ $siteName }} — {{ $siteTagline }}</title>
-<style>
+<style nonce="{{ $cspNonce }}">
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -396,7 +396,12 @@ a { text-decoration: none; color: inherit; }
 <section class="hero">
   <div class="hero-inner">
     <div class="hero-badge">🇳🇬 Built for Nigeria's healthcare system</div>
-    <h1>{!! str_replace('<br>', '<br><span>', $heroHead) . (str_contains($heroHead, '<br>') ? '</span>' : '') !!}</h1>
+    @php
+      $hasBreak   = str_contains($heroHead, '<br>');
+      $heroParts  = array_map('e', explode('<br>', $heroHead));
+      $heroHeadSafe = implode('<br><span>', $heroParts) . ($hasBreak ? '</span>' : '');
+    @endphp
+    <h1>{!! $heroHeadSafe !!}</h1>
     <p class="hero-sub">{{ $heroSub }}</p>
     <div class="hero-actions">
       <a href="{{ route('register') }}" class="btn-hero-primary">{{ $heroCta1 }} →</a>

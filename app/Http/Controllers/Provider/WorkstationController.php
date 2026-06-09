@@ -119,7 +119,7 @@ class WorkstationController extends Controller
 
         if ($request->filled('drug_name')) {
             Prescription::create([
-                'rx_id'              => 'RX-' . strtoupper(Str::random(4)) . '-' . rand(1000, 9999),
+                'rx_id'              => 'RX-' . strtoupper(Str::random(8)),
                 'patient_id'         => $patient->id,
                 'encounter_id'       => $encounter->id,
                 'prescribed_by'      => auth()->id(),

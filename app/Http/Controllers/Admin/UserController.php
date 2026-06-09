@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Facility;
 use App\Models\Patient;
 use App\Models\Provider;
 use App\Models\User;
@@ -50,35 +51,52 @@ class UserController extends Controller
     public function create()
     {
         $this->superAdminOnly();
-        return view('admin.users.create');
+        $facilities = Facility::orderBy('name')->get(['id', 'name']);
+        return view('admin.users.create', compact('facilities'));
     }
 
     public function store(Request $request)
     {
         $this->superAdminOnly();
 
+        $isProvider = in_array($request->role, ['provider', 'pharmacist']);
+
         $request->validate([
-            'name'     => 'required|string|max:120',
-            'email'    => 'required|email|unique:users,email',
-            'phone'    => ['required', 'regex:/^0[789][01]\d{8}$/', 'unique:users,phone'],
-            'role'     => 'required|in:patient,provider,pharmacist,facility_admin,super_admin',
-            'password' => 'required|string|min:8|confirmed',
+            'name'        => 'required|string|max:120',
+            'email'       => 'required|email|unique:users,email',
+            'phone'       => ['required', 'regex:/^(\+?[0-9]{10,15})$/', 'unique:users,phone'],
+            'role'        => 'required|in:patient,provider,pharmacist,facility_admin,super_admin',
+            'password'    => 'required|string|min:8|confirmed',
+            'facility_id' => $isProvider ? 'required|exists:facilities,id' : 'nullable',
+            'specialty'   => $isProvider ? 'required|string|max:100' : 'nullable|string|max:100',
+            'license_no'  => 'nullable|string|max:60',
+        ], [
+            'phone.regex'        => 'Phone must be a valid number (e.g. 08012345678 or +2348012345678).',
+            'facility_id.required' => 'A facility must be assigned for provider and pharmacist accounts.',
         ]);
 
         $user = User::create([
             'name'      => $request->name,
             'email'     => $request->email,
-            'phone'     => $request->phone,
+            'phone'     => $this->normalizePhone($request->phone),
             'role'      => $request->role,
             'is_active' => true,
             'password'  => Hash::make($request->password),
         ]);
 
-        // Auto-create supporting records
         if ($request->role === 'patient') {
             Patient::create([
                 'user_id' => $user->id,
-                'med_id'  => 'MR-' . strtoupper(Str::random(4)) . '-' . rand(1000, 9999) . '-' . rand(1000, 9999),
+                'med_id'  => 'MR-' . strtoupper(Str::random(6)) . '-' . strtoupper(Str::random(6)),
+            ]);
+        }
+
+        if ($isProvider) {
+            Provider::create([
+                'user_id'     => $user->id,
+                'facility_id' => $request->facility_id,
+                'specialty'   => $request->specialty ?? 'General',
+                'license_no'  => $request->license_no,
             ]);
         }
 
@@ -104,14 +122,16 @@ class UserController extends Controller
         $request->validate([
             'name'  => 'required|string|max:120',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'phone' => ['required', 'regex:/^0[789][01]\d{8}$/', Rule::unique('users')->ignore($user->id)],
+            'phone' => ['required', 'regex:/^(\+?[0-9]{10,15})$/', Rule::unique('users')->ignore($user->id)],
             'role'  => 'required|in:patient,provider,pharmacist,facility_admin,super_admin',
+        ], [
+            'phone.regex' => 'Phone must be a valid number (e.g. 08012345678 or +2348012345678).',
         ]);
 
         $user->update([
             'name'  => $request->name,
             'email' => $request->email,
-            'phone' => $request->phone,
+            'phone' => $this->normalizePhone($request->phone),
             'role'  => $request->role,
         ]);
 
@@ -156,5 +176,21 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users')->with('success', "{$user->name} has been deleted.");
+    }
+
+    /** Normalise Nigerian phone numbers to E.164 (+234XXXXXXXXX). */
+    private function normalizePhone(string $phone): string
+    {
+        $digits = preg_replace('/\D/', '', $phone);
+
+        if (str_starts_with($digits, '234')) {
+            return '+' . $digits;
+        }
+
+        if (str_starts_with($digits, '0')) {
+            return '+234' . substr($digits, 1);
+        }
+
+        return '+' . $digits;
     }
 }

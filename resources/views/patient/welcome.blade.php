@@ -133,7 +133,7 @@
   </a>
 </div>
 
-<style>
+<style nonce="{{ $cspNonce }}">
 /* ─── Hero ─────────────────────────────────── */
 .welcome-hero {
   text-align: center;
@@ -295,7 +295,7 @@
 }
 </style>
 
-<script>
+<script nonce="{{ $cspNonce }}">
 function copyMedId() {
   const val = document.getElementById('medIdVal').textContent.trim();
   navigator.clipboard.writeText(val).then(function() {

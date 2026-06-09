@@ -450,7 +450,7 @@
   </div>
 </form>
 
-<style>
+<style nonce="{{ $cspNonce }}">
 .settings-tabs {
   display: flex; gap: 4px;
   background: #fff;
@@ -498,7 +498,7 @@
 .gw-card.active { border-color: var(--navy); background: var(--navy); color: #fff; }
 </style>
 
-<script>
+<script nonce="{{ $cspNonce }}">
 // Tab switching
 document.querySelectorAll('.stab').forEach(function(btn) {
   btn.addEventListener('click', function() {

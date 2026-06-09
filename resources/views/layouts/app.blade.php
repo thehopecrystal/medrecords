@@ -29,7 +29,7 @@
 <title>@yield('title', $siteName) — {{ $siteName }}</title>
 @php $faviconUrl = \App\Models\SiteSetting::get('site_favicon_url', ''); @endphp
 @if($faviconUrl)<link rel="icon" href="{{ $faviconUrl }}">@endif
-<style>
+<style nonce="{{ $cspNonce }}">
 /* ─── Reset & Base ──────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 14px; -webkit-text-size-adjust: 100%; }
@@ -870,7 +870,7 @@ tbody tr:hover { background: #FAFCFF; }
   </div>
 </div>
 
-<script>
+<script nonce="{{ $cspNonce }}">
 // Dark mode
 (function() {
   const saved = localStorage.getItem('medrecords_theme') || 'light';

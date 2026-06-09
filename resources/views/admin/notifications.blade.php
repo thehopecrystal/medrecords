@@ -155,7 +155,7 @@
 
 </div>
 
-<style>
+<style nonce="{{ $cspNonce }}">
 .audience-card {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 14px 8px; border: 2px solid var(--border); border-radius: 10px;
@@ -165,7 +165,7 @@
 .audience-card.active { border-color: var(--navy); background: var(--navy); color: #fff; }
 </style>
 
-<script>
+<script nonce="{{ $cspNonce }}">
 // Audience card toggle
 document.querySelectorAll('.audience-card').forEach(function(card) {
   card.addEventListener('click', function() {

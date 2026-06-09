@@ -124,7 +124,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
+<script nonce="{{ $cspNonce }}">
 const chartData = {!! json_encode($chartData->map(fn($l) => [
   'label' => $l->logged_at->format('d M H:i'),
   'sys'   => $l->bp_systolic,

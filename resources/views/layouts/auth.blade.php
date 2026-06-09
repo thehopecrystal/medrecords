@@ -10,7 +10,7 @@
   $logoUrl  = SiteSetting::get('site_logo_url', '');
 @endphp
 <title>@yield('title', 'Sign In') — {{ $siteName }}</title>
-<style>
+<style nonce="{{ $cspNonce }}">
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Arial, sans-serif;
@@ -299,7 +299,7 @@ body {
   </div>
 </div>
 
-<style>
+<style nonce="{{ $cspNonce }}">
 @media (max-width: 768px) {
   .mobile-logo { display: block !important; }
   .auth-box { max-width: 100%; }

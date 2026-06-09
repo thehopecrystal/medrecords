@@ -350,7 +350,7 @@
   </div>
 </div>
 
-<style>
+<style nonce="{{ $cspNonce }}">
 .profile-nav-item {
   display: flex; align-items: center; gap: 8px;
   padding: 9px 12px; border-radius: 8px;

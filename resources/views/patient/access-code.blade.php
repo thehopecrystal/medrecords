@@ -12,7 +12,7 @@
 @if(isset($accessCode) && $accessCode->isValid())
   <div class="access-code-box" id="code-display">
     <div class="code-label">One-time access code</div>
-    <div class="code">{{ substr($accessCode->code, 0, 3) }}&nbsp;{{ substr($accessCode->code, 3) }}</div>
+    <div class="code">{{ substr($accessCode->decrypted_code, 0, 3) }}&nbsp;{{ substr($accessCode->decrypted_code, 3) }}</div>
     <div class="timer" id="timer">Valid for 10:00</div>
   </div>
 
@@ -34,7 +34,7 @@
     </form>
   </div>
 
-  <script>
+  <script nonce="{{ $cspNonce }}">
     (function() {
       var expiry = new Date('{{ $accessCode->expires_at->toISOString() }}');
       function tick() {
