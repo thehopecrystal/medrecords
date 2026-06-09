@@ -25,9 +25,14 @@
             $parts    = explode(' ', $user->name);
             $initials = strtoupper(substr($parts[0],0,1) . substr($parts[1] ?? '',0,1));
           @endphp
-          <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#2C5F2D,#1E3A5F);color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
-            {{ $initials }}
-          </div>
+          @if($user->avatar)
+            <img src="{{ asset('storage/' . $user->avatar) }}" alt="Profile photo"
+                 style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin:0 auto 10px;display:block;border:3px solid var(--border);">
+          @else
+            <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#2C5F2D,#1E3A5F);color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+              {{ $initials }}
+            </div>
+          @endif
           <div style="font-size:15px;font-weight:700;color:var(--navy);">{{ $user->name }}</div>
           <div style="font-size:12px;color:var(--text-2);margin-top:2px;">{{ $user->email }}</div>
           <div style="margin-top:8px;">
@@ -37,6 +42,14 @@
               <span class="pill grey">NIN unverified</span>
             @endif
           </div>
+          <form method="POST" action="{{ route('profile.avatar') }}" enctype="multipart/form-data" style="margin-top:12px;">
+            @csrf
+            <label style="cursor:pointer;display:inline-block;font-size:12px;color:var(--navy);font-weight:600;background:var(--navy-lt);padding:6px 14px;border-radius:20px;border:1.5px solid var(--navy);">
+              📷 Change photo
+              <input type="file" name="avatar" accept="image/*" style="display:none;" onchange="this.form.submit()">
+            </label>
+          </form>
+          @error('avatar')<div class="form-error" style="font-size:11px;margin-top:6px;">{{ $message }}</div>@enderror
         </div>
 
         {{-- Profile completeness --}}

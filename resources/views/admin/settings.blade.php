@@ -10,7 +10,7 @@
   </div>
 </div>
 
-<form method="POST" action="{{ route('admin.settings.update') }}" id="settingsForm">
+<form method="POST" action="{{ route('admin.settings.update') }}" id="settingsForm" enctype="multipart/form-data">
   @csrf
 
   {{-- Tab nav --}}
@@ -45,16 +45,35 @@
             <input type="text" name="site_tagline" value="{{ $settings['site_tagline'] }}" placeholder="Your health record, always with you">
           </div>
           <div class="form-field span-2">
-            <label>Logo URL</label>
-            <input type="url" name="site_logo_url" value="{{ $settings['site_logo_url'] }}" placeholder="https://example.com/logo.png">
-            <div class="form-hint">Direct URL to your logo image (PNG or SVG recommended, transparent background)</div>
+            <label>Upload Logo</label>
+            <input type="file" name="site_logo_file" accept="image/*">
+            <div class="form-hint">PNG or SVG recommended, transparent background. Max 2 MB. Uploading a file overrides the URL below.</div>
           </div>
           @if($settings['site_logo_url'])
           <div class="form-field span-2">
-            <label>Current Logo Preview</label>
+            <label>Current Logo</label>
             <div style="padding: 16px; background: #F8FAFC; border: 1.5px solid var(--border); border-radius: 8px; display: inline-flex; gap: 20px; align-items: center;">
               <img src="{{ $settings['site_logo_url'] }}" alt="Logo" style="height: 48px; object-fit: contain;">
               <span style="font-size: 12px; color: var(--text-2);">{{ $settings['site_logo_url'] }}</span>
+            </div>
+          </div>
+          @endif
+          <div class="form-field span-2">
+            <label>Logo URL</label>
+            <input type="url" name="site_logo_url" value="{{ $settings['site_logo_url'] }}" placeholder="https://example.com/logo.png">
+            <div class="form-hint">Or paste a direct URL (upload above takes priority if both provided)</div>
+          </div>
+          <div class="form-field span-2">
+            <label>Upload Favicon</label>
+            <input type="file" name="site_favicon_file" accept="image/*,.ico">
+            <div class="form-hint">Shown in browser tabs. ICO, PNG, or SVG. 32×32 px recommended. Max 512 KB.</div>
+          </div>
+          @if($settings['site_favicon_url'])
+          <div class="form-field span-2">
+            <label>Current Favicon</label>
+            <div style="padding: 12px 16px; background: #F8FAFC; border: 1.5px solid var(--border); border-radius: 8px; display: inline-flex; gap: 16px; align-items: center;">
+              <img src="{{ $settings['site_favicon_url'] }}" alt="Favicon" style="height: 32px; width: 32px; object-fit: contain;">
+              <span style="font-size: 12px; color: var(--text-2);">{{ $settings['site_favicon_url'] }}</span>
             </div>
           </div>
           @endif

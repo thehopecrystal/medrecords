@@ -27,6 +27,8 @@
     : 0;
 @endphp
 <title>@yield('title', $siteName) — {{ $siteName }}</title>
+@php $faviconUrl = \App\Models\SiteSetting::get('site_favicon_url', ''); @endphp
+@if($faviconUrl)<link rel="icon" href="{{ $faviconUrl }}">@endif
 <style>
 /* ─── Reset & Base ──────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -637,7 +639,11 @@ tbody tr:hover { background: #FAFCFF; }
 
     {{-- User info --}}
     <div class="sb-user">
-      <div class="sb-avatar">{{ $initials ?: '?' }}</div>
+      @if($authUser?->avatar)
+        <img src="{{ asset('storage/' . $authUser->avatar) }}" alt="" class="sb-avatar" style="object-fit:cover;">
+      @else
+        <div class="sb-avatar">{{ $initials ?: '?' }}</div>
+      @endif
       <div>
         <div class="sb-uname">{{ Str::limit($userName, 22) }}</div>
         <div class="sb-urole">
@@ -795,7 +801,13 @@ tbody tr:hover { background: #FAFCFF; }
         {{-- User menu --}}
         <div class="user-menu" id="userMenu">
           <button class="user-btn" onclick="toggleUserMenu()">
-            <div class="user-btn-avatar">{{ $initials ?: '?' }}</div>
+            <div class="user-btn-avatar">
+              @if($authUser?->avatar)
+                <img src="{{ asset('storage/' . $authUser->avatar) }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+              @else
+                {{ $initials ?: '?' }}
+              @endif
+            </div>
             <span class="user-btn-name">{{ Str::limit($userName, 16) }}</span>
             <span class="user-btn-caret">▾</span>
           </button>

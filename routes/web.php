@@ -31,6 +31,7 @@ use App\Http\Controllers\Provider\LabResultController;
 use App\Http\Controllers\Provider\ReferralController;
 use App\Http\Controllers\Provider\RefillRequestController as ProviderRefill;
 use App\Http\Controllers\Provider\WorkstationController;
+use App\Http\Controllers\AvatarController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public ───────────────────────────────────────────────────────────────────
@@ -47,6 +48,11 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+// ─── Shared (all authenticated roles) ─────────────────────────────────────────
+Route::middleware('auth')->group(function () {
+    Route::post('/profile/avatar', [AvatarController::class, 'update'])->name('profile.avatar');
+});
 
 // ─── Patient ──────────────────────────────────────────────────────────────────
 Route::prefix('patient')->middleware(['auth', 'role:patient'])->name('patient.')->group(function () {
