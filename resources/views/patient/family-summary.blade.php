@@ -7,7 +7,12 @@
 
 @php
   $members = collect([['record' => $self, 'name' => $self->user->name, 'relation' => 'You', 'dob' => $self->dob]])
-    ->concat($dependents->map(fn($d) => ['record' => $d, 'name' => $d->first_name.' '.$d->last_name, 'relation' => ucfirst($d->relationship ?? 'Dependent'), 'dob' => $d->dob ?? null]));
+    ->concat($dependents->map(fn($d) => [
+        'record'   => $d->dependent,
+        'name'     => $d->dependent?->user?->name ?? 'Unknown',
+        'relation' => ucfirst($d->relationship ?? 'Dependent'),
+        'dob'      => $d->dependent?->dob ?? null,
+    ]));
 @endphp
 
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;">

@@ -49,7 +49,7 @@ class DependentController extends Controller
 
         $depPatient = Patient::create([
             'user_id' => $depUser->id,
-            'med_id'  => 'MR-' . strtoupper(Str::random(4)) . '-' . rand(1000, 9999) . '-' . rand(1000, 9999),
+            'med_id'  => 'MR-' . strtoupper(Str::random(6)) . '-' . strtoupper(Str::random(6)),
             'dob'     => $request->dob,
             'gender'  => $request->gender,
         ]);

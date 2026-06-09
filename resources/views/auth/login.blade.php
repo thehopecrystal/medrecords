@@ -19,7 +19,7 @@
     <label>Email or phone</label>
     <input type="text" name="login" id="loginInput"
            value="{{ old('login') }}"
-           placeholder="adaeze@gmail.com or 08045678901"
+           placeholder="Email address or phone number"
            autocomplete="username"
            required autofocus>
   </div>
@@ -42,18 +42,6 @@
   </div>
   <button type="submit" class="btn-submit" id="submitBtn">Sign in</button>
 </form>
-
-<div class="divider">quick demo access</div>
-
-<div class="role-links">
-  <span style="font-size:11px;color:var(--grey-500);text-align:center;grid-column:1/-1;">
-    All demo passwords are <strong>password</strong>
-  </span>
-  <button type="button" class="role-link" onclick="fillDemo('adaeze@gmail.com')">🧑‍🤝‍🧑 Patient</button>
-  <button type="button" class="role-link" onclick="fillDemo('tunde@reddington.ng')">🩺 Doctor</button>
-  <button type="button" class="role-link" onclick="fillDemo('okafor@healthplus.ng')">💊 Pharmacist</button>
-  <button type="button" class="role-link" onclick="fillDemo('admin@medrecords.ng')">🛡 Admin</button>
-</div>
 
 <div class="form-footer">
   No account? <a href="{{ route('register') }}">Register as patient</a>
@@ -88,24 +76,6 @@
   color: var(--grey-500);
   padding: 2px;
 }
-.role-link {
-  text-align: center;
-  padding: 9px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--grey-200);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--grey-700, #374151);
-  background: #fff;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-  font-family: inherit;
-}
-.role-link:hover {
-  background: var(--grey-50);
-  border-color: var(--navy);
-  color: var(--navy);
-}
 .btn-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -123,12 +93,6 @@ function togglePassword() {
     input.type = 'password';
     icon.textContent = '👁';
   }
-}
-
-function fillDemo(email) {
-  document.getElementById('loginInput').value = email;
-  document.getElementById('passwordInput').value = 'password';
-  document.getElementById('loginInput').focus();
 }
 
 document.getElementById('loginForm').addEventListener('submit', function () {

@@ -1,7 +1,10 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /
 
-    # Forward everything to public/ without exposing it in the URL.
-    # The public/.htaccess then hands requests to index.php as normal.
-    RewriteRule ^(.*)$ public/$1 [L]
+    # If the path already begins with public/, stop to prevent infinite rewrite loop.
+    RewriteRule ^public/ - [L]
+
+    # Forward everything else into public/ so /public never appears in the URL.
+    RewriteRule ^(.*)$ public/$1 [L,QSA]
 </IfModule>

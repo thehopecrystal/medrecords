@@ -64,7 +64,7 @@
               <p style="margin:0;color:#9aa5b4;font-size:12px;line-height:1.6;">
                 You are receiving this because you have an active MedRecords account.
                 If you believe you received this in error, please ignore this email or contact
-                <a href="mailto:support@medrecords.ng" style="color:#1e3a5f;text-decoration:none;">support@medrecords.ng</a>.
+                <a href="mailto:support@medrecords.com.ng" style="color:#1e3a5f;text-decoration:none;">support@medrecords.com.ng</a>.
               </p>
               <p style="margin:10px 0 0;color:#c4cdd6;font-size:11px;">
                 &copy; {{ date('Y') }} MedRecords &mdash; Nigeria

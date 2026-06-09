@@ -11,9 +11,13 @@ class FamilySummaryController extends Controller
     {
         $patient    = $this->currentPatient();
         $dependents = $patient->dependents()
-            ->with(['prescriptions' => fn($q) => $q->where('status', 'active'),
-                    'vaccinations', 'conditions' => fn($q) => $q->where('status', 'active'),
-                    'encounters' => fn($q) => $q->latest()->limit(1)])
+            ->with(['dependent' => fn($q) => $q->with([
+                'user',
+                'prescriptions' => fn($q) => $q->where('status', 'active'),
+                'vaccinations',
+                'conditions'    => fn($q) => $q->where('status', 'active'),
+                'encounters'    => fn($q) => $q->latest()->limit(1),
+            ])])
             ->get();
 
         // Include self in summary
