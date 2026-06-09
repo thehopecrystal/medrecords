@@ -67,7 +67,7 @@ class AuthController extends Controller
         $request->validate([
             'name'       => 'required|string|max:120',
             'email'      => 'required|email|unique:users,email',
-            'phone'      => ['required', 'string', 'regex:/^0[789][01]\d{8}$/', 'unique:users,phone'],
+            'phone'      => ['required', 'string', 'regex:/^\+[1-9]\d{7,14}$/', 'unique:users,phone'],
             'password'   => 'required|string|min:8|confirmed',
             'dob'        => 'nullable|date|before:today',
             'gender'     => 'nullable|in:male,female,other',
@@ -76,7 +76,7 @@ class AuthController extends Controller
             'state'      => 'nullable|string|max:60',
             'nin'        => 'nullable|regex:/^\d{11}$/|unique:users,nin',
         ], [
-            'phone.regex'  => 'Phone must be a valid 11-digit Nigerian number (e.g. 08045678901).',
+            'phone.regex'  => 'Phone number must include a country code (e.g. +2348012345678).',
             'nin.regex'    => 'NIN must be exactly 11 digits.',
             'nin.unique'   => 'This NIN is unavailable.',
             'email.unique' => 'This email address is unavailable.',

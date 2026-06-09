@@ -107,7 +107,9 @@
             </div>
             <div class="form-field">
               <label>Phone number *</label>
-              <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" required placeholder="08045678901" maxlength="11">
+              <x-phone-input name="phone" id="profilePhone"
+                             :value="old('phone', $user->phone)"
+                             :required="true" />
               @error('phone')<div class="form-error">{{ $message }}</div>@enderror
             </div>
             <div class="form-field">

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BreakGlassController as AdminBreakGlass;
+use App\Http\Controllers\Admin\BroadcastNotificationController as AdminBroadcast;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\FacilityImportController as AdminFacilityImport;
 use App\Http\Controllers\Admin\MdcnController;
@@ -172,6 +173,11 @@ Route::prefix('admin')->middleware(['auth', 'role:facility_admin,super_admin'])-
     Route::get('/settings',               [AdminSettings::class, 'index'])->name('settings');
     Route::post('/settings',              [AdminSettings::class, 'update'])->name('settings.update');
     Route::post('/settings/smtp-test',    [AdminSettings::class, 'testSmtp'])->name('settings.smtp-test');
+    Route::post('/settings/sms-test',     [AdminSettings::class, 'testSms'])->name('settings.sms-test');
+
+    // Broadcast notifications
+    Route::get('/notifications',          [AdminBroadcast::class, 'index'])->name('notifications');
+    Route::post('/notifications',         [AdminBroadcast::class, 'store'])->name('notifications.send');
 
     // Users & Roles (super_admin only — enforced inside controller)
     Route::get('/users',                         [AdminUsers::class, 'index'])->name('users');

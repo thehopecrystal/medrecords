@@ -51,16 +51,8 @@
     </div>
     <div class="form-field">
       <label>Phone number <span class="req">*</span></label>
-      <div class="input-prefix-wrap">
-        <span class="input-prefix">🇳🇬 +234</span>
-        <input type="tel" name="phone" id="f-phone"
-               value="{{ old('phone') }}"
-               placeholder="08045678901"
-               autocomplete="tel"
-               pattern="0[789][01]\d{8}"
-               maxlength="11" required>
-      </div>
-      <div class="field-hint">11-digit Nigerian number e.g. 08045678901</div>
+      <x-phone-input name="phone" id="regPhone" :value="old('phone', '')" :required="true" />
+      <div class="field-hint">Select your country, then enter your number</div>
     </div>
     <div class="form-field">
       <label>Password <span class="req">*</span></label>
@@ -272,21 +264,6 @@
   margin-top: 4px;
 }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.input-prefix-wrap { display: flex; align-items: center; }
-.input-prefix {
-  background: var(--grey-100);
-  border: 1px solid var(--grey-200);
-  border-right: none;
-  border-radius: 8px 0 0 8px;
-  padding: 10px 10px;
-  font-size: 12px;
-  color: var(--grey-500);
-  white-space: nowrap;
-}
-.input-prefix-wrap input {
-  border-radius: 0 8px 8px 0 !important;
-  flex: 1;
-}
 .input-with-action { position: relative; display: flex; align-items: center; }
 .input-with-action input { padding-right: 40px; }
 .input-action {
@@ -433,15 +410,15 @@ document.getElementById('f-confirm').addEventListener('input', checkMatch);
 function goStep2() {
   const name  = document.getElementById('f-name').value.trim();
   const email = document.getElementById('f-email').value.trim();
-  const phone = document.getElementById('f-phone').value.trim();
+  const phone = document.getElementById('regPhone_hidden').value.trim();
   const pw    = document.getElementById('f-password').value;
   const cf    = document.getElementById('f-confirm').value;
 
   if (!name)  { alert('Please enter your full name.'); document.getElementById('f-name').focus(); return; }
   if (!email) { alert('Please enter your email address.'); document.getElementById('f-email').focus(); return; }
-  if (!phone || phone.length !== 11 || !/^0[789][01]\d{8}$/.test(phone)) {
-    alert('Please enter a valid 11-digit Nigerian phone number (e.g. 08045678901).');
-    document.getElementById('f-phone').focus(); return;
+  if (!phone || !/^\+[1-9]\d{7,14}$/.test(phone)) {
+    alert('Please enter a valid phone number.');
+    document.getElementById('regPhone_local').focus(); return;
   }
   if (pw.length < 8) { alert('Password must be at least 8 characters.'); document.getElementById('f-password').focus(); return; }
   if (!checkMatch())  { alert('Passwords do not match.'); document.getElementById('f-confirm').focus(); return; }
@@ -460,7 +437,7 @@ function goStep3() {
   // Fill review
   document.getElementById('rv-name').textContent  = document.getElementById('f-name').value.trim() || '—';
   document.getElementById('rv-email').textContent = document.getElementById('f-email').value.trim() || '—';
-  document.getElementById('rv-phone').textContent = document.getElementById('f-phone').value.trim() || '—';
+  document.getElementById('rv-phone').textContent = document.getElementById('regPhone_hidden').value.trim() || '—';
 
   const dob   = document.getElementById('f-dob').value;
   const gdr   = document.getElementById('f-gender');

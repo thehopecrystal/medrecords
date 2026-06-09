@@ -19,6 +19,8 @@
     <button type="button" class="stab" data-tab="contact">📞 Contact</button>
     <button type="button" class="stab" data-tab="social">🔗 Social Media</button>
     <button type="button" class="stab" data-tab="smtp">✉️ Email / SMTP</button>
+    <button type="button" class="stab" data-tab="sms">📱 SMS / Twilio</button>
+    <button type="button" class="stab" data-tab="payments">💳 Payments</button>
     <button type="button" class="stab" data-tab="landing">🌐 Landing Page</button>
   </div>
 
@@ -227,6 +229,165 @@
     </div>
   </div>
 
+  {{-- ── Tab: SMS / Twilio ──────────────────────────── --}}
+  <div class="stab-panel" id="tab-sms" style="display:none;">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div>
+          <div class="card-title">SMS Notifications</div>
+          <div class="card-sub">Controls whether OTP codes and alerts are sent via SMS. Requires Twilio credentials below.</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" name="sms_enabled" value="1" {{ ($settings['sms_enabled'] ?? '1') === '1' ? 'checked' : '' }}>
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          <span class="toggle-label" id="smsLabel">{{ ($settings['sms_enabled'] ?? '1') === '1' ? 'Enabled' : 'Disabled' }}</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Twilio Credentials</div>
+          <div class="card-sub">Used to send SMS messages. Get these from your Twilio console.</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Account SID</label>
+            <input type="text" name="twilio_account_sid"
+                   value="{{ $settings['twilio_account_sid'] }}"
+                   placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                   autocomplete="off">
+            <div class="form-hint">Found on your Twilio Console dashboard</div>
+          </div>
+          <div class="form-field">
+            <label>Auth Token</label>
+            <input type="password" name="twilio_auth_token"
+                   placeholder="Leave blank to keep current"
+                   autocomplete="new-password">
+            <div class="form-hint">Leave blank to keep the existing token</div>
+          </div>
+          <div class="form-field span-2">
+            <label>From Number</label>
+            <input type="text" name="twilio_from_number"
+                   value="{{ $settings['twilio_from_number'] }}"
+                   placeholder="+12345678901">
+            <div class="form-hint">Your Twilio phone number in E.164 format (e.g. +12345678901). Nigerian numbers will be converted automatically for delivery.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-header"><div><div class="card-title">Test SMS</div><div class="card-sub">Send a test message to verify your Twilio settings</div></div></div>
+      <div class="card-body">
+        <form method="POST" action="{{ route('admin.settings.sms-test') }}" style="display:flex;gap:10px;align-items:flex-end;">
+          @csrf
+          <div class="form-field" style="flex:1;">
+            <label>Send test to phone number</label>
+            <input type="text" name="test_phone" placeholder="08012345678" value="{{ auth()->user()->phone }}">
+          </div>
+          <button type="submit" class="btn btn-secondary">Send test SMS</button>
+        </form>
+        <div class="alert navy" style="margin-top:14px;margin-bottom:0;">
+          <span>ℹ</span>
+          <span>Save your Twilio credentials first, then use this to confirm messages are delivered.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- ── Tab: Payments ────────────────────────────── --}}
+  <div class="stab-panel" id="tab-payments" style="display:none;">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Active Payment Gateway</div>
+          <div class="card-sub">Select which gateway to use for subscription and payment collection</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          @foreach(['none' => ['label'=>'None / Disabled','icon'=>'🚫','desc'=>'Payments are not collected'],'paystack' => ['label'=>'Paystack','icon'=>'💚','desc'=>'Leading Nigerian gateway'],'flutterwave' => ['label'=>'Flutterwave','icon'=>'🦋','desc'=>'Pan-African payments']] as $val => $gw)
+          <label class="gw-card {{ ($settings['payment_gateway'] ?? 'none') === $val ? 'active' : '' }}">
+            <input type="radio" name="payment_gateway" value="{{ $val }}" {{ ($settings['payment_gateway'] ?? 'none') === $val ? 'checked' : '' }} style="display:none;">
+            <span style="font-size:28px;display:block;margin-bottom:6px;">{{ $gw['icon'] }}</span>
+            <span style="font-weight:700;font-size:14px;">{{ $gw['label'] }}</span>
+            <span style="font-size:12px;color:inherit;opacity:.75;">{{ $gw['desc'] }}</span>
+          </label>
+          @endforeach
+        </div>
+      </div>
+    </div>
+
+    {{-- Paystack --}}
+    <div class="card" id="paystack-section" style="margin-bottom:16px;{{ ($settings['payment_gateway'] ?? 'none') !== 'paystack' ? 'display:none;' : '' }}">
+      <div class="card-header">
+        <div>
+          <div class="card-title">💚 Paystack Keys</div>
+          <div class="card-sub">Available from your Paystack Dashboard → Settings → API Keys</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Public Key</label>
+            <input type="text" name="paystack_public_key"
+                   value="{{ $settings['paystack_public_key'] }}"
+                   placeholder="pk_live_xxxxxxxxxxxxxxxxxxxxxxxx"
+                   autocomplete="off">
+            <div class="form-hint">Safe to expose in frontend JavaScript</div>
+          </div>
+          <div class="form-field">
+            <label>Secret Key</label>
+            <input type="password" name="paystack_secret_key"
+                   placeholder="Leave blank to keep current"
+                   autocomplete="new-password">
+            <div class="form-hint">Keep secret — used server-side only. Leave blank to keep existing.</div>
+          </div>
+        </div>
+        <div class="alert amber" style="margin-top:8px;margin-bottom:0;">
+          <span>⚠️</span>
+          <span>Never use test keys in production. Switch to live keys before going live.</span>
+        </div>
+      </div>
+    </div>
+
+    {{-- Flutterwave --}}
+    <div class="card" id="flutterwave-section" style="{{ ($settings['payment_gateway'] ?? 'none') !== 'flutterwave' ? 'display:none;' : '' }}">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🦋 Flutterwave Keys</div>
+          <div class="card-sub">Available from your Flutterwave Dashboard → Settings → API Keys</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Public Key</label>
+            <input type="text" name="flutterwave_public_key"
+                   value="{{ $settings['flutterwave_public_key'] }}"
+                   placeholder="FLWPUBK-xxxxxxxxxxxxxxxxxxxxxxxx-X"
+                   autocomplete="off">
+          </div>
+          <div class="form-field">
+            <label>Secret Key</label>
+            <input type="password" name="flutterwave_secret_key"
+                   placeholder="Leave blank to keep current"
+                   autocomplete="new-password">
+            <div class="form-hint">Leave blank to keep the existing key.</div>
+          </div>
+        </div>
+        <div class="alert amber" style="margin-top:8px;margin-bottom:0;">
+          <span>⚠️</span>
+          <span>Never use test keys in production. Switch to live keys before going live.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {{-- ── Tab: Landing Page ────────────────────────── --}}
   <div class="stab-panel" id="tab-landing" style="display:none;">
     <div class="card">
@@ -281,8 +442,8 @@
   flex-wrap: wrap;
 }
 .stab {
-  flex: 1; min-width: 120px;
-  padding: 9px 16px; border-radius: 8px;
+  flex: 1; min-width: 100px;
+  padding: 9px 14px; border-radius: 8px;
   font-size: 13px; font-weight: 600;
   border: none; background: none;
   color: var(--text-2); cursor: pointer;
@@ -291,15 +452,61 @@
 }
 .stab:hover { background: var(--navy-lt); color: var(--navy); }
 .stab.active { background: var(--navy); color: #fff; }
+
+/* Toggle switch */
+.toggle-switch { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+.toggle-switch input { display: none; }
+.toggle-track {
+  width: 44px; height: 24px; border-radius: 12px;
+  background: #cbd5e1; transition: background 0.2s; position: relative; flex-shrink: 0;
+}
+.toggle-switch input:checked + .toggle-track { background: var(--navy); }
+.toggle-thumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.toggle-switch input:checked + .toggle-track .toggle-thumb { transform: translateX(20px); }
+.toggle-label { font-size: 13px; font-weight: 600; color: var(--text-2); min-width: 56px; }
+
+/* Gateway cards */
+.gw-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 18px 10px; border: 2px solid var(--border); border-radius: 12px;
+  cursor: pointer; transition: all 0.15s; text-align: center; gap: 4px;
+}
+.gw-card:hover { border-color: var(--navy); background: var(--navy-lt); }
+.gw-card.active { border-color: var(--navy); background: var(--navy); color: #fff; }
 </style>
 
 <script>
+// Tab switching
 document.querySelectorAll('.stab').forEach(function(btn) {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.stab-panel').forEach(p => p.style.display = 'none');
     this.classList.add('active');
     document.getElementById('tab-' + this.dataset.tab).style.display = '';
+  });
+});
+
+// SMS toggle label
+var smsToggle = document.querySelector('input[name="sms_enabled"]');
+var smsLabel  = document.getElementById('smsLabel');
+if (smsToggle) {
+  smsToggle.addEventListener('change', function() {
+    smsLabel.textContent = this.checked ? 'Enabled' : 'Disabled';
+  });
+}
+
+// Payment gateway card selector + section visibility
+document.querySelectorAll('.gw-card').forEach(function(card) {
+  card.addEventListener('click', function() {
+    document.querySelectorAll('.gw-card').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+    var val = this.querySelector('input').value;
+    document.getElementById('paystack-section').style.display    = val === 'paystack'    ? '' : 'none';
+    document.getElementById('flutterwave-section').style.display = val === 'flutterwave' ? '' : 'none';
   });
 });
 </script>

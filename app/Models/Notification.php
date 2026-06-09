@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Mail\UserNotificationMail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class Notification extends Model
 {
@@ -26,5 +29,21 @@ class Notification extends Model
             'body'    => $body,
             'data'    => $data,
         ]);
+    }
+
+    protected static function booted(): void
+    {
+        static::created(function (Notification $notification) {
+            $user = $notification->user;
+            if (!$user?->email) {
+                return;
+            }
+            try {
+                Mail::to($user->email)
+                    ->send(new UserNotificationMail($notification->title, $notification->body));
+            } catch (\Throwable $e) {
+                Log::warning("Notification email failed for user {$notification->user_id}: " . $e->getMessage());
+            }
+        });
     }
 }

@@ -753,6 +753,9 @@ tbody tr:hover { background: #FAFCFF; }
           </a>
         @endif
         <div class="sb-section">System</div>
+        <a href="{{ route('admin.notifications') }}" class="sb-item {{ request()->routeIs('admin.notifications*') ? 'active' : '' }}">
+          <span class="sb-icon">📣</span> Send Notification
+        </a>
         <a href="{{ route('admin.settings') }}" class="sb-item {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
           <span class="sb-icon">⚙️</span> Settings
         </a>

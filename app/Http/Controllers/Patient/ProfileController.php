@@ -24,7 +24,7 @@ class ProfileController extends Controller
         $request->validate([
             'name'                    => 'required|string|max:120',
             'email'                   => 'required|email|unique:users,email,' . $user->id,
-            'phone'                   => ['required', 'regex:/^0[789][01]\d{8}$/', 'unique:users,phone,' . $user->id],
+            'phone'                   => ['required', 'regex:/^\+[1-9]\d{7,14}$/', 'unique:users,phone,' . $user->id],
             'dob'                     => 'nullable|date|before:today',
             'gender'                  => 'nullable|in:male,female,other',
             'blood_type'              => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
@@ -35,7 +35,7 @@ class ProfileController extends Controller
             'emergency_contact_name'  => 'nullable|string|max:120',
             'emergency_contact_phone' => 'nullable|string|max:20',
         ], [
-            'phone.regex' => 'Phone must be a valid 11-digit Nigerian number (e.g. 08045678901).',
+            'phone.regex' => 'Phone number must include a country code (e.g. +2348012345678).',
         ]);
 
         $user->update([
@@ -85,7 +85,7 @@ class ProfileController extends Controller
         return back()->with('success', 'Password changed successfully. All other active sessions have been signed out.');
     }
 
-    public function toggle2fa(Request $request)
+    public function toggle2fa()
     {
         $user    = $this->currentUser();
         $enabled = !$user->two_factor_enabled;
