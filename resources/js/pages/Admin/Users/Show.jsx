@@ -30,10 +30,11 @@ export default function Show({ user }) {
     const isOwnAccount = auth?.user?.id === user.id;
 
     const editForm = useForm({
-        name:  user.name,
-        email: user.email,
-        phone: user.phone,
-        role:  user.role,
+        name:     user.name,
+        username: user.username ?? '',
+        email:    user.email,
+        phone:    user.phone,
+        role:     user.role,
     });
 
     const pwForm = useForm({
@@ -102,6 +103,13 @@ export default function Show({ user }) {
                             <input type="text" value={editForm.data.name} onChange={e => editForm.setData('name', e.target.value)} required style={inputStyle} />
                             {editForm.errors.name && <div style={{ color: 'var(--color-red)', fontSize: 12, marginTop: -8, marginBottom: 12 }}>{editForm.errors.name}</div>}
 
+                            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-2)', marginBottom: 5 }}>Username</label>
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+                                <span style={{ position: 'absolute', left: 10, color: 'var(--color-text-3)', fontSize: 13, pointerEvents: 'none' }}>@</span>
+                                <input type="text" value={editForm.data.username} onChange={e => editForm.setData('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="Optional" maxLength={30} style={{ ...inputStyle, paddingLeft: 24, marginBottom: 0 }} />
+                            </div>
+                            {editForm.errors.username && <div style={{ color: 'var(--color-red)', fontSize: 12, marginTop: -8, marginBottom: 12 }}>{editForm.errors.username}</div>}
+
                             <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-2)', marginBottom: 5 }}>Email</label>
                             <input type="email" value={editForm.data.email} onChange={e => editForm.setData('email', e.target.value)} required style={inputStyle} />
                             {editForm.errors.email && <div style={{ color: 'var(--color-red)', fontSize: 12, marginTop: -8, marginBottom: 12 }}>{editForm.errors.email}</div>}
@@ -132,6 +140,7 @@ export default function Show({ user }) {
                         </div>
                         <div style={{ padding: '4px 20px 12px' }}>
                             <DetailRow label="User ID" value={`#${user.id}`} />
+                            {user.username && <DetailRow label="Username" value={<span style={{ fontFamily: 'monospace', fontSize: 12 }}>@{user.username}</span>} />}
                             <DetailRow label="Joined" value={user.created_at_formatted} />
                             <DetailRow label="Last Login" value={user.last_login_formatted ?? 'Never'} />
                             {user.nin && <DetailRow label="NIN" value={user.nin} />}

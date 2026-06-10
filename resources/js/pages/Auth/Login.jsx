@@ -19,7 +19,7 @@ export default function Login() {
         <AuthLayout title="Sign In">
             <div style={{ marginBottom: 28 }}>
                 <h2 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>Welcome back</h2>
-                <p style={{ fontSize: 14, color: '#64748B', marginTop: 5 }}>Sign in with your email address or phone number</p>
+                <p style={{ fontSize: 14, color: '#64748B', marginTop: 5 }}>Sign in with your email, phone number, or username</p>
             </div>
 
             {errors.login && (
@@ -30,12 +30,12 @@ export default function Login() {
 
             <form onSubmit={submit}>
                 <div style={{ marginBottom: 16 }}>
-                    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: 6 }}>Email or phone</label>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: 6 }}>Email, phone, or username</label>
                     <input
                         type="text"
                         value={data.login}
                         onChange={e => setData('login', e.target.value)}
-                        placeholder="Email address or phone number"
+                        placeholder="Email, phone number, or @username"
                         autoComplete="username"
                         autoFocus
                         required

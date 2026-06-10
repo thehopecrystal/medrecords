@@ -29,7 +29,7 @@ export default function Register() {
     const [agreed, setAgreed] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
-        name: '', email: '', phone: '', password: '', password_confirmation: '',
+        name: '', username: '', email: '', phone: '', password: '', password_confirmation: '',
         dob: '', gender: '', blood_type: '', genotype: '', state: '', nin: '',
     });
 
@@ -80,6 +80,15 @@ export default function Register() {
                             <label style={lbl}>Full name <span style={{ color: '#B23A48' }}>*</span></label>
                             <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} placeholder="Adaeze Okonkwo" autoComplete="name" required style={inp} />
                             <div style={hint}>As it appears on government-issued ID</div>
+                        </div>
+                        <div style={field}>
+                            <label style={lbl}>Username</label>
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                <span style={{ position: 'absolute', left: 12, color: '#94A3B8', fontSize: 14, pointerEvents: 'none' }}>@</span>
+                                <input type="text" value={data.username} onChange={e => setData('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="adaeze_okonkwo" autoComplete="username" maxLength={30} style={{ ...inp, paddingLeft: 26 }} />
+                            </div>
+                            <div style={hint}>Optional — 3–30 chars, letters, numbers and underscores. Auto-generated if blank.</div>
+                            {errors.username && <div style={{ ...hint, color: '#B23A48' }}>{errors.username}</div>}
                         </div>
                         <div style={field}>
                             <label style={lbl}>Email address <span style={{ color: '#B23A48' }}>*</span></label>
@@ -175,7 +184,7 @@ export default function Register() {
 
                         <div style={{ border: '1.5px solid #E2E8F0', borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
                             <div style={{ background: '#F8FAFC', padding: '8px 16px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748B' }}>Account Details</div>
-                            {[['Name', data.name],['Email', data.email],['Phone', data.phone]].map(([k,v]) => (
+                            {[['Name', data.name],['Username', data.username ? '@' + data.username : '(auto-generated)'],['Email', data.email],['Phone', data.phone]].map(([k,v]) => (
                                 <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 16px', fontSize: 13, borderTop: '1px solid #F1F5F9' }}>
                                     <span style={{ color: '#64748B' }}>{k}</span><strong>{v}</strong>
                                 </div>

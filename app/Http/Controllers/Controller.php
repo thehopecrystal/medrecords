@@ -19,12 +19,12 @@ abstract class Controller
 
     protected function currentPatient(): Patient
     {
-        return $this->currentUser()->patient;
+        return $this->currentUser()->patient ?? abort(500, 'Patient profile not found for this account.');
     }
 
     protected function currentProvider(): Provider
     {
-        return $this->currentUser()->provider;
+        return $this->currentUser()->provider ?? abort(500, 'Provider profile not found for this account.');
     }
 
     /**
@@ -43,7 +43,7 @@ abstract class Controller
         $hasBreakGlass = BreakGlassEvent::where('patient_id', $patientId)
             ->where('provider_id', auth()->id())
             ->where('status', 'active')
-            ->where('expires_at', '>', now())
+            ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
             ->exists();
 
         abort_unless(

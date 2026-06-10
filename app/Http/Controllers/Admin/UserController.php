@@ -29,6 +29,7 @@ class UserController extends Controller
         if ($request->filled('search')) {
             $s = $request->search;
             $query->where(fn ($q) => $q->where('name', 'like', "%{$s}%")
+                ->orWhere('username', 'like', "%{$s}%")
                 ->orWhere('email', 'like', "%{$s}%")
                 ->orWhere('phone', 'like', "%{$s}%"));
         }
@@ -49,6 +50,7 @@ class UserController extends Controller
         $usersData = $users->through(fn ($u) => [
             'id'                  => $u->id,
             'name'                => $u->name,
+            'username'            => $u->username,
             'email'               => $u->email,
             'phone'               => $u->phone,
             'role'                => $u->role,
@@ -80,6 +82,7 @@ class UserController extends Controller
 
         $request->validate([
             'name'        => 'required|string|max:120',
+            'username'    => 'nullable|string|min:3|max:30|regex:/^[a-zA-Z0-9_]+$/|unique:users,username',
             'email'       => 'required|email|unique:users,email',
             'phone'       => ['required', 'regex:/^(\+?[0-9]{10,15})$/', 'unique:users,phone'],
             'role'        => 'required|in:patient,provider,pharmacist,facility_admin,super_admin',
@@ -88,12 +91,15 @@ class UserController extends Controller
             'specialty'   => $isProvider ? 'required|string|max:100' : 'nullable|string|max:100',
             'license_no'  => 'nullable|string|max:60',
         ], [
-            'phone.regex'        => 'Phone must be a valid number (e.g. 08012345678 or +2348012345678).',
+            'username.regex'       => 'Username may only contain letters, numbers, and underscores.',
+            'username.unique'      => 'This username is already taken.',
+            'phone.regex'          => 'Phone must be a valid number (e.g. 08012345678 or +2348012345678).',
             'facility_id.required' => 'A facility must be assigned for provider and pharmacist accounts.',
         ]);
 
         $user = User::create([
             'name'      => $request->name,
+            'username'  => $request->username ? strtolower($request->username) : null,
             'email'     => $request->email,
             'phone'     => $this->normalizePhone($request->phone),
             'role'      => $request->role,
@@ -130,6 +136,7 @@ class UserController extends Controller
         $userData = [
             'id'                   => $user->id,
             'name'                 => $user->name,
+            'username'             => $user->username,
             'email'                => $user->email,
             'phone'                => $user->phone,
             'role'                 => $user->role,
@@ -156,19 +163,22 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'name'  => 'required|string|max:120',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'phone' => ['required', 'regex:/^(\+?[0-9]{10,15})$/', Rule::unique('users')->ignore($user->id)],
-            'role'  => 'required|in:patient,provider,pharmacist,facility_admin,super_admin',
+            'name'     => 'required|string|max:120',
+            'username' => ['nullable', 'string', 'min:3', 'max:30', 'regex:/^[a-zA-Z0-9_]+$/', Rule::unique('users')->ignore($user->id)],
+            'email'    => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'phone'    => ['required', 'regex:/^(\+?[0-9]{10,15})$/', Rule::unique('users')->ignore($user->id)],
+            'role'     => 'required|in:patient,provider,pharmacist,facility_admin,super_admin',
         ], [
-            'phone.regex' => 'Phone must be a valid number (e.g. 08012345678 or +2348012345678).',
+            'username.regex' => 'Username may only contain letters, numbers, and underscores.',
+            'phone.regex'    => 'Phone must be a valid number (e.g. 08012345678 or +2348012345678).',
         ]);
 
         $user->update([
-            'name'  => $request->name,
-            'email' => $request->email,
-            'phone' => $this->normalizePhone($request->phone),
-            'role'  => $request->role,
+            'name'     => $request->name,
+            'username' => $request->username ? strtolower($request->username) : $user->username,
+            'email'    => $request->email,
+            'phone'    => $this->normalizePhone($request->phone),
+            'role'     => $request->role,
         ]);
 
         return back()->with('success', 'User updated successfully.');

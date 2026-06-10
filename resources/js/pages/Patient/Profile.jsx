@@ -41,6 +41,7 @@ export default function Profile({ patient, user }) {
 
     const personal = useForm({
         name: user.name || '',
+        username: user.username || '',
         email: user.email || '',
         phone: user.phone || '',
         dob: patient.dob || '',
@@ -137,6 +138,7 @@ export default function Profile({ patient, user }) {
                                 : <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg,#2C5F2D,#1E3A5F)', color: '#fff', fontSize: 26, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>{initials}</div>
                             }
                             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-navy)' }}>{user.name}</div>
+                            {user.username && <div style={{ fontSize: 12, color: 'var(--color-navy)', fontWeight: 600, marginTop: 1 }}>@{user.username}</div>}
                             <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginTop: 2 }}>{user.email}</div>
                             <div style={{ marginTop: 8 }}>
                                 <span style={{ display: 'inline-flex', alignItems: 'center', fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, ...(patient.nin_verified ? { background: 'var(--color-green-lt)', color: 'var(--color-green)' } : { background: 'var(--color-border)', color: 'var(--color-text-2)' }) }}>
@@ -193,6 +195,13 @@ export default function Profile({ patient, user }) {
                                 <div style={gridStyle}>
                                     <FormField label="Full name *" error={personal.errors.name} span2>
                                         <input style={inputStyle()} type="text" value={personal.data.name} onChange={e => personal.setData('name', e.target.value)} required placeholder="Adaeze Okonkwo" />
+                                    </FormField>
+                                    <FormField label="Username" error={personal.errors.username}>
+                                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                            <span style={{ position: 'absolute', left: 10, color: 'var(--color-text-3)', fontSize: 13, pointerEvents: 'none' }}>@</span>
+                                            <input style={{ ...inputStyle(), paddingLeft: 24 }} type="text" value={personal.data.username} onChange={e => personal.setData('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="adaeze_okonkwo" maxLength={30} autoComplete="username" />
+                                        </div>
+                                        <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 4 }}>Used for login — 3–30 chars, letters, numbers and underscores only</div>
                                     </FormField>
                                     <FormField label="Email address *" error={personal.errors.email}>
                                         <input style={inputStyle()} type="email" value={personal.data.email} onChange={e => personal.setData('email', e.target.value)} required />

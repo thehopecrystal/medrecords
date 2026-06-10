@@ -24,6 +24,7 @@ class ProfileController extends Controller
 
         $request->validate([
             'name'                    => 'required|string|max:120',
+            'username'                => ['nullable', 'string', 'min:3', 'max:30', 'regex:/^[a-zA-Z0-9_]+$/', 'unique:users,username,' . $user->id],
             'email'                   => 'required|email|unique:users,email,' . $user->id,
             'phone'                   => ['required', 'regex:/^\+[1-9]\d{7,14}$/', 'unique:users,phone,' . $user->id],
             'dob'                     => 'nullable|date|before:today',
@@ -36,13 +37,15 @@ class ProfileController extends Controller
             'emergency_contact_name'  => 'nullable|string|max:120',
             'emergency_contact_phone' => 'nullable|string|max:20',
         ], [
-            'phone.regex' => 'Phone number must include a country code (e.g. +2348012345678).',
+            'username.regex' => 'Username may only contain letters, numbers, and underscores.',
+            'phone.regex'    => 'Phone number must include a country code (e.g. +2348012345678).',
         ]);
 
         $user->update([
-            'name'  => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
+            'name'     => $request->name,
+            'username' => $request->username ? strtolower($request->username) : $user->username,
+            'email'    => $request->email,
+            'phone'    => $request->phone,
         ]);
 
         $patient->update([

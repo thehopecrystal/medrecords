@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/AppLayout';
 
 export default function Welcome({ patient }) {
     const { auth } = usePage().props;
-    const firstName = (auth.user.name || '').split(' ')[0];
+    const firstName = (auth?.user?.name || '').split(' ')[0];
     const [copied, setCopied] = useState(false);
 
     const profile = {

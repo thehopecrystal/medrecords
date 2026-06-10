@@ -7,6 +7,7 @@ const inputStyle = { width: '100%', background: 'var(--color-card)', border: '1.
 export default function Create({ facilities }) {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
+        username: '',
         email: '',
         phone: '',
         role: '',
@@ -55,6 +56,12 @@ export default function Create({ facilities }) {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                                 <Field label="Full Name *" error={errors.name} span2>
                                     <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} required placeholder="e.g. Amaka Okonkwo" style={inputStyle} />
+                                </Field>
+                                <Field label="Username" error={errors.username} span2>
+                                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                        <span style={{ position: 'absolute', left: 10, color: 'var(--color-text-3)', fontSize: 13, pointerEvents: 'none' }}>@</span>
+                                        <input type="text" value={data.username} onChange={e => setData('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="Optional — auto-generated if blank" maxLength={30} style={{ ...inputStyle, paddingLeft: 24 }} />
+                                    </div>
                                 </Field>
                                 <Field label="Email Address *" error={errors.email}>
                                     <input type="email" value={data.email} onChange={e => setData('email', e.target.value)} required placeholder="user@example.com" style={inputStyle} />

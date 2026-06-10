@@ -25,7 +25,13 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $field = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+        if (filter_var($request->login, FILTER_VALIDATE_EMAIL)) {
+            $field = 'email';
+        } elseif (preg_match('/^\+?[0-9]{7,15}$/', preg_replace('/[\s\-()]/', '', $request->login))) {
+            $field = 'phone';
+        } else {
+            $field = 'username';
+        }
         $credentials = [$field => $request->login, 'password' => $request->password];
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
@@ -67,6 +73,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'name'       => 'required|string|max:120',
+            'username'   => 'nullable|string|min:3|max:30|regex:/^[a-zA-Z0-9_]+$/|unique:users,username',
             'email'      => 'required|email|unique:users,email',
             'phone'      => ['required', 'string', 'regex:/^\+[1-9]\d{7,14}$/', 'unique:users,phone'],
             'password'   => 'required|string|min:8|confirmed',
@@ -77,15 +84,22 @@ class AuthController extends Controller
             'state'      => 'nullable|string|max:60',
             'nin'        => 'nullable|regex:/^\d{11}$/|unique:users,nin',
         ], [
-            'phone.regex'  => 'Phone number must include a country code (e.g. +2348012345678).',
-            'nin.regex'    => 'NIN must be exactly 11 digits.',
-            'nin.unique'   => 'This NIN is unavailable.',
-            'email.unique' => 'This email address is unavailable.',
-            'phone.unique' => 'This phone number is unavailable.',
+            'username.regex'  => 'Username may only contain letters, numbers, and underscores.',
+            'username.unique' => 'This username is already taken.',
+            'phone.regex'     => 'Phone number must include a country code (e.g. +2348012345678).',
+            'nin.regex'       => 'NIN must be exactly 11 digits.',
+            'nin.unique'      => 'This NIN is unavailable.',
+            'email.unique'    => 'This email address is unavailable.',
+            'phone.unique'    => 'This phone number is unavailable.',
         ]);
+
+        $username = $request->username
+            ? strtolower($request->username)
+            : $this->generateUsername($request->name);
 
         $user = User::create([
             'name'     => $request->name,
+            'username' => $username,
             'email'    => $request->email,
             'phone'    => $request->phone,
             'nin'      => $request->nin ?: null,
@@ -148,6 +162,20 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');
+    }
+
+    private function generateUsername(string $name): string
+    {
+        $base = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '', str_replace(' ', '_', trim($name))));
+        $base = trim($base, '_');
+        $base = substr($base ?: 'user', 0, 20);
+
+        $candidate = $base;
+        $i = 1;
+        while (User::where('username', $candidate)->exists()) {
+            $candidate = $base . '_' . $i++;
+        }
+        return $candidate;
     }
 
     private function redirectByRole(string $role)

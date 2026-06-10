@@ -81,7 +81,7 @@ export default function Index({ users, roleCounts, filters }) {
                 <form onSubmit={applyFilter} style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
                     <div style={{ flex: 1, minWidth: 200 }}>
                         <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-2)', marginBottom: 5 }}>Search</label>
-                        <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, email, or phone…" style={inputStyle} />
+                        <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, username, email, or phone…" style={inputStyle} />
                     </div>
                     <div style={{ width: 160 }}>
                         <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-2)', marginBottom: 5 }}>Role</label>
@@ -141,6 +141,7 @@ export default function Index({ users, roleCounts, filters }) {
                                             </div>
                                             <div>
                                                 <div style={{ fontWeight: 600, fontSize: 13 }}>{user.name}</div>
+                                                {user.username && <div style={{ fontSize: 11, color: 'var(--color-navy)', fontWeight: 600 }}>@{user.username}</div>}
                                                 {user.nin && <div style={{ fontSize: 11, color: 'var(--color-text-3)' }}>NIN: {user.nin}</div>}
                                             </div>
                                         </div>
