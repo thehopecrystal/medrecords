@@ -12,6 +12,20 @@
   <a href="{{ route('provider.search') }}" class="btn btn-primary">+ New encounter</a>
 </div>
 
+@if(!$provider->facility_id)
+  <div class="alert amber" style="margin-bottom:20px;">
+    <span>📋</span>
+    <span><strong>Welcome!</strong> Your account is active but you are not yet assigned to a facility. A facility administrator can add you to their team from their Team Management page.</span>
+  </div>
+@endif
+
+@if(session('onboarding'))
+  <div class="alert green" style="margin-bottom:20px;">
+    <span>✓</span>
+    <span><strong>Account created successfully.</strong> Complete your profile and wait for a facility to add you to their team.</span>
+  </div>
+@endif
+
 <div class="stat-grid">
   <div class="stat-card"><div class="stat-label">Encounters today</div><div class="stat-value">{{ $recentEncounters->where('created_at', '>=', today())->count() }}</div></div>
   <div class="stat-card green"><div class="stat-label">This week</div><div class="stat-value">{{ $recentEncounters->where('created_at', '>=', now()->startOfWeek())->count() }}</div></div>
@@ -33,7 +47,7 @@
             </a>
             — {{ $enc->chief_complaint }}
           </div>
-          <div class="entry-meta">{{ $enc->facility->name }} · {{ ucfirst($enc->type) }}</div>
+          <div class="entry-meta">{{ $enc->facility?->name ?? 'No facility' }} · {{ ucfirst($enc->type) }}</div>
         </div>
         <div style="text-align:right;">
           <div class="entry-date">{{ $enc->created_at->format('d M Y') }}</div>

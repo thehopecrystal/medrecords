@@ -3,7 +3,7 @@
 @section('content')
 
 <h2>Welcome back</h2>
-<p class="subtitle">Sign in with your email address or phone number</p>
+<p class="subtitle">Sign in with your email address, phone number, or username</p>
 
 @if(session('success'))
   <div class="alert-success">{{ session('success') }}</div>
@@ -19,7 +19,7 @@
     <label>Email or phone</label>
     <input type="text" name="login" id="loginInput"
            value="{{ old('login') }}"
-           placeholder="Email address or phone number"
+           placeholder="Email, phone number, or username"
            autocomplete="username"
            required autofocus>
   </div>
@@ -47,7 +47,7 @@
 </form>
 
 <div class="form-footer">
-  No account? <a href="{{ route('register') }}">Register as patient</a>
+  No account? <a href="{{ route('register') }}">Create an account</a>
 </div>
 
 <style nonce="{{ $cspNonce }}">

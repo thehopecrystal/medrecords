@@ -749,8 +749,16 @@ tbody tr:hover { background: #FAFCFF; }
         <a href="{{ route('admin.providers') }}" class="sb-item {{ request()->routeIs('admin.providers') ? 'active' : '' }}">
           <span class="sb-icon">🩺</span> MDCN Verification
         </a>
+        @if($userRole === 'facility_admin')
+          <a href="{{ route('admin.team') }}" class="sb-item {{ request()->routeIs('admin.team*') ? 'active' : '' }}">
+            <span class="sb-icon">👨‍⚕️</span> My Team
+          </a>
+        @endif
         @if($userRole === 'super_admin')
           <div class="sb-section">Super Admin</div>
+          <a href="{{ route('admin.team') }}" class="sb-item {{ request()->routeIs('admin.team*') ? 'active' : '' }}">
+            <span class="sb-icon">👨‍⚕️</span> Team Management
+          </a>
           <a href="{{ route('admin.users') }}" class="sb-item {{ request()->routeIs('admin.users*') ? 'active' : '' }}">
             <span class="sb-icon">👥</span> Users &amp; Roles
           </a>

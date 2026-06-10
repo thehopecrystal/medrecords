@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
-        $middleware->web(append: [
+        $middleware->web(prepend: [
             \App\Http\Middleware\SecurityHeaders::class,
         ]);
     })

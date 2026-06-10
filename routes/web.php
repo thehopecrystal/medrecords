@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BreakGlassController as AdminBreakGlass;
+use App\Http\Controllers\Admin\TeamController as AdminTeam;
 use App\Http\Controllers\Admin\BroadcastNotificationController as AdminBroadcast;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\FacilityImportController as AdminFacilityImport;
@@ -213,4 +214,9 @@ Route::prefix('admin')->middleware(['auth', 'role:facility_admin,super_admin'])-
     // Facility CSV import (super_admin only — enforced inside controller)
     Route::get('/facilities/import',             [AdminFacilityImport::class, 'create'])->name('facilities.import');
     Route::post('/facilities/import',            [AdminFacilityImport::class, 'store'])->name('facilities.import.store');
+
+    // Team management — facility_admin sees their own team; super_admin sees all
+    Route::get('/team',                          [AdminTeam::class, 'index'])->name('team');
+    Route::post('/team/add',                     [AdminTeam::class, 'add'])->name('team.add');
+    Route::delete('/team/{id}',                  [AdminTeam::class, 'remove'])->name('team.remove');
 });

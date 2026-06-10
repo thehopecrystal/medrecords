@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>@yield('code') — MedRecords</title>
-<style nonce="{{ $cspNonce }}">
+<style nonce="{{ $cspNonce ?? '' }}">
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#F0F4F8;color:#0F172A;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
 .card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(15,23,42,.1);padding:48px 40px;max-width:480px;width:100%;text-align:center}
