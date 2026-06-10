@@ -26,7 +26,7 @@
           {{ ucfirst($dep->relationship) }} · MedID: {{ $dep->dependent->med_id }}
         </div>
         <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-          @php $vaxDue = $dep->dependent->vaccinations->where('next_due', '!=', null)->filter(fn($v) => $v->next_due->isPast() || $v->next_due->diffInDays() < 30)->count(); @endphp
+          @php $vaxDue = $dep->dependent ? $dep->dependent->vaccinations->where('next_due', '!=', null)->filter(fn($v) => $v->next_due->isPast() || $v->next_due->diffInDays() < 30)->count() : 0; @endphp
           @if($vaxDue)
             <span class="pill amber">{{ $vaxDue }} vaccine{{ $vaxDue > 1 ? 's' : '' }} due soon</span>
           @else

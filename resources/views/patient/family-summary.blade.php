@@ -59,10 +59,11 @@
       </div>
 
       {{-- Last encounter --}}
-      @if($rec->encounters->first())
+      @php $lastEncounter = $rec->encounters->first(); @endphp
+      @if($lastEncounter)
       <div style="margin-bottom:12px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">Last Visit</div>
-        <div style="font-size:12px;color:var(--text-2);">{{ $rec->encounters->first()->created_at->format('d M Y') }} — {{ $rec->encounters->first()->type }}</div>
+        <div style="font-size:12px;color:var(--text-2);">{{ $lastEncounter->created_at->format('d M Y') }} — {{ $lastEncounter->type }}</div>
       </div>
       @endif
 

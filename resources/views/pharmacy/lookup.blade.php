@@ -88,10 +88,11 @@
         <span class="k">Active medications</span>
         <span class="v">{{ $prescription->patient->activePrescriptions->count() ? $prescription->patient->activePrescriptions->pluck('drug_name')->join(', ') : 'None' }}</span>
       </div>
-      @if($prescription->patient->labResults->count())
+      @php $latestLab = $prescription->patient->labResults->sortByDesc('collected_at')->first(); @endphp
+      @if($latestLab)
         <div class="detail-row">
           <span class="k">Latest lab</span>
-          <span class="v">{{ $prescription->patient->labResults->sortByDesc('collected_at')->first()->test_name }} — {{ $prescription->patient->labResults->sortByDesc('collected_at')->first()->result }}</span>
+          <span class="v">{{ $latestLab->test_name }} — {{ $latestLab->result }}</span>
         </div>
       @endif
       <div class="alert green" style="margin-top:14px;margin-bottom:8px;"><span>✓</span><span>No duplicate dispense found.</span></div>
