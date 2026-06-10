@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Facility;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class FacilityImportController extends Controller
 {
     public function create()
     {
         abort_unless(auth()->user()->role === 'super_admin', 403);
-        return view('admin.facilities-import');
+        return Inertia::render('Admin/FacilitiesImport');
     }
 
     public function store(Request $request)

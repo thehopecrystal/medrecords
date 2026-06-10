@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class DependentController extends Controller
 {
@@ -21,12 +22,12 @@ class DependentController extends Controller
             'dependent.prescriptions',
         ])->get();
 
-        return view('patient.family', compact('patient', 'dependents'));
+        return Inertia::render('Patient/Family', compact('patient', 'dependents'));
     }
 
     public function create()
     {
-        return view('patient.family-add');
+        return Inertia::render('Patient/FamilyAdd');
     }
 
     public function store(Request $request)

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Provider;
 use App\Services\MdcnService;
+use Inertia\Inertia;
 
 class MdcnController extends Controller
 {
@@ -15,7 +16,21 @@ class MdcnController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(30);
 
-        return view('admin.providers', compact('providers'));
+        $providersData = $providers->through(fn ($p) => [
+            'id'                => $p->id,
+            'user_name'         => $p->user?->name,
+            'user_email'        => $p->user?->email,
+            'facility_name'     => $p->facility?->name,
+            'specialty'         => $p->specialty,
+            'mdcn_folio'        => $p->mdcn_folio,
+            'mdcn_verified'     => (bool) $p->mdcn_verified,
+            'mdcn_verified_at'  => $p->mdcn_verified_at?->format('d M Y'),
+            'mdcn_status'       => $p->mdcn_status,
+        ]);
+
+        return Inertia::render('Admin/Providers', [
+            'providers' => $providersData,
+        ]);
     }
 
     public function verify(int $id)

@@ -6,21 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Models\AccessCode;
 use App\Services\SmsService;
 use Illuminate\Support\Facades\Crypt;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     public function welcome()
     {
         $patient = $this->currentPatient();
-        return view('patient.welcome', compact('patient'));
+        return Inertia::render('Patient/Welcome', compact('patient'));
     }
 
     public function index()
     {
         $patient        = $this->currentPatient();
-        $recentActivity = $patient->auditLogs()->with('actor')->latest()->take(10)->get();
+        $recentActivity = $patient->auditLogs()->with('actor')->latest()->take(10)->get()
+            ->map(fn($log) => [
+                'id'           => $log->id,
+                'description'  => $log->description,
+                'actor'        => $log->actor ? ['name' => $log->actor->name] : null,
+                'created_at_human' => $log->created_at->diffForHumans(),
+            ]);
 
-        return view('patient.dashboard', compact('patient', 'recentActivity'));
+        return Inertia::render('Patient/Dashboard', compact('patient', 'recentActivity'));
     }
 
     public function showAccessCode()
@@ -32,7 +39,7 @@ class DashboardController extends Controller
             ->latest()
             ->first();
 
-        return view('patient.access-code', compact('accessCode', 'patient'));
+        return Inertia::render('Patient/AccessCode', compact('accessCode', 'patient'));
     }
 
     public function generateCode()
@@ -53,7 +60,7 @@ class DashboardController extends Controller
             'sms_sent'   => false,
         ]);
 
-        return view('patient.access-code', compact('accessCode', 'patient'));
+        return Inertia::render('Patient/AccessCode', compact('accessCode', 'patient'));
     }
 
     public function sendSms(int $codeId)

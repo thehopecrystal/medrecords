@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Patient;
 use App\Http\Controllers\Controller;
 use App\Models\VitalLog;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class VitalLogController extends Controller
 {
@@ -21,7 +22,14 @@ class VitalLogController extends Controller
 
         $latest = $logs->first();
 
-        return view('patient.vitals', compact('patient', 'logs', 'chartData', 'latest'));
+        // Serialize chart data for JS
+        $chartData = $chartData->map(fn($l) => [
+            'label' => $l->logged_at->format('d M H:i'),
+            'sys'   => $l->bp_systolic,
+            'dia'   => $l->bp_diastolic,
+        ])->values();
+
+        return Inertia::render('Patient/Vitals', compact('patient', 'logs', 'chartData', 'latest'));
     }
 
     public function store(Request $request)

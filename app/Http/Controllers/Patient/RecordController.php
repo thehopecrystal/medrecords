@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
+use Inertia\Inertia;
 
 class RecordController extends Controller
 {
@@ -12,14 +13,16 @@ class RecordController extends Controller
             'allergies', 'conditions',
             'encounters.facility', 'encounters.provider',
             'prescriptions.prescribedBy', 'prescriptions.dispenses',
-            'vaccinations',
+            'activePrescriptions',
+            'activeAllergies',
+            'vaccinations.administeredBy',
             'labResults',
             'dentalRecords.provider', 'dentalRecords.facility',
             'eyeCareRecords.provider', 'eyeCareRecords.facility',
             'procedures', 'hospitalizations', 'referrals',
         ]);
 
-        return view('patient.record', compact('patient', 'tab'));
+        return Inertia::render('Patient/Record', compact('patient', 'tab'));
     }
 
     public function prescription(int $id)
@@ -29,6 +32,6 @@ class RecordController extends Controller
             ->with(['prescribedBy', 'dispenses.facility', 'encounter'])
             ->findOrFail($id);
 
-        return view('patient.prescription-detail', compact('prescription', 'patient'));
+        return Inertia::render('Patient/PrescriptionDetail', compact('prescription', 'patient'));
     }
 }

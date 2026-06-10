@@ -7,6 +7,7 @@ use App\Models\Appointment;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
@@ -21,7 +22,7 @@ class AppointmentController extends Controller
             ->whereIn('status', ['completed', 'no_show', 'cancelled'])
             ->latest('appointment_date')->paginate(10);
 
-        return view('patient.appointments.index', compact('patient', 'upcoming', 'past'));
+        return Inertia::render('Patient/Appointments', compact('patient', 'upcoming', 'past'));
     }
 
     public function create()
@@ -29,7 +30,7 @@ class AppointmentController extends Controller
         $providers = User::where('role', 'provider')
             ->with('provider.facility')
             ->get();
-        return view('patient.appointments.create', compact('providers'));
+        return Inertia::render('Patient/AppointmentCreate', compact('providers'));
     }
 
     public function store(Request $request)

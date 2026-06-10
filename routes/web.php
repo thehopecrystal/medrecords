@@ -34,10 +34,11 @@ use App\Http\Controllers\Provider\ReferralController;
 use App\Http\Controllers\Provider\RefillRequestController as ProviderRefill;
 use App\Http\Controllers\Provider\WorkstationController;
 use App\Http\Controllers\AvatarController;
+use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public ───────────────────────────────────────────────────────────────────
-Route::get('/', fn () => view('landing'))->name('home');
+Route::get('/', [LandingController::class, 'index'])->name('home');
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 Route::middleware('guest')->group(function () {

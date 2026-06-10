@@ -7,6 +7,7 @@ use App\Models\Notification;
 use App\Models\Prescription;
 use App\Models\RefillRequest;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class RefillRequestController extends Controller
 {
@@ -17,7 +18,7 @@ class RefillRequestController extends Controller
             ->where('patient_id', $patient->id)
             ->latest()->paginate(20);
 
-        return view('patient.refills', compact('requests'));
+        return Inertia::render('Patient/Refills', compact('requests'));
     }
 
     public function store(Request $request)

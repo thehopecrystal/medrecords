@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Notification;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
@@ -30,7 +31,7 @@ class AppointmentController extends Controller
         $pendingCount = Appointment::forProvider($provider->user_id)
             ->where('status', 'pending')->count();
 
-        return view('provider.appointments', compact('appointments', 'upcoming', 'date', 'pendingCount'));
+        return Inertia::render('Provider/Appointments', compact('appointments', 'upcoming', 'date', 'pendingCount'));
     }
 
     public function confirm(int $id)

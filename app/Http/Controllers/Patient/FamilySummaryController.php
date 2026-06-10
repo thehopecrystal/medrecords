@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use App\Models\Dependent;
+use Inertia\Inertia;
 
 class FamilySummaryController extends Controller
 {
@@ -28,6 +29,6 @@ class FamilySummaryController extends Controller
             'encounters'    => fn($q) => $q->latest()->limit(1),
         ]);
 
-        return view('patient.family-summary', compact('patient', 'dependents', 'self'));
+        return Inertia::render('Patient/FamilySummary', compact('patient', 'dependents', 'self'));
     }
 }

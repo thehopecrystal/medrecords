@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\LabResult;
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class LabResultController extends Controller
 {
@@ -14,7 +15,7 @@ class LabResultController extends Controller
     {
         $this->requireConsent($patientId);
         $patient = Patient::with('user')->findOrFail($patientId);
-        return view('provider.lab-result-new', compact('patient'));
+        return Inertia::render('Provider/LabResultNew', compact('patient'));
     }
 
     public function store(Request $request, int $patientId)

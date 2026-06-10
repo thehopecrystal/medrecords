@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use App\Models\Encounter;
+use Inertia\Inertia;
 
 class EncounterPrintController extends Controller
 {
@@ -17,6 +18,6 @@ class EncounterPrintController extends Controller
             'prescriptions', 'labResults', 'procedures',
         ])->where('patient_id', $patient->id)->findOrFail($encounterId);
 
-        return view('provider.encounter-print', compact('encounter'));
+        return Inertia::render('Provider/EncounterPrint', compact('encounter'));
     }
 }

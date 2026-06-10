@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class PlanController extends Controller
 {
@@ -17,15 +18,42 @@ class PlanController extends Controller
     public function index()
     {
         $this->superAdminOnly();
-        $plans = Plan::orderBy('sort_order')->get();
-        return view('admin.plans.index', compact('plans'));
+        $plans = Plan::orderBy('sort_order')->get()->map(fn ($p) => [
+            'id'             => $p->id,
+            'name'           => $p->name,
+            'slug'           => $p->slug,
+            'description'    => $p->description,
+            'price'          => (float) $p->price,
+            'billing_period' => $p->billing_period,
+            'badge'          => $p->badge,
+            'sort_order'     => $p->sort_order,
+            'is_active'      => (bool) $p->is_active,
+            'is_featured'    => (bool) $p->is_featured,
+            'features'       => $p->features ?? [],
+            'formatted_price'=> $p->formattedPrice(),
+        ]);
+
+        return Inertia::render('Admin/Plans/Index', compact('plans'));
     }
 
     public function create()
     {
         $this->superAdminOnly();
-        $plan = new Plan(['billing_period' => 'monthly', 'is_active' => true, 'sort_order' => Plan::max('sort_order') + 1]);
-        return view('admin.plans.form', compact('plan'));
+        $plan = [
+            'id'             => null,
+            'name'           => '',
+            'slug'           => '',
+            'description'    => '',
+            'price'          => 0,
+            'billing_period' => 'monthly',
+            'badge'          => '',
+            'sort_order'     => (int) Plan::max('sort_order') + 1,
+            'is_active'      => true,
+            'is_featured'    => false,
+            'features'       => [],
+        ];
+
+        return Inertia::render('Admin/Plans/Form', compact('plan'));
     }
 
     public function store(Request $request)
@@ -46,8 +74,22 @@ class PlanController extends Controller
     public function edit(int $id)
     {
         $this->superAdminOnly();
-        $plan = Plan::findOrFail($id);
-        return view('admin.plans.form', compact('plan'));
+        $p = Plan::findOrFail($id);
+        $plan = [
+            'id'             => $p->id,
+            'name'           => $p->name,
+            'slug'           => $p->slug,
+            'description'    => $p->description,
+            'price'          => (float) $p->price,
+            'billing_period' => $p->billing_period,
+            'badge'          => $p->badge,
+            'sort_order'     => $p->sort_order,
+            'is_active'      => (bool) $p->is_active,
+            'is_featured'    => (bool) $p->is_featured,
+            'features'       => $p->features ?? [],
+        ];
+
+        return Inertia::render('Admin/Plans/Form', compact('plan'));
     }
 
     public function update(Request $request, int $id)

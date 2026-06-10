@@ -7,13 +7,14 @@ use App\Models\Consent;
 use App\Models\Notification;
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ConsentRequestController extends Controller
 {
     public function create(int $patientId)
     {
         $patient = Patient::with('user')->findOrFail($patientId);
-        return view('provider.consent-request', compact('patient'));
+        return Inertia::render('Provider/ConsentRequest', compact('patient'));
     }
 
     public function store(Request $request, int $patientId)

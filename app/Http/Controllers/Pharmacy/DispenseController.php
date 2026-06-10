@@ -8,6 +8,7 @@ use App\Models\Dispense;
 use App\Models\Prescription;
 use App\Services\NhiaService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class DispenseController extends Controller
 {
@@ -19,7 +20,7 @@ class DispenseController extends Controller
             ->take(15)
             ->get();
 
-        return view('pharmacy.dashboard', compact('recentDispenses'));
+        return Inertia::render('Pharmacy/Dashboard', compact('recentDispenses'));
     }
 
     public function lookup(Request $request)
@@ -47,7 +48,7 @@ class DispenseController extends Controller
             $nhia  = (new NhiaService())->checkEligibility($phone);
         }
 
-        return view('pharmacy.lookup', compact('prescription', 'rxId', 'nhia'));
+        return Inertia::render('Pharmacy/Lookup', compact('prescription', 'rxId', 'nhia'));
     }
 
     public function dispense(Request $request, int $prescriptionId)
@@ -108,6 +109,6 @@ class DispenseController extends Controller
             ->latest()
             ->paginate(30);
 
-        return view('pharmacy.history', compact('dispenses'));
+        return Inertia::render('Pharmacy/History', compact('dispenses'));
     }
 }

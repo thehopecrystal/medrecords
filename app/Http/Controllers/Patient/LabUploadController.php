@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\LabResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class LabUploadController extends Controller
 {
     public function create()
     {
         $patient = $this->currentPatient();
-        return view('patient.lab-upload', compact('patient'));
+        return Inertia::render('Patient/LabUpload', compact('patient'));
     }
 
     public function store(Request $request)

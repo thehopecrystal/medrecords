@@ -7,6 +7,7 @@ use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class SettingsController extends Controller
 {
@@ -41,7 +42,7 @@ class SettingsController extends Controller
         foreach (array_merge($this->keys, $this->encryptedKeys) as $k) {
             $settings[$k] = SiteSetting::get($k);
         }
-        return view('admin.settings', compact('settings'));
+        return Inertia::render('Admin/Settings', compact('settings'));
     }
 
     public function update(Request $request)

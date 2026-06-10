@@ -7,6 +7,7 @@ use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class BroadcastNotificationController extends Controller
 {
@@ -36,7 +37,20 @@ class BroadcastNotificationController extends Controller
 
         $users = User::where('is_active', true)->orderBy('name')->get(['id', 'name', 'email', 'role']);
 
-        return view('admin.notifications', compact('rows', 'users'));
+        $rowsData = $rows->map(fn ($n) => [
+            'id'              => $n->id,
+            'title'           => $n->title ?? ($n->data['title'] ?? ''),
+            'body'            => $n->body  ?? ($n->data['body']  ?? ''),
+            'recipient_count' => $n->recipient_count,
+            'sent_by_name'    => $n->sent_by_name,
+            'created_at_date' => $n->created_at->format('d M Y'),
+            'created_at_time' => $n->created_at->format('H:i'),
+        ])->values();
+
+        return Inertia::render('Admin/Notifications', [
+            'rows'  => $rowsData,
+            'users' => $users,
+        ]);
     }
 
     public function store(Request $request)

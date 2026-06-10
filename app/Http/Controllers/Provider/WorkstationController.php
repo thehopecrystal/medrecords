@@ -11,6 +11,7 @@ use App\Models\Patient;
 use App\Models\Prescription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class WorkstationController extends Controller
 {
@@ -23,7 +24,7 @@ class WorkstationController extends Controller
             ->take(10)
             ->get();
 
-        return view('provider.dashboard', compact('provider', 'recentEncounters'));
+        return Inertia::render('Provider/Dashboard', compact('provider', 'recentEncounters'));
     }
 
     public function search(Request $request)
@@ -43,7 +44,7 @@ class WorkstationController extends Controller
             ->get();
         }
 
-        return view('provider.search', compact('patients', 'q'));
+        return Inertia::render('Provider/Search', compact('patients', 'q'));
     }
 
     public function patient(int $id, string $tab = 'summary')
@@ -72,7 +73,7 @@ class WorkstationController extends Controller
             AuditLog::record($id, auth()->id(), 'record_viewed', 'Provider viewed patient record', 'Patient', $id);
         }
 
-        return view('provider.patient', compact('patient', 'consent', 'tab'));
+        return Inertia::render('Provider/Patient', compact('patient', 'consent', 'tab'));
     }
 
     public function newEncounter(int $patientId)
@@ -82,7 +83,7 @@ class WorkstationController extends Controller
         $patient  = Patient::with('user')->findOrFail($patientId);
         $provider = $this->currentProvider();
 
-        return view('provider.encounter-new', compact('patient', 'provider'));
+        return Inertia::render('Provider/EncounterNew', compact('patient', 'provider'));
     }
 
     public function storeEncounter(Request $request, int $patientId)
@@ -142,7 +143,7 @@ class WorkstationController extends Controller
     public function breakGlass(int $patientId)
     {
         $patient = Patient::with('user')->findOrFail($patientId);
-        return view('provider.break-glass', compact('patient'));
+        return Inertia::render('Provider/BreakGlass', compact('patient'));
     }
 
     public function storeBreakGlass(Request $request, int $patientId)

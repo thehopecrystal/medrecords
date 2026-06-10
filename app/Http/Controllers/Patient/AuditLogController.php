@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AuditLogController extends Controller
 {
@@ -33,7 +34,7 @@ class AuditLogController extends Controller
 
         $actions = $patient->auditLogs()->distinct()->pluck('action')->sort()->values();
 
-        return view('patient.audit-log', compact('patient', 'logs', 'actions'));
+        return Inertia::render('Patient/AuditLog', compact('patient', 'logs', 'actions'));
     }
 
     public function export(Request $request)

@@ -9,12 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class AuthController extends Controller
 {
     public function showLogin()
     {
-        return view('auth.login');
+        return Inertia::render('Auth/Login');
     }
 
     public function login(Request $request)
@@ -59,7 +60,7 @@ class AuthController extends Controller
 
     public function showRegister()
     {
-        return view('auth.register');
+        return Inertia::render('Auth/Register');
     }
 
     public function register(Request $request)
@@ -114,7 +115,7 @@ class AuthController extends Controller
         if (!$request->session()->has('2fa_user_id')) {
             return redirect()->route('login');
         }
-        return view('auth.otp');
+        return Inertia::render('Auth/Otp');
     }
 
     public function verifyOtp(Request $request)

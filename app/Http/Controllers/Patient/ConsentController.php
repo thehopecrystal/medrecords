@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use Inertia\Inertia;
 
 class ConsentController extends Controller
 {
@@ -15,7 +16,7 @@ class ConsentController extends Controller
         $expired = $patient->consents()->with('grantee')->where('status', 'expired')->latest()->take(20)->get();
         $revoked = $patient->consents()->with('grantee')->where('status', 'revoked')->latest()->take(20)->get();
 
-        return view('patient.consents', compact('patient', 'pending', 'active', 'expired', 'revoked'));
+        return Inertia::render('Patient/Consents', compact('patient', 'pending', 'active', 'expired', 'revoked'));
     }
 
     public function revoke(int $id)

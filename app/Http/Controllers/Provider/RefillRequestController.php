@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\RefillRequest;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class RefillRequestController extends Controller
 {
@@ -19,7 +20,7 @@ class RefillRequestController extends Controller
         $pendingCount = RefillRequest::where('provider_id', $user->id)
             ->where('status', 'pending')->count();
 
-        return view('provider.refills', compact('requests', 'pendingCount'));
+        return Inertia::render('Provider/Refills', compact('requests', 'pendingCount'));
     }
 
     public function approve(int $id, Request $request)

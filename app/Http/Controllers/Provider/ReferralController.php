@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\Patient;
 use App\Models\Referral;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ReferralController extends Controller
 {
@@ -14,7 +15,7 @@ class ReferralController extends Controller
     {
         $this->requireConsent($patientId);
         $patient = Patient::with('user')->findOrFail($patientId);
-        return view('provider.referral-new', compact('patient'));
+        return Inertia::render('Provider/ReferralNew', compact('patient'));
     }
 
     public function store(Request $request, int $patientId)
@@ -51,7 +52,7 @@ class ReferralController extends Controller
             ->where('referring_provider_id', $provider->user_id)
             ->latest()->paginate(20);
 
-        return view('provider.referrals', compact('referrals'));
+        return Inertia::render('Provider/Referrals', compact('referrals'));
     }
 
     public function updateStatus(int $id, Request $request)

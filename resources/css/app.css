@@ -3,9 +3,82 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
+@source '../**/*.jsx';
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, Arial, sans-serif;
+
+    /* Brand colours */
+    --color-navy:      #1E3A5F;
+    --color-navy-dk:   #0D1F35;
+    --color-navy-md:   #163050;
+    --color-navy-lt:   #EEF3FA;
+    --color-green:     #2C5F2D;
+    --color-green-lt:  #EDF7ED;
+    --color-red:       #B23A48;
+    --color-red-lt:    #FBEAEC;
+    --color-amber:     #B8860B;
+    --color-amber-lt:  #FEF9E7;
+
+    /* UI */
+    --color-border:    #E2E8F0;
+    --color-card:      #FFFFFF;
+    --color-page:      #F0F4F8;
+    --color-text:      #0F172A;
+    --color-text-2:    #475569;
+    --color-text-3:    #94A3B8;
+    --color-sb-bg:     #0D1F35;
+
+    /* Shadcn semantic tokens (maps to Tailwind utilities) */
+    --color-background:         #F0F4F8;
+    --color-foreground:         #0F172A;
+    --color-primary:            #1E3A5F;
+    --color-primary-foreground: #FFFFFF;
+    --color-secondary:          #EEF3FA;
+    --color-secondary-foreground: #1E3A5F;
+    --color-muted:              #F1F5F9;
+    --color-muted-foreground:   #475569;
+    --color-accent:             #EEF3FA;
+    --color-accent-foreground:  #1E3A5F;
+    --color-destructive:        #B23A48;
+    --color-destructive-foreground: #FFFFFF;
+    --color-input:              #E2E8F0;
+    --color-ring:               #1E3A5F;
+
+    --radius-sm: 6px;
+    --radius:    10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
 }
+
+/* Dark mode overrides */
+[data-theme="dark"] {
+    --color-background:         #0F172A;
+    --color-foreground:         #E2E8F0;
+    --color-primary:            #4A9CF8;
+    --color-primary-foreground: #0D1F35;
+    --color-secondary:          #1E2D45;
+    --color-secondary-foreground: #E2E8F0;
+    --color-muted:              #1E293B;
+    --color-muted-foreground:   #94A3B8;
+    --color-card:               #0F1C2E;
+    --color-border:             #1E293B;
+    --color-input:              #1E293B;
+    --color-sb-bg:              #070D18;
+    --color-page:               #0F172A;
+    --color-text:               #E2E8F0;
+    --color-text-2:             #94A3B8;
+}
+
+* { box-sizing: border-box; }
+html { font-size: 14px; -webkit-text-size-adjust: 100%; }
+body {
+    font-family: var(--font-sans);
+    background: var(--color-page);
+    color: var(--color-text);
+    line-height: 1.55;
+    margin: 0;
+}
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font-family: inherit; }

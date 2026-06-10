@@ -9,6 +9,7 @@ use App\Models\Facility;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
@@ -89,13 +90,37 @@ class DashboardController extends Controller
         $charts = compact('regLabels', 'regCounts', 'encLabels', 'encCounts',
                           'roleLabels', 'roleValues', 'dispLabels', 'dispCounts');
 
-        return view('admin.dashboard', compact('stats', 'recentLogs', 'breakGlass', 'charts'));
+        // Flatten relations so React doesn't need deep nesting
+        $recentLogsData = $recentLogs->map(fn ($log) => [
+            'id'              => $log->id,
+            'action'          => $log->action,
+            'actor_name'      => $log->actor?->name ?? 'System',
+            'created_at_human'=> $log->created_at->diffForHumans(),
+        ]);
+
+        $breakGlassData = $breakGlass->map(fn ($e) => [
+            'id'                => $e->id,
+            'patient_name'      => $e->patient?->user?->name ?? 'Unknown patient',
+            'provider_name'     => $e->provider?->name ?? '—',
+            'status'            => $e->status,
+            'created_at_human'  => $e->created_at->diffForHumans(),
+        ]);
+
+        return Inertia::render('Admin/Dashboard', [
+            'stats'      => $stats,
+            'recentLogs' => $recentLogsData,
+            'breakGlass' => $breakGlassData,
+            'charts'     => $charts,
+        ]);
     }
 
     public function facilities()
     {
         $facilities = Facility::withCount('providers')->orderBy('name')->paginate(30);
-        return view('admin.facilities', compact('facilities'));
+
+        return Inertia::render('Admin/Facilities', [
+            'facilities' => $facilities,
+        ]);
     }
 
     public function breakGlass()
@@ -103,6 +128,20 @@ class DashboardController extends Controller
         $events = BreakGlassEvent::with(['patient.user', 'provider'])
             ->latest()
             ->paginate(30);
-        return view('admin.break-glass', compact('events'));
+
+        $eventsData = $events->through(fn ($e) => [
+            'id'                  => $e->id,
+            'patient_name'        => $e->patient?->user?->name ?? 'Unknown patient',
+            'provider_name'       => $e->provider?->name ?? '—',
+            'status'              => $e->status,
+            'reason_code'         => $e->reason_code,
+            'justification'       => $e->justification,
+            'review_notes'        => $e->review_notes,
+            'created_at_formatted'=> $e->created_at->format('d M Y H:i'),
+        ]);
+
+        return Inertia::render('Admin/BreakGlass', [
+            'events' => $eventsData,
+        ]);
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -45,14 +46,30 @@ class UserController extends Controller
         $roleCounts = User::selectRaw('role, count(*) as total')
             ->groupBy('role')->pluck('total', 'role');
 
-        return view('admin.users.index', compact('users', 'roleCounts'));
+        $usersData = $users->through(fn ($u) => [
+            'id'                  => $u->id,
+            'name'                => $u->name,
+            'email'               => $u->email,
+            'phone'               => $u->phone,
+            'role'                => $u->role,
+            'is_active'           => $u->is_active,
+            'nin'                 => $u->nin,
+            'last_login_human'    => $u->last_login_at?->diffForHumans(),
+            'created_at_formatted'=> $u->created_at->format('d M Y'),
+        ]);
+
+        return Inertia::render('Admin/Users/Index', [
+            'users'      => $usersData,
+            'roleCounts' => $roleCounts,
+            'filters'    => $request->only(['search', 'role', 'status']),
+        ]);
     }
 
     public function create()
     {
         $this->superAdminOnly();
         $facilities = Facility::orderBy('name')->get(['id', 'name']);
-        return view('admin.users.create', compact('facilities'));
+        return Inertia::render('Admin/Users/Create', compact('facilities'));
     }
 
     public function store(Request $request)
@@ -110,7 +127,26 @@ class UserController extends Controller
 
         $user = User::with(['patient', 'provider.facility'])->findOrFail($id);
 
-        return view('admin.users.show', compact('user'));
+        $userData = [
+            'id'                   => $user->id,
+            'name'                 => $user->name,
+            'email'                => $user->email,
+            'phone'                => $user->phone,
+            'role'                 => $user->role,
+            'is_active'            => $user->is_active,
+            'nin'                  => $user->nin,
+            'created_at_formatted' => $user->created_at->format('d M Y, H:i'),
+            'last_login_formatted' => $user->last_login_at?->format('d M Y, H:i'),
+            'patient'              => $user->patient ? ['med_id' => $user->patient->med_id] : null,
+            'provider'             => $user->provider ? [
+                'mdcn_folio'       => $user->provider->mdcn_folio,
+                'is_mdcn_verified' => (bool) $user->provider->mdcn_verified,
+            ] : null,
+        ];
+
+        return Inertia::render('Admin/Users/Show', [
+            'user' => $userData,
+        ]);
     }
 
     public function update(Request $request, int $id)
