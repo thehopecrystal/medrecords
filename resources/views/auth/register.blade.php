@@ -1158,6 +1158,19 @@ H('regForm').addEventListener('submit', function(e) {
     return;
   }
   syncPhone();
+
+  // Disable ALL inputs that live in inactive wizard screens.
+  // The browser collects form data after this handler runs, so disabled fields are excluded.
+  // Without this, duplicate name/email/password fields from the other wizards overwrite
+  // the filled-in values (PHP keeps the last occurrence of each field name).
+  var activeScreen = { patient:'scr-patient', provider:'scr-provider' }[currentType] || 'scr-org';
+  ['scr-patient', 'scr-provider', 'scr-org'].forEach(function(screenId) {
+    if (screenId !== activeScreen) {
+      var scr = H(screenId);
+      if (scr) scr.querySelectorAll('input, select, textarea').forEach(function(f) { f.disabled = true; });
+    }
+  });
+
   var btnId = { patient:'pat-submit', provider:'prv-submit' }[currentType] || 'org-submit';
   var btn = H(btnId);
   if (btn) { btn.disabled = true; btn.textContent = 'Creating account…'; }
