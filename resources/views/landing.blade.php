@@ -25,6 +25,15 @@
   $li          = SiteSetting::get('social_linkedin');
   $footerAbout = SiteSetting::get('footer_about', "Nigeria's patient-owned electronic health record platform.");
   $plans = \App\Models\Plan::active()->get();
+  $authUser      = auth()->user();
+  $userDashRoute = $authUser ? match($authUser->role) {
+    'patient'                       => route('patient.dashboard'),
+    'provider'                      => route('provider.dashboard'),
+    'pharmacist'                    => route('pharmacy.dashboard'),
+    'facility_admin', 'super_admin' => route('admin.dashboard'),
+    default                         => url('/'),
+  } : null;
+  $userFirstName = $authUser ? explode(' ', $authUser->name)[0] : null;
 @endphp
 <title>{{ $siteName }} — {{ $siteTagline }}</title>
 <style nonce="{{ $cspNonce }}">
@@ -81,7 +90,11 @@ a { text-decoration: none; color: inherit; }
   transition: background 0.15s, color 0.15s;
 }
 .nav-link:hover { background: #F1F5F9; color: var(--navy); }
-.header-cta { display: flex; gap: 8px; flex-shrink: 0; }
+.header-cta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.header-user-name {
+  font-size: 13px; font-weight: 600; color: var(--text-2);
+  padding: 0 4px;
+}
 .btn-outline {
   padding: 9px 18px; border-radius: 8px;
   font-size: 13px; font-weight: 600;
@@ -386,8 +399,13 @@ a { text-decoration: none; color: inherit; }
       <a href="#contact" class="nav-link">Contact</a>
     </nav>
     <div class="header-cta">
-      <a href="{{ route('login') }}" class="btn-outline">Sign in</a>
-      <a href="{{ route('register') }}" class="btn-solid">Get started free →</a>
+      @if($authUser)
+        <span class="header-user-name">Hi, {{ $userFirstName }}</span>
+        <a href="{{ $userDashRoute }}" class="btn-solid">Dashboard →</a>
+      @else
+        <a href="{{ route('login') }}" class="btn-outline">Sign in</a>
+        <a href="{{ route('register') }}" class="btn-solid">Get started free →</a>
+      @endif
     </div>
   </div>
 </header>
@@ -404,8 +422,13 @@ a { text-decoration: none; color: inherit; }
     <h1>{!! $heroHeadSafe !!}</h1>
     <p class="hero-sub">{{ $heroSub }}</p>
     <div class="hero-actions">
-      <a href="{{ route('register') }}" class="btn-hero-primary">{{ $heroCta1 }} →</a>
-      <a href="#features" class="btn-hero-secondary">{{ $heroCta2 }}</a>
+      @if($authUser)
+        <a href="{{ $userDashRoute }}" class="btn-hero-primary">Go to Dashboard →</a>
+        <a href="#features" class="btn-hero-secondary">{{ $heroCta2 }}</a>
+      @else
+        <a href="{{ route('register') }}" class="btn-hero-primary">{{ $heroCta1 }} →</a>
+        <a href="#features" class="btn-hero-secondary">{{ $heroCta2 }}</a>
+      @endif
     </div>
 
     <div class="hero-cards">
