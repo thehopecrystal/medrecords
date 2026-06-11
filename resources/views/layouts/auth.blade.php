@@ -11,6 +11,7 @@
 @endphp
 <title>@yield('title', 'Sign In') — {{ $siteName }}</title>
 <style nonce="{{ $cspNonce }}">
+:root { --navy: #1E3A5F; --forest: #2C5F2D; }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Arial, sans-serif;
@@ -77,16 +78,23 @@ body {
 /* ─── Right panel (form) ────────────────────── */
 .auth-right {
   background: #F8FAFC;
-  display: flex; align-items: center; justify-content: center;
-  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
   overflow-y: auto;
+  min-height: 100vh;
 }
 .auth-box {
   width: 100%; max-width: 440px;
+  margin: auto;
+  padding: 24px 0;
 }
 .auth-box-header { margin-bottom: 28px; }
 .auth-box-header h2 { font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; }
 .auth-box-header p  { font-size: 14px; color: #64748B; margin-top: 5px; }
+h2 { font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; margin-bottom: 4px; }
+.subtitle { font-size: 14px; color: #64748B; margin-bottom: 20px; line-height: 1.5; }
 
 /* ─── Form elements ─────────────────────────── */
 .form-field { margin-bottom: 16px; }
@@ -256,10 +264,10 @@ body {
       <span class="auth-logo-text">{{ $siteName }}</span>
     </div>
 
-    <h1 class="auth-headline">Your health<br>record, <span>always<br>with you</span></h1>
-    <p class="auth-subhead">Secure, patient-owned electronic health records for every Nigerian — shared only with your consent.</p>
+    <h1 class="auth-headline" id="leftHeadline">Your health<br>record, <span>always<br>with you</span></h1>
+    <p class="auth-subhead" id="leftSubhead">Secure, patient-owned electronic health records for every Nigerian — shared only with your consent.</p>
 
-    <div class="auth-features">
+    <div class="auth-features" id="leftFeatures">
       <div class="auth-feature">
         <div class="auth-feature-dot">🔐</div>
         <span>Consent-gated access — you control who sees your data</span>

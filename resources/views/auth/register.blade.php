@@ -16,29 +16,43 @@
        TYPE SELECTOR
   ══════════════════════════════════════════════════════ --}}
   <div id="typeScreen">
-    <h2 style="margin-bottom:6px;">Create your account</h2>
-    <p class="subtitle" style="margin-bottom:24px;">Choose how you'll use MedRecords</p>
+    <div class="auth-box-header">
+      <h2>Create your account</h2>
+      <p>Choose how you'll use MedRecords to get started</p>
+    </div>
 
-    <div class="type-grid">
+    <div class="type-list">
       <button type="button" class="type-card" onclick="selectType('patient')" data-type="patient">
-        <div class="type-icon">👤</div>
-        <div class="type-title">Patient</div>
-        <div class="type-desc">Create your personal health record</div>
+        <div class="type-icon-wrap c-patient">👤</div>
+        <div class="type-card-body">
+          <div class="type-title">Patient</div>
+          <div class="type-desc">Access and manage your personal health record</div>
+        </div>
+        <span class="type-arrow">›</span>
       </button>
       <button type="button" class="type-card" onclick="selectType('provider')" data-type="provider">
-        <div class="type-icon">🩺</div>
-        <div class="type-title">Doctor / Provider</div>
-        <div class="type-desc">Register as a licensed clinical provider</div>
+        <div class="type-icon-wrap c-provider">🩺</div>
+        <div class="type-card-body">
+          <div class="type-title">Doctor / Provider</div>
+          <div class="type-desc">Register as a licensed clinical practitioner</div>
+        </div>
+        <span class="type-arrow">›</span>
       </button>
       <button type="button" class="type-card" onclick="selectType('hospital')" data-type="hospital">
-        <div class="type-icon">🏥</div>
-        <div class="type-title">Hospital / Clinic</div>
-        <div class="type-desc">Register your healthcare facility</div>
+        <div class="type-icon-wrap c-hospital">🏥</div>
+        <div class="type-card-body">
+          <div class="type-title">Hospital / Clinic</div>
+          <div class="type-desc">Register your healthcare facility on the platform</div>
+        </div>
+        <span class="type-arrow">›</span>
       </button>
       <button type="button" class="type-card" onclick="selectType('pharmacy')" data-type="pharmacy">
-        <div class="type-icon">💊</div>
-        <div class="type-title">Pharmacy</div>
-        <div class="type-desc">Register your pharmacy organisation</div>
+        <div class="type-icon-wrap c-pharmacy">💊</div>
+        <div class="type-card-body">
+          <div class="type-title">Pharmacy</div>
+          <div class="type-desc">Register your pharmacy organisation</div>
+        </div>
+        <span class="type-arrow">›</span>
       </button>
     </div>
 
@@ -50,7 +64,11 @@
   ══════════════════════════════════════════════════════ --}}
   <div id="patientWizard" class="wizard" style="display:none;">
 
-    <div class="wizard-back" onclick="backToTypes()">← Change account type</div>
+    <button type="button" class="wizard-back-btn" onclick="backToTypes()">
+      <span class="wbk-arrow">←</span> Change account type
+    </button>
+
+    <div class="wizard-badge c-patient"><span>👤</span> Patient Registration</div>
 
     {{-- Progress --}}
     <div class="progress-bar" id="p-prog">
@@ -62,9 +80,11 @@
     </div>
 
     {{-- Step 1 --}}
-    <div id="p-step1">
-      <h2>Your account</h2>
-      <p class="subtitle">Free, secure, and private</p>
+    <div id="p-step1" class="wstep">
+      <div class="step-header">
+        <h2>Your account</h2>
+        <p class="subtitle">Free, secure, and private</p>
+      </div>
 
       <div class="form-field">
         <label>Full name <span class="req">*</span></label>
@@ -78,7 +98,7 @@
       <div class="form-field">
         <label>Phone number <span class="req">*</span></label>
         <x-phone-input name="phone" id="p-phone" :value="old('phone', '')" :required="true" />
-        <div class="field-hint">Include your country code, e.g. +2348012345678</div>
+        <div class="field-hint">Include country code, e.g. +2348012345678</div>
       </div>
       <div class="form-field">
         <label>Password <span class="req">*</span></label>
@@ -95,16 +115,18 @@
           <input type="password" name="password_confirmation" id="p-cf" placeholder="Repeat your password" autocomplete="new-password" minlength="8" required>
           <button type="button" class="input-action" onclick="togglePwd('p-cf','p-eye2')"><span id="p-eye2">👁</span></button>
         </div>
-        <div class="field-hint" id="p-mhint"></div>
+        <div class="field-hint match-hint" id="p-mhint"></div>
       </div>
-      <button type="button" class="btn-submit" onclick="pGoStep2()">Continue →</button>
+      <button type="button" class="btn-submit" onclick="pGoStep2()">Continue <span class="btn-arrow">→</span></button>
       <div class="form-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></div>
     </div>
 
     {{-- Step 2 --}}
-    <div id="p-step2" style="display:none;">
-      <h2>Health profile</h2>
-      <p class="subtitle">Helps providers give you better care — all optional</p>
+    <div id="p-step2" class="wstep" style="display:none;">
+      <div class="step-header">
+        <h2>Health profile</h2>
+        <p class="subtitle">Helps providers give you better care — all fields optional</p>
+      </div>
 
       <div class="form-row">
         <div class="form-field">
@@ -156,16 +178,18 @@
         <div class="field-hint">11-digit NIN — optional, used for identity verification</div>
       </div>
 
-      <div style="display:flex;gap:10px;margin-top:4px;">
+      <div class="btn-row">
         <button type="button" class="btn-back" onclick="pGoStep1()">← Back</button>
-        <button type="button" class="btn-submit" style="flex:1;" onclick="pGoStep3()">Review →</button>
+        <button type="button" class="btn-submit btn-flex" onclick="pGoStep3()">Review <span class="btn-arrow">→</span></button>
       </div>
     </div>
 
     {{-- Step 3 --}}
-    <div id="p-step3" style="display:none;">
-      <h2>Review & confirm</h2>
-      <p class="subtitle">Check your details before creating your account</p>
+    <div id="p-step3" class="wstep" style="display:none;">
+      <div class="step-header">
+        <h2>Review & confirm</h2>
+        <p class="subtitle">Check your details before creating your account</p>
+      </div>
 
       <div class="review-card">
         <div class="review-section">Account</div>
@@ -184,14 +208,14 @@
         <div class="review-row"><span>NIN</span><strong id="p-rv-nin">Not provided</strong></div>
       </div>
 
-      <label class="checkbox-label" style="margin-bottom:16px;">
-        <input type="checkbox" name="terms" id="p-terms" required style="width:auto;accent-color:var(--navy);cursor:pointer;margin-right:8px;flex-shrink:0;">
+      <label class="checkbox-label" style="margin-bottom:18px;">
+        <input type="checkbox" name="terms" id="p-terms" required style="width:auto;accent-color:var(--navy);cursor:pointer;margin-right:2px;flex-shrink:0;margin-top:2px;">
         I agree to the <a href="#" style="color:var(--navy);">Terms of Service</a> and <a href="#" style="color:var(--navy);">Privacy Policy</a>. My health data is stored securely and shared only with providers I explicitly consent to.
       </label>
 
-      <div style="display:flex;gap:10px;">
+      <div class="btn-row">
         <button type="button" class="btn-back" onclick="pGoStep2()">← Back</button>
-        <button type="submit" class="btn-submit" style="flex:1;" id="p-submit">Create account</button>
+        <button type="submit" class="btn-submit btn-flex btn-green" id="p-submit">Create account</button>
       </div>
       <div class="form-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></div>
     </div>
@@ -202,7 +226,11 @@
   ══════════════════════════════════════════════════════ --}}
   <div id="providerWizard" class="wizard" style="display:none;">
 
-    <div class="wizard-back" onclick="backToTypes()">← Change account type</div>
+    <button type="button" class="wizard-back-btn" onclick="backToTypes()">
+      <span class="wbk-arrow">←</span> Change account type
+    </button>
+
+    <div class="wizard-badge c-provider"><span>🩺</span> Provider Registration</div>
 
     <div class="progress-bar">
       <div class="progress-step active" id="pr-s1"><div class="step-dot">1</div><div class="step-label">Account</div></div>
@@ -213,9 +241,11 @@
     </div>
 
     {{-- Step 1 --}}
-    <div id="pr-step1">
-      <h2>Create your account</h2>
-      <p class="subtitle">Your professional provider profile</p>
+    <div id="pr-step1" class="wstep">
+      <div class="step-header">
+        <h2>Create your account</h2>
+        <p class="subtitle">Your professional provider profile</p>
+      </div>
 
       <div class="form-field">
         <label>Full name <span class="req">*</span></label>
@@ -245,16 +275,18 @@
           <input type="password" name="password_confirmation" id="pr-cf" placeholder="Repeat your password" autocomplete="new-password" minlength="8" required>
           <button type="button" class="input-action" onclick="togglePwd('pr-cf','pr-eye2')"><span id="pr-eye2">👁</span></button>
         </div>
-        <div class="field-hint" id="pr-mhint"></div>
+        <div class="field-hint match-hint" id="pr-mhint"></div>
       </div>
-      <button type="button" class="btn-submit" onclick="prGoStep2()">Continue →</button>
+      <button type="button" class="btn-submit" onclick="prGoStep2()">Continue <span class="btn-arrow">→</span></button>
       <div class="form-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></div>
     </div>
 
     {{-- Step 2 --}}
-    <div id="pr-step2" style="display:none;">
-      <h2>Professional details</h2>
-      <p class="subtitle">Your clinical credentials</p>
+    <div id="pr-step2" class="wstep" style="display:none;">
+      <div class="step-header">
+        <h2>Professional details</h2>
+        <p class="subtitle">Your clinical credentials</p>
+      </div>
 
       <div class="form-field">
         <label>Specialty <span class="req">*</span></label>
@@ -273,24 +305,26 @@
       <div class="form-field">
         <label>Professional Licence No.</label>
         <input type="text" name="license_no" id="pr-license" value="{{ old('license_no') }}" placeholder="e.g. FMC/2019/00456">
-        <div class="field-hint">Your current practising licence number — you can add this later</div>
+        <div class="field-hint">Your current practising licence — you can add this later</div>
       </div>
 
       <div class="info-box">
-        <span>ℹ️</span>
-        <span>You can join a facility after registration. A facility administrator will add you to their team, or you can operate independently.</span>
+        <div class="info-box-icon">ℹ</div>
+        <div>You can join a facility after registration. A facility administrator will add you to their team, or you can operate independently.</div>
       </div>
 
-      <div style="display:flex;gap:10px;margin-top:4px;">
+      <div class="btn-row">
         <button type="button" class="btn-back" onclick="prGoStep1()">← Back</button>
-        <button type="button" class="btn-submit" style="flex:1;" onclick="prGoStep3()">Review →</button>
+        <button type="button" class="btn-submit btn-flex" onclick="prGoStep3()">Review <span class="btn-arrow">→</span></button>
       </div>
     </div>
 
     {{-- Step 3 --}}
-    <div id="pr-step3" style="display:none;">
-      <h2>Review & confirm</h2>
-      <p class="subtitle">Check your details before creating your account</p>
+    <div id="pr-step3" class="wstep" style="display:none;">
+      <div class="step-header">
+        <h2>Review & confirm</h2>
+        <p class="subtitle">Check your details before creating your account</p>
+      </div>
 
       <div class="review-card">
         <div class="review-section">Account</div>
@@ -306,14 +340,14 @@
         <div class="review-row"><span>Facility</span><strong>To be assigned</strong></div>
       </div>
 
-      <label class="checkbox-label" style="margin-bottom:16px;">
-        <input type="checkbox" name="terms" id="pr-terms" required style="width:auto;accent-color:var(--navy);cursor:pointer;margin-right:8px;flex-shrink:0;">
+      <label class="checkbox-label" style="margin-bottom:18px;">
+        <input type="checkbox" name="terms" id="pr-terms" required style="width:auto;accent-color:var(--navy);cursor:pointer;margin-right:2px;flex-shrink:0;margin-top:2px;">
         I agree to the <a href="#" style="color:var(--navy);">Terms of Service</a> and <a href="#" style="color:var(--navy);">Privacy Policy</a>. I confirm that my credentials are accurate.
       </label>
 
-      <div style="display:flex;gap:10px;">
+      <div class="btn-row">
         <button type="button" class="btn-back" onclick="prGoStep2()">← Back</button>
-        <button type="submit" class="btn-submit" style="flex:1;" id="pr-submit">Create account</button>
+        <button type="submit" class="btn-submit btn-flex btn-green" id="pr-submit">Create account</button>
       </div>
       <div class="form-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></div>
     </div>
@@ -324,10 +358,14 @@
   ══════════════════════════════════════════════════════ --}}
   <div id="orgWizard" class="wizard" style="display:none;">
 
-    <div class="wizard-back" onclick="backToTypes()">← Change account type</div>
+    <button type="button" class="wizard-back-btn" onclick="backToTypes()">
+      <span class="wbk-arrow">←</span> Change account type
+    </button>
+
+    <div class="wizard-badge c-hospital" id="orgBadge"><span>🏥</span> <span id="orgBadgeLabel">Organisation Registration</span></div>
 
     <div class="progress-bar">
-      <div class="progress-step active" id="o-s1"><div class="step-dot">1</div><div class="step-label">Admin account</div></div>
+      <div class="progress-step active" id="o-s1"><div class="step-dot">1</div><div class="step-label">Admin</div></div>
       <div class="progress-line" id="o-l1"></div>
       <div class="progress-step" id="o-s2"><div class="step-dot">2</div><div class="step-label">Organisation</div></div>
       <div class="progress-line" id="o-l2"></div>
@@ -335,9 +373,11 @@
     </div>
 
     {{-- Step 1 --}}
-    <div id="o-step1">
-      <h2 id="o-title1">Register your organisation</h2>
-      <p class="subtitle">Create the administrator account</p>
+    <div id="o-step1" class="wstep">
+      <div class="step-header">
+        <h2 id="o-title1">Register your organisation</h2>
+        <p class="subtitle">Create the administrator account</p>
+      </div>
 
       <div class="form-field">
         <label>Your full name <span class="req">*</span></label>
@@ -367,23 +407,24 @@
           <input type="password" name="password_confirmation" id="o-cf" placeholder="Repeat your password" autocomplete="new-password" minlength="8" required>
           <button type="button" class="input-action" onclick="togglePwd('o-cf','o-eye2')"><span id="o-eye2">👁</span></button>
         </div>
-        <div class="field-hint" id="o-mhint"></div>
+        <div class="field-hint match-hint" id="o-mhint"></div>
       </div>
-      <button type="button" class="btn-submit" onclick="oGoStep2()">Continue →</button>
+      <button type="button" class="btn-submit" onclick="oGoStep2()">Continue <span class="btn-arrow">→</span></button>
       <div class="form-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></div>
     </div>
 
     {{-- Step 2 --}}
-    <div id="o-step2" style="display:none;">
-      <h2 id="o-title2">Organisation details</h2>
-      <p class="subtitle">Your facility's information</p>
+    <div id="o-step2" class="wstep" style="display:none;">
+      <div class="step-header">
+        <h2 id="o-title2">Organisation details</h2>
+        <p class="subtitle">Your facility's information</p>
+      </div>
 
       <div class="form-field">
         <label id="o-name-label">Organisation name <span class="req">*</span></label>
         <input type="text" name="org_name" id="o-org-name" value="{{ old('org_name') }}" placeholder="Lagos General Hospital" required>
       </div>
 
-      {{-- Shown only for hospital/clinic, hidden for pharmacy --}}
       <div class="form-field" id="o-type-field">
         <label>Facility type <span class="req">*</span></label>
         <select name="org_type" id="o-org-type">
@@ -400,7 +441,7 @@
         <input type="text" name="org_license" id="o-license" value="{{ old('org_license') }}" placeholder="e.g. MOH/2020/LAG-001">
       </div>
       <div class="form-field">
-        <label>Address</label>
+        <label>Street address</label>
         <input type="text" name="org_address" id="o-address" value="{{ old('org_address') }}" placeholder="14 Broad Street">
       </div>
       <div class="form-row">
@@ -429,16 +470,18 @@
         </div>
       </div>
 
-      <div style="display:flex;gap:10px;margin-top:4px;">
+      <div class="btn-row">
         <button type="button" class="btn-back" onclick="oGoStep1()">← Back</button>
-        <button type="button" class="btn-submit" style="flex:1;" onclick="oGoStep3()">Review →</button>
+        <button type="button" class="btn-submit btn-flex" onclick="oGoStep3()">Review <span class="btn-arrow">→</span></button>
       </div>
     </div>
 
     {{-- Step 3 --}}
-    <div id="o-step3" style="display:none;">
-      <h2>Review & confirm</h2>
-      <p class="subtitle">Check everything before registering</p>
+    <div id="o-step3" class="wstep" style="display:none;">
+      <div class="step-header">
+        <h2>Review & confirm</h2>
+        <p class="subtitle">Check everything before registering</p>
+      </div>
 
       <div class="review-card">
         <div class="review-section">Administrator account</div>
@@ -455,14 +498,14 @@
         <div class="review-row"><span>State</span><strong id="o-rv-state">Not provided</strong></div>
       </div>
 
-      <label class="checkbox-label" style="margin-bottom:16px;">
-        <input type="checkbox" name="terms" id="o-terms" required style="width:auto;accent-color:var(--navy);cursor:pointer;margin-right:8px;flex-shrink:0;">
+      <label class="checkbox-label" style="margin-bottom:18px;">
+        <input type="checkbox" name="terms" id="o-terms" required style="width:auto;accent-color:var(--navy);cursor:pointer;margin-right:2px;flex-shrink:0;margin-top:2px;">
         I agree to the <a href="#" style="color:var(--navy);">Terms of Service</a> and <a href="#" style="color:var(--navy);">Privacy Policy</a>. I confirm that the organisation details are accurate.
       </label>
 
-      <div style="display:flex;gap:10px;">
+      <div class="btn-row">
         <button type="button" class="btn-back" onclick="oGoStep2()">← Back</button>
-        <button type="submit" class="btn-submit" style="flex:1;" id="o-submit">Register organisation</button>
+        <button type="submit" class="btn-submit btn-flex btn-green" id="o-submit">Register organisation</button>
       </div>
       <div class="form-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></div>
     </div>
@@ -472,76 +515,219 @@
 
 {{-- ══ STYLES ══════════════════════════════════════════════ --}}
 <style nonce="{{ $cspNonce ?? '' }}">
-.auth-box { max-width: 520px; }
+/* ── Override box width for registration ─────────────── */
+.auth-box { max-width: 500px; }
 
-/* Type selector */
-.type-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 12px; margin-bottom: 24px;
+/* ── Type selector list ──────────────────────────────── */
+.type-list {
+  border: 1.5px solid #E2E8F0;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  background: #fff;
 }
 .type-card {
-  background: #fff; border: 1.5px solid #E2E8F0;
-  border-radius: 12px; padding: 18px 14px;
-  cursor: pointer; text-align: left;
-  transition: border-color .15s, box-shadow .15s, transform .1s;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #F1F5F9;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s;
   font-family: inherit;
 }
-.type-card:hover {
-  border-color: #1E3A5F;
-  box-shadow: 0 4px 16px rgba(30,58,95,.1);
-  transform: translateY(-1px);
+.type-card:last-child { border-bottom: none; }
+.type-card:hover { background: #F8FAFC; }
+.type-icon-wrap {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
 }
-.type-icon { font-size: 26px; margin-bottom: 8px; }
-.type-title { font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 4px; }
-.type-desc  { font-size: 11px; color: #64748B; line-height: 1.4; }
-
-/* Wizard */
-.wizard-back {
-  font-size: 12px; color: #94A3B8; cursor: pointer;
-  margin-bottom: 18px; display: inline-block;
-  transition: color .15s;
+.c-patient  { background: #EEF3FA; }
+.c-provider { background: #EDFAF0; }
+.c-hospital { background: #FFF7ED; }
+.c-pharmacy { background: #F5F3FF; }
+.type-card-body { flex: 1; min-width: 0; }
+.type-title { font-size: 14px; font-weight: 700; color: #0F172A; margin-bottom: 2px; }
+.type-desc  { font-size: 12px; color: #64748B; line-height: 1.4; }
+.type-arrow {
+  color: #CBD5E1;
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.15s, color 0.15s;
 }
-.wizard-back:hover { color: #1E3A5F; }
+.type-card:hover .type-arrow { transform: translateX(3px); color: #94A3B8; }
 
-/* Info box */
+/* ── Wizard back button ───────────────────────────────── */
+.wizard-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #94A3B8;
+  padding: 0;
+  margin-bottom: 16px;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+.wizard-back-btn:hover { color: #1E3A5F; }
+.wbk-arrow { font-size: 14px; }
+
+/* ── Wizard type badge ───────────────────────────────── */
+.wizard-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.wizard-badge.c-patient  { background: #EEF3FA; color: #1E3A5F; }
+.wizard-badge.c-provider { background: #EDFAF0; color: #166534; }
+.wizard-badge.c-hospital { background: #FFF7ED; color: #92400E; }
+.wizard-badge.c-pharmacy { background: #F5F3FF; color: #5B21B6; }
+
+/* ── Step headings ───────────────────────────────────── */
+.step-header { margin-bottom: 22px; }
+.step-header h2 { font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; margin-bottom: 4px; }
+
+/* ── Progress bar ─────────────────────────────────────── */
+.progress-bar {
+  display: flex; align-items: flex-start;
+  margin-bottom: 28px;
+}
+.progress-step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
+.step-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #E2E8F0; color: #94A3B8;
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s;
+  border: 2px solid transparent;
+}
+.step-label { font-size: 10px; font-weight: 600; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; transition: color 0.2s; }
+.progress-step.active .step-dot { background: #1E3A5F; color: #fff; border-color: #1E3A5F; }
+.progress-step.active .step-label { color: #1E3A5F; }
+.progress-step.done .step-dot { background: #2C5F2D; color: #fff; border-color: #2C5F2D; }
+.progress-step.done .step-label { color: #2C5F2D; }
+.progress-line { flex: 1; height: 2px; background: #E2E8F0; min-width: 20px; margin: 0 4px; margin-top: 15px; transition: background 0.3s; }
+.progress-line.done { background: #2C5F2D; }
+
+/* ── Wizard step animation ────────────────────────────── */
+@keyframes stepFade {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.wstep-enter { animation: stepFade 0.2s ease both; }
+
+/* ── Button row ───────────────────────────────────────── */
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+.btn-flex { flex: 1; }
+.btn-arrow { font-size: 15px; }
+.btn-green { background: #2C5F2D; }
+.btn-green:hover { background: #1E4020; }
+
+/* ── Info box ─────────────────────────────────────────── */
 .info-box {
-  display: flex; gap: 8px; align-items: flex-start;
-  background: #EEF3FA; border-radius: 8px;
-  padding: 10px 12px; font-size: 12px; color: #1E3A5F;
-  line-height: 1.5; margin-bottom: 16px; margin-top: 4px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: #EEF3FA;
+  border-left: 3px solid #1E3A5F;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #1E3A5F;
+  line-height: 1.55;
+  margin-bottom: 18px;
+  margin-top: 4px;
+}
+.info-box-icon {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #1E3A5F;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-style: normal;
 }
 
-/* Strength / match */
-.strength-bar { height: 3px; background: #E2E8F0; border-radius: 3px; margin-top: 6px; overflow: hidden; }
-.strength-fill { height: 100%; width: 0; border-radius: 3px; transition: width .3s, background .3s; background: #B23A48; }
-
-/* Review */
-.review-card { border: 1px solid #E2E8F0; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
-.review-section { background: #F8FAFC; padding: 6px 14px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #64748B; }
-.review-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 14px; font-size: 13px; border-top: 1px solid #F1F5F9; }
-.review-row span { color: #64748B; }
-.review-row strong { text-align: right; max-width: 60%; word-break: break-all; }
-
-/* Buttons */
-.btn-back {
-  background: #F1F5F9; color: #475569;
-  border: 1px solid #E2E8F0; border-radius: 10px;
-  padding: 11px 18px; font-size: 14px; font-weight: 600;
-  cursor: pointer; font-family: inherit; transition: background .15s;
+/* ── Review cards ─────────────────────────────────────── */
+.review-card {
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: #fff;
 }
-.btn-back:hover { background: #E2E8F0; }
-.checkbox-label { display: flex; align-items: flex-start; font-size: 12px; color: #64748B; line-height: 1.5; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.review-section {
+  background: #F8FAFC;
+  padding: 7px 16px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #64748B;
+  border-bottom: 1px solid #F1F5F9;
+}
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 16px;
+  font-size: 13px;
+  border-top: 1px solid #F8FAFC;
+}
+.review-row:first-of-type { border-top: none; }
+.review-row span { color: #64748B; font-size: 12px; }
+.review-row strong { text-align: right; max-width: 58%; word-break: break-all; font-weight: 600; color: #0F172A; }
 
+/* ── Misc overrides ───────────────────────────────────── */
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: #64748B;
+  line-height: 1.55;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  cursor: default;
+}
 .req { color: #B23A48; }
 .field-hint { font-size: 11px; color: #94A3B8; margin-top: 4px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .input-with-action { position: relative; display: flex; align-items: center; }
 .input-with-action input { padding-right: 40px; }
 .input-action { position: absolute; right: 10px; background: none; border: none; cursor: pointer; font-size: 15px; line-height: 1; color: #94A3B8; padding: 2px; }
+.strength-bar { height: 3px; background: #E2E8F0; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.strength-fill { height: 100%; width: 0; border-radius: 3px; transition: width .3s, background .3s; background: #B23A48; }
+.match-hint { min-height: 14px; }
 
-@media (max-width: 480px) {
-  .type-grid { grid-template-columns: 1fr; }
+@media (max-width: 520px) {
   .form-row { grid-template-columns: 1fr; }
+  .auth-box { max-width: 100%; }
 }
 </style>
 
@@ -561,10 +747,42 @@ function fmtDate(str) {
 }
 
 function val(id) { return (document.getElementById(id)||{}).value || ''; }
-function txt(id) { return (document.getElementById(id)||{}).textContent || ''; }
 function selTxt(id) {
   var el = document.getElementById(id);
-  return el ? el.options[el.selectedIndex].text : '';
+  return el && el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : '';
+}
+
+/* ── Left panel content per type ────────────────────────── */
+var LEFT_PANELS = {
+  default: {
+    headline: 'Create your<br><span>MedRecords</span> account',
+    subhead: "Nigeria's most comprehensive electronic health platform. Choose your role to get started."
+  },
+  patient: {
+    headline: 'Your health record,<br><span>always with you</span>',
+    subhead: 'Secure, patient-owned health records. Share access with any provider — only when you choose.'
+  },
+  provider: {
+    headline: "Join Nigeria's<br><span>clinical network</span>",
+    subhead: 'Access patient records with consent, log clinical encounters, and coordinate care across facilities.'
+  },
+  hospital: {
+    headline: 'Bring your facility<br><span>onto MedRecords</span>',
+    subhead: 'Manage your provider team, review patient data with consent, and streamline clinical workflows.'
+  },
+  pharmacy: {
+    headline: 'Modernise your<br><span>dispensing workflow</span>',
+    subhead: 'Verify prescriptions, check allergy and drug interaction history, and log dispensing events securely.'
+  }
+};
+
+function updateLeftPanel(type) {
+  var hl = document.getElementById('leftHeadline');
+  var sh = document.getElementById('leftSubhead');
+  if (!hl) return;
+  var c = LEFT_PANELS[type] || LEFT_PANELS.default;
+  hl.innerHTML = c.headline;
+  sh.textContent = c.subhead;
 }
 
 /* ── Type selector ──────────────────────────────────────── */
@@ -578,6 +796,8 @@ function selectType(type) {
   document.getElementById('providerWizard').style.display = 'none';
   document.getElementById('orgWizard').style.display      = 'none';
 
+  updateLeftPanel(type);
+
   if (type === 'patient') {
     document.getElementById('patientWizard').style.display = '';
     pSetProg(1);
@@ -585,7 +805,6 @@ function selectType(type) {
     document.getElementById('providerWizard').style.display = '';
     prSetProg(1);
   } else {
-    // hospital or pharmacy
     document.getElementById('orgWizard').style.display = '';
     oSetProg(1);
     oConfigureForType(type);
@@ -598,12 +817,19 @@ function backToTypes() {
   document.getElementById('patientWizard').style.display  = 'none';
   document.getElementById('providerWizard').style.display = 'none';
   document.getElementById('orgWizard').style.display      = 'none';
+  updateLeftPanel('default');
   window.scrollTo(0, 0);
 }
 
 /* ── Org type configuration ─────────────────────────────── */
 function oConfigureForType(type) {
   var isPharmacy = (type === 'pharmacy');
+  var badge = document.getElementById('orgBadge');
+  if (badge) {
+    badge.className = 'wizard-badge ' + (isPharmacy ? 'c-pharmacy' : 'c-hospital');
+    badge.querySelector('span:first-child').textContent = isPharmacy ? '💊' : '🏥';
+    document.getElementById('orgBadgeLabel').textContent = isPharmacy ? 'Pharmacy Registration' : 'Organisation Registration';
+  }
   document.getElementById('o-title1').textContent = isPharmacy ? 'Register your pharmacy' : 'Register your organisation';
   document.getElementById('o-title2').textContent = isPharmacy ? 'Pharmacy details' : 'Organisation details';
   document.getElementById('o-name-label').innerHTML = (isPharmacy ? 'Pharmacy name' : 'Organisation name') + ' <span class="req">*</span>';
@@ -614,7 +840,6 @@ function oConfigureForType(type) {
   var typeField = document.getElementById('o-type-field');
   if (isPharmacy) {
     typeField.style.display = 'none';
-    // Inject a hidden pharmacy type input
     var existing = document.getElementById('o-type-hidden');
     if (!existing) {
       var inp = document.createElement('input');
@@ -629,27 +854,36 @@ function oConfigureForType(type) {
   }
 }
 
-/* ══ PATIENT progress / steps ═══════════════════════════════ */
+/* ── Step entry animation helper ────────────────────────── */
+function animateStep(el) {
+  el.classList.remove('wstep-enter');
+  void el.offsetWidth; /* reflow */
+  el.classList.add('wstep-enter');
+}
+
+/* ══ PATIENT progress / steps ════════════════════════════ */
 function pSetProg(step) {
-  ['s1','s2','s3'].forEach(function(s,i) {
+  ['s1','s2','s3'].forEach(function(s, i) {
     var el = document.getElementById('p-' + s);
     el.classList.remove('active','done');
-    if (i+1 < step) el.classList.add('done');
+    if (i+1 < step) { el.classList.add('done'); el.querySelector('.step-dot').textContent = '✓'; }
+    else { el.querySelector('.step-dot').textContent = i+1; }
     if (i+1 === step) el.classList.add('active');
   });
-  ['l1','l2'].forEach(function(l,i) {
+  ['l1','l2'].forEach(function(l, i) {
     var el = document.getElementById('p-' + l);
     if (el) el.classList.toggle('done', i+1 < step);
   });
 }
 function pShowStep(n) {
-  ['step1','step2','step3'].forEach(function(s,i) {
-    document.getElementById('p-' + s).style.display = (i+1===n) ? '' : 'none';
+  ['step1','step2','step3'].forEach(function(s, i) {
+    var el = document.getElementById('p-' + s);
+    el.style.display = (i+1===n) ? '' : 'none';
+    if (i+1===n) animateStep(el);
   });
   pSetProg(n); window.scrollTo(0,0);
 }
 
-/* Strength meter for patient */
 document.addEventListener('DOMContentLoaded', function() {
   bindStrength('p-pw','p-sfill','p-slabel');
   bindStrength('pr-pw','pr-sfill','pr-slabel');
@@ -657,6 +891,7 @@ document.addEventListener('DOMContentLoaded', function() {
   bindMatch('p-pw','p-cf','p-mhint');
   bindMatch('pr-pw','pr-cf','pr-mhint');
   bindMatch('o-pw','o-cf','o-mhint');
+  updateLeftPanel('default');
 });
 
 function bindStrength(pwId, fillId, labelId) {
@@ -671,9 +906,10 @@ function bindStrength(pwId, fillId, labelId) {
     var label = document.getElementById(labelId);
     var pcts  = ['0%','20%','40%','65%','85%','100%'];
     var cols  = ['#ccc','#B23A48','#E8A030','#B8860B','#4CAF50','#2C5F2D'];
-    var texts = ['Enter a password','Too short','Weak','Fair','Good','Strong'];
+    var texts = ['Enter a password','Too short','Weak','Fair','Good','Strong ✓'];
     fill.style.width = pcts[s]; fill.style.background = cols[s];
     label.textContent = texts[s];
+    label.style.color = s >= 4 ? '#2C5F2D' : '#94A3B8';
   });
 }
 
@@ -708,11 +944,11 @@ function pGoStep3() {
   document.getElementById('p-rv-name').textContent  = val('p-name')  || '—';
   document.getElementById('p-rv-email').textContent = val('p-email') || '—';
   document.getElementById('p-rv-phone').textContent = val('p-phone_hidden') || val('p-phone') || '—';
-  var dob   = val('p-dob');
   var gdr   = document.getElementById('p-gender');
   var blood = document.getElementById('p-blood');
   var geno  = document.getElementById('p-geno');
   var state = document.getElementById('p-state');
+  var dob   = val('p-dob');
   document.getElementById('p-rv-dob').textContent    = dob ? fmtDate(dob) : 'Not provided';
   document.getElementById('p-rv-gender').textContent = (gdr && gdr.value) ? gdr.options[gdr.selectedIndex].text : 'Not provided';
   document.getElementById('p-rv-blood').textContent  = (blood && blood.value) || 'Unknown';
@@ -721,24 +957,26 @@ function pGoStep3() {
   document.getElementById('p-rv-nin').textContent    = nin ? nin.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : 'Not provided';
   pShowStep(3);
 }
-function pGoStep2b() { pShowStep(2); }
 
-/* ══ PROVIDER progress / steps ══════════════════════════════ */
+/* ══ PROVIDER progress / steps ════════════════════════════ */
 function prSetProg(step) {
-  ['s1','s2','s3'].forEach(function(s,i) {
+  ['s1','s2','s3'].forEach(function(s, i) {
     var el = document.getElementById('pr-' + s);
     el.classList.remove('active','done');
-    if (i+1 < step) el.classList.add('done');
+    if (i+1 < step) { el.classList.add('done'); el.querySelector('.step-dot').textContent = '✓'; }
+    else { el.querySelector('.step-dot').textContent = i+1; }
     if (i+1 === step) el.classList.add('active');
   });
-  ['l1','l2'].forEach(function(l,i) {
+  ['l1','l2'].forEach(function(l, i) {
     var el = document.getElementById('pr-' + l);
     if (el) el.classList.toggle('done', i+1 < step);
   });
 }
 function prShowStep(n) {
-  ['step1','step2','step3'].forEach(function(s,i) {
-    document.getElementById('pr-' + s).style.display = (i+1===n) ? '' : 'none';
+  ['step1','step2','step3'].forEach(function(s, i) {
+    var el = document.getElementById('pr-' + s);
+    el.style.display = (i+1===n) ? '' : 'none';
+    if (i+1===n) animateStep(el);
   });
   prSetProg(n); window.scrollTo(0,0);
 }
@@ -764,24 +1002,26 @@ function prGoStep3() {
   document.getElementById('pr-rv-lic').textContent   = val('pr-license') || 'Not provided';
   prShowStep(3);
 }
-function prGoStep2b() { prShowStep(2); }
 
-/* ══ ORG progress / steps ════════════════════════════════════ */
+/* ══ ORG progress / steps ══════════════════════════════════ */
 function oSetProg(step) {
-  ['s1','s2','s3'].forEach(function(s,i) {
+  ['s1','s2','s3'].forEach(function(s, i) {
     var el = document.getElementById('o-' + s);
     el.classList.remove('active','done');
-    if (i+1 < step) el.classList.add('done');
+    if (i+1 < step) { el.classList.add('done'); el.querySelector('.step-dot').textContent = '✓'; }
+    else { el.querySelector('.step-dot').textContent = i+1; }
     if (i+1 === step) el.classList.add('active');
   });
-  ['l1','l2'].forEach(function(l,i) {
+  ['l1','l2'].forEach(function(l, i) {
     var el = document.getElementById('o-' + l);
     if (el) el.classList.toggle('done', i+1 < step);
   });
 }
 function oShowStep(n) {
-  ['step1','step2','step3'].forEach(function(s,i) {
-    document.getElementById('o-' + s).style.display = (i+1===n) ? '' : 'none';
+  ['step1','step2','step3'].forEach(function(s, i) {
+    var el = document.getElementById('o-' + s);
+    el.style.display = (i+1===n) ? '' : 'none';
+    if (i+1===n) animateStep(el);
   });
   oSetProg(n); window.scrollTo(0,0);
 }
@@ -805,21 +1045,20 @@ function oGoStep3() {
   document.getElementById('o-rv-org').textContent   = val('o-org-name') || '—';
   if (!isPharmacy) {
     var ot = document.getElementById('o-org-type');
-    document.getElementById('o-rv-type').textContent = ot ? ot.options[ot.selectedIndex].text : '—';
+    document.getElementById('o-rv-type').textContent = ot && ot.options[ot.selectedIndex] ? ot.options[ot.selectedIndex].text : '—';
   } else {
     document.getElementById('o-rv-type-row').style.display = 'none';
   }
-  var addr = val('o-address');
-  var city = val('o-city');
+  var addr  = val('o-address');
+  var city  = val('o-city');
   var state = document.getElementById('o-state');
-  var stateVal = state ? state.value : '';
   document.getElementById('o-rv-lic').textContent   = val('o-license') || 'Not provided';
   document.getElementById('o-rv-addr').textContent  = [addr, city].filter(Boolean).join(', ') || 'Not provided';
-  document.getElementById('o-rv-state').textContent = stateVal || 'Not provided';
+  document.getElementById('o-rv-state').textContent = (state && state.value) || 'Not provided';
   oShowStep(3);
 }
 
-/* ── Submit guards ─────────────────────────────────────────── */
+/* ── Submit guard ────────────────────────────────────────── */
 document.getElementById('regForm').addEventListener('submit', function(e) {
   var type = document.getElementById('regType').value;
   var termsId = type === 'patient' ? 'p-terms' : (type === 'provider' ? 'pr-terms' : 'o-terms');
