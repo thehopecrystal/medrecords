@@ -190,7 +190,6 @@
 
 <form method="POST" action="{{ route('register') }}" id="regForm" novalidate>
 @csrf
-{{-- single canonical phone field — JS fills this before submit --}}
 <input type="hidden" name="phone" id="rg-phone-out">
 <input type="hidden" name="reg_type" id="regType" value="{{ old('reg_type','') }}">
 
@@ -207,7 +206,7 @@
   <p class="rg-title">Create your account</p>
   <p class="rg-desc">Select how you'll use MedRecords to get started.</p>
   <div class="rg-cards">
-    <button type="button" class="rg-card" onclick="chooseType('patient')">
+    <button type="button" class="rg-card" id="btn-type-patient" data-type="patient">
       <span class="rg-card-icon" style="background:#EEF3FA;">👤</span>
       <span class="rg-card-body">
         <span class="rg-card-name">Patient</span>
@@ -215,7 +214,7 @@
       </span>
       <span class="rg-card-arrow">›</span>
     </button>
-    <button type="button" class="rg-card" onclick="chooseType('provider')">
+    <button type="button" class="rg-card" id="btn-type-provider" data-type="provider">
       <span class="rg-card-icon" style="background:#ECFDF5;">🩺</span>
       <span class="rg-card-body">
         <span class="rg-card-name">Doctor / Provider</span>
@@ -223,7 +222,7 @@
       </span>
       <span class="rg-card-arrow">›</span>
     </button>
-    <button type="button" class="rg-card" onclick="chooseType('hospital')">
+    <button type="button" class="rg-card" id="btn-type-hospital" data-type="hospital">
       <span class="rg-card-icon" style="background:#FFF7ED;">🏥</span>
       <span class="rg-card-body">
         <span class="rg-card-name">Hospital / Clinic</span>
@@ -231,7 +230,7 @@
       </span>
       <span class="rg-card-arrow">›</span>
     </button>
-    <button type="button" class="rg-card" onclick="chooseType('pharmacy')">
+    <button type="button" class="rg-card" id="btn-type-pharmacy" data-type="pharmacy">
       <span class="rg-card-icon" style="background:#F5F3FF;">💊</span>
       <span class="rg-card-body">
         <span class="rg-card-name">Pharmacy</span>
@@ -248,7 +247,7 @@
 ═══════════════════════════════════════ --}}
 <div id="scr-patient" class="rg-hide">
 
-  <button type="button" class="rg-back" onclick="goBack()">← Change account type</button>
+  <button type="button" class="rg-back" id="btn-back-pat">← Change account type</button>
   <div class="rg-type-pill" style="background:#EEF3FA;color:#1E3A5F;">👤 Patient</div>
 
   <div class="rg-progress" id="pat-prog">
@@ -280,7 +279,7 @@
       <label class="rg-label">Password <span class="rg-req">*</span></label>
       <div class="rg-pw-wrap">
         <input class="rg-input" type="password" name="password" id="pat-pw" placeholder="At least 8 characters" autocomplete="new-password">
-        <button type="button" class="rg-pw-eye" onclick="togglePw('pat-pw','pat-pw-ic')"><span id="pat-pw-ic">👁</span></button>
+        <button type="button" class="rg-pw-eye" id="btn-eye-pat-pw" data-target="pat-pw" data-icon="pat-pw-ic"><span id="pat-pw-ic">👁</span></button>
       </div>
       <div class="rg-strength"><div class="rg-strength-fill" id="pat-str"></div></div>
       <span class="rg-hint" id="pat-str-lbl">Enter a password</span>
@@ -289,11 +288,11 @@
       <label class="rg-label">Confirm password <span class="rg-req">*</span></label>
       <div class="rg-pw-wrap">
         <input class="rg-input" type="password" name="password_confirmation" id="pat-cf" placeholder="Repeat password" autocomplete="new-password">
-        <button type="button" class="rg-pw-eye" onclick="togglePw('pat-cf','pat-cf-ic')"><span id="pat-cf-ic">👁</span></button>
+        <button type="button" class="rg-pw-eye" id="btn-eye-pat-cf" data-target="pat-cf" data-icon="pat-cf-ic"><span id="pat-cf-ic">👁</span></button>
       </div>
       <span class="rg-hint" id="pat-match">&nbsp;</span>
     </div>
-    <button type="button" class="rg-btn rg-btn-primary" onclick="patStep1Next()">Continue →</button>
+    <button type="button" class="rg-btn rg-btn-primary" id="btn-pat-s1-next">Continue →</button>
     <p class="rg-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></p>
   </div>
 
@@ -352,8 +351,8 @@
       <span class="rg-hint">11 digits · optional</span>
     </div>
     <div class="rg-btn-row">
-      <button type="button" class="rg-btn rg-btn-ghost" onclick="patStep2Back()">← Back</button>
-      <button type="button" class="rg-btn rg-btn-primary" onclick="patStep2Next()">Review →</button>
+      <button type="button" class="rg-btn rg-btn-ghost" id="btn-pat-s2-back">← Back</button>
+      <button type="button" class="rg-btn rg-btn-primary" id="btn-pat-s2-next">Review →</button>
     </div>
   </div>
 
@@ -383,7 +382,7 @@
       <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. My health data will be stored securely and shared only with providers I explicitly authorise.</span>
     </label>
     <div class="rg-btn-row">
-      <button type="button" class="rg-btn rg-btn-ghost" onclick="patStep3Back()">← Back</button>
+      <button type="button" class="rg-btn rg-btn-ghost" id="btn-pat-s3-back">← Back</button>
       <button type="submit" class="rg-btn rg-btn-success" id="pat-submit">Create account</button>
     </div>
     <p class="rg-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></p>
@@ -397,7 +396,7 @@
 ═══════════════════════════════════════ --}}
 <div id="scr-provider" class="rg-hide">
 
-  <button type="button" class="rg-back" onclick="goBack()">← Change account type</button>
+  <button type="button" class="rg-back" id="btn-back-prv">← Change account type</button>
   <div class="rg-type-pill" style="background:#ECFDF5;color:#166534;">🩺 Provider</div>
 
   <div class="rg-progress" id="prv-prog">
@@ -429,7 +428,7 @@
       <label class="rg-label">Password <span class="rg-req">*</span></label>
       <div class="rg-pw-wrap">
         <input class="rg-input" type="password" name="password" id="prv-pw" placeholder="At least 8 characters" autocomplete="new-password">
-        <button type="button" class="rg-pw-eye" onclick="togglePw('prv-pw','prv-pw-ic')"><span id="prv-pw-ic">👁</span></button>
+        <button type="button" class="rg-pw-eye" data-target="prv-pw" data-icon="prv-pw-ic"><span id="prv-pw-ic">👁</span></button>
       </div>
       <div class="rg-strength"><div class="rg-strength-fill" id="prv-str"></div></div>
       <span class="rg-hint" id="prv-str-lbl">Enter a password</span>
@@ -438,11 +437,11 @@
       <label class="rg-label">Confirm password <span class="rg-req">*</span></label>
       <div class="rg-pw-wrap">
         <input class="rg-input" type="password" name="password_confirmation" id="prv-cf" placeholder="Repeat password" autocomplete="new-password">
-        <button type="button" class="rg-pw-eye" onclick="togglePw('prv-cf','prv-cf-ic')"><span id="prv-cf-ic">👁</span></button>
+        <button type="button" class="rg-pw-eye" data-target="prv-cf" data-icon="prv-cf-ic"><span id="prv-cf-ic">👁</span></button>
       </div>
       <span class="rg-hint" id="prv-match">&nbsp;</span>
     </div>
-    <button type="button" class="rg-btn rg-btn-primary" onclick="prvStep1Next()">Continue →</button>
+    <button type="button" class="rg-btn rg-btn-primary" id="btn-prv-s1-next">Continue →</button>
     <p class="rg-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></p>
   </div>
 
@@ -474,8 +473,8 @@
       <span>A facility administrator will add you to their team after registration, or you can operate independently.</span>
     </div>
     <div class="rg-btn-row">
-      <button type="button" class="rg-btn rg-btn-ghost" onclick="prvStep2Back()">← Back</button>
-      <button type="button" class="rg-btn rg-btn-primary" onclick="prvStep2Next()">Review →</button>
+      <button type="button" class="rg-btn rg-btn-ghost" id="btn-prv-s2-back">← Back</button>
+      <button type="button" class="rg-btn rg-btn-primary" id="btn-prv-s2-next">Review →</button>
     </div>
   </div>
 
@@ -501,7 +500,7 @@
       <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I confirm my credentials are accurate.</span>
     </label>
     <div class="rg-btn-row">
-      <button type="button" class="rg-btn rg-btn-ghost" onclick="prvStep3Back()">← Back</button>
+      <button type="button" class="rg-btn rg-btn-ghost" id="btn-prv-s3-back">← Back</button>
       <button type="submit" class="rg-btn rg-btn-success" id="prv-submit">Create account</button>
     </div>
     <p class="rg-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></p>
@@ -515,7 +514,7 @@
 ═══════════════════════════════════════ --}}
 <div id="scr-org" class="rg-hide">
 
-  <button type="button" class="rg-back" onclick="goBack()">← Change account type</button>
+  <button type="button" class="rg-back" id="btn-back-org">← Change account type</button>
   <div class="rg-type-pill" id="org-pill" style="background:#FFF7ED;color:#92400E;">🏥 Organisation</div>
 
   <div class="rg-progress" id="org-prog">
@@ -547,7 +546,7 @@
       <label class="rg-label">Password <span class="rg-req">*</span></label>
       <div class="rg-pw-wrap">
         <input class="rg-input" type="password" name="password" id="org-pw" placeholder="At least 8 characters" autocomplete="new-password">
-        <button type="button" class="rg-pw-eye" onclick="togglePw('org-pw','org-pw-ic')"><span id="org-pw-ic">👁</span></button>
+        <button type="button" class="rg-pw-eye" data-target="org-pw" data-icon="org-pw-ic"><span id="org-pw-ic">👁</span></button>
       </div>
       <div class="rg-strength"><div class="rg-strength-fill" id="org-str"></div></div>
       <span class="rg-hint" id="org-str-lbl">Enter a password</span>
@@ -556,11 +555,11 @@
       <label class="rg-label">Confirm password <span class="rg-req">*</span></label>
       <div class="rg-pw-wrap">
         <input class="rg-input" type="password" name="password_confirmation" id="org-cf" placeholder="Repeat password" autocomplete="new-password">
-        <button type="button" class="rg-pw-eye" onclick="togglePw('org-cf','org-cf-ic')"><span id="org-cf-ic">👁</span></button>
+        <button type="button" class="rg-pw-eye" data-target="org-cf" data-icon="org-cf-ic"><span id="org-cf-ic">👁</span></button>
       </div>
       <span class="rg-hint" id="org-match">&nbsp;</span>
     </div>
-    <button type="button" class="rg-btn rg-btn-primary" onclick="orgStep1Next()">Continue →</button>
+    <button type="button" class="rg-btn rg-btn-primary" id="btn-org-s1-next">Continue →</button>
     <p class="rg-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></p>
   </div>
 
@@ -617,8 +616,8 @@
       </div>
     </div>
     <div class="rg-btn-row">
-      <button type="button" class="rg-btn rg-btn-ghost" onclick="orgStep2Back()">← Back</button>
-      <button type="button" class="rg-btn rg-btn-primary" onclick="orgStep2Next()">Review →</button>
+      <button type="button" class="rg-btn rg-btn-ghost" id="btn-org-s2-back">← Back</button>
+      <button type="button" class="rg-btn rg-btn-primary" id="btn-org-s2-next">Review →</button>
     </div>
   </div>
 
@@ -646,7 +645,7 @@
       <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I confirm the organisation details are accurate.</span>
     </label>
     <div class="rg-btn-row">
-      <button type="button" class="rg-btn rg-btn-ghost" onclick="orgStep3Back()">← Back</button>
+      <button type="button" class="rg-btn rg-btn-ghost" id="btn-org-s3-back">← Back</button>
       <button type="submit" class="rg-btn rg-btn-success" id="org-submit">Register organisation</button>
     </div>
     <p class="rg-footer">Already have an account? <a href="{{ route('login') }}">Sign in</a></p>
@@ -656,8 +655,7 @@
 </form>
 
 <script nonce="{{ $cspNonce ?? '' }}">
-(function () {
-'use strict';
+document.addEventListener('DOMContentLoaded', function () {
 
 /* ── Helpers ── */
 function H(id) { return document.getElementById(id); }
@@ -672,7 +670,7 @@ function fmtDate(s) {
 }
 
 /* ── Screen management ── */
-var SCREENS    = ['scr-type','scr-patient','scr-provider','scr-org'];
+var SCREENS     = ['scr-type','scr-patient','scr-provider','scr-org'];
 var currentType = '';
 
 function showScreen(id) {
@@ -683,7 +681,7 @@ function showScreen(id) {
   window.scrollTo(0, 0);
 }
 
-window.chooseType = function(type) {
+function chooseType(type) {
   currentType = type;
   H('regType').value = type;
   if (type === 'patient') {
@@ -699,11 +697,11 @@ window.chooseType = function(type) {
   }
 };
 
-window.goBack = function() {
+function goBack() {
   currentType = '';
   H('regType').value = '';
   showScreen('scr-type');
-};
+}
 
 /* ── Progress bar ── */
 function progSet(prefix, active) {
@@ -772,11 +770,12 @@ function configOrg(type) {
 }
 
 /* ── Utils ── */
-window.togglePw = function(inputId, iconId) {
+function togglePw(inputId, iconId) {
   var el = H(inputId), ic = H(iconId);
+  if (!el || !ic) return;
   el.type = (el.type === 'password') ? 'text' : 'password';
   ic.textContent = (el.type === 'password') ? '👁' : '🙈';
-};
+}
 
 function validateAccount(nameId, emailId, phoneHiddenId, pwId, cfId) {
   if (!gv(nameId)) { alert('Please enter your full name.'); H(nameId).focus(); return false; }
@@ -824,45 +823,65 @@ function bindMatch(pwId, cfId, hintId) {
   if (cf) cf.addEventListener('input', check);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  bindStrength('pat-pw','pat-str','pat-str-lbl'); bindMatch('pat-pw','pat-cf','pat-match');
-  bindStrength('prv-pw','prv-str','prv-str-lbl'); bindMatch('prv-pw','prv-cf','prv-match');
-  bindStrength('org-pw','org-str','org-str-lbl'); bindMatch('org-pw','org-cf','org-match');
+/* ── Strength + match ── */
+bindStrength('pat-pw','pat-str','pat-str-lbl'); bindMatch('pat-pw','pat-cf','pat-match');
+bindStrength('prv-pw','prv-str','prv-str-lbl'); bindMatch('prv-pw','prv-cf','prv-match');
+bindStrength('org-pw','org-str','org-str-lbl'); bindMatch('org-pw','org-cf','org-match');
+
+/* ── Type-selection cards ── */
+['patient','provider','hospital','pharmacy'].forEach(function(t) {
+  var btn = H('btn-type-' + t);
+  if (btn) btn.addEventListener('click', function() { chooseType(t); });
 });
 
-/* ── Patient steps ── */
-window.patStep1Next = function() {
+/* ── Back-to-types buttons ── */
+['pat','prv','org'].forEach(function(p) {
+  var btn = H('btn-back-' + p);
+  if (btn) btn.addEventListener('click', goBack);
+});
+
+/* ── Password eye-toggle buttons ── */
+document.querySelectorAll('.rg-pw-eye[data-target]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    togglePw(btn.getAttribute('data-target'), btn.getAttribute('data-icon'));
+  });
+});
+
+/* ── Patient step navigation ── */
+function patStep1Next() {
   if (!validateAccount('pat-name','pat-email','pat-phone_hidden','pat-pw','pat-cf')) return;
   progSet('pat', 2); stepShow('pat', 2);
-};
-window.patStep2Back = function() { progSet('pat', 1); stepShow('pat', 1); };
-window.patStep2Next = function() {
+}
+function patStep2Back() { progSet('pat', 1); stepShow('pat', 1); }
+function patStep2Next() {
   var nin = gv('pat-nin');
   if (nin && !/^\d{11}$/.test(nin)) { alert('NIN must be exactly 11 digits, or leave it blank.'); H('pat-nin').focus(); return; }
-  H('pat-rv-name').textContent  = gv('pat-name')  || '—';
-  H('pat-rv-email').textContent = gv('pat-email') || '—';
-  H('pat-rv-phone').textContent = gv('pat-phone_hidden') || '—';
-  H('pat-rv-dob').textContent   = fmtDate(gv('pat-dob'));
-  var gender = H('pat-gender');
+  H('pat-rv-name').textContent   = gv('pat-name')  || '—';
+  H('pat-rv-email').textContent  = gv('pat-email') || '—';
+  H('pat-rv-phone').textContent  = gv('pat-phone_hidden') || '—';
+  H('pat-rv-dob').textContent    = fmtDate(gv('pat-dob'));
+  var gender = H('pat-gender'), blood = H('pat-blood'), geno = H('pat-geno'), state = H('pat-state');
   H('pat-rv-gender').textContent = (gender && gender.value) ? selText('pat-gender') : 'Not provided';
-  var blood = H('pat-blood');
-  H('pat-rv-blood').textContent  = (blood && blood.value)  ? blood.value  : 'Unknown';
-  var geno  = H('pat-geno');
-  H('pat-rv-geno').textContent   = (geno  && geno.value)   ? geno.value   : 'Unknown';
-  var state = H('pat-state');
-  H('pat-rv-state').textContent  = (state && state.value)  ? state.value  : 'Not provided';
+  H('pat-rv-blood').textContent  = (blood  && blood.value)  ? blood.value  : 'Unknown';
+  H('pat-rv-geno').textContent   = (geno   && geno.value)   ? geno.value   : 'Unknown';
+  H('pat-rv-state').textContent  = (state  && state.value)  ? state.value  : 'Not provided';
   H('pat-rv-nin').textContent    = nin ? nin.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : 'Not provided';
   progSet('pat', 3); stepShow('pat', 3);
-};
-window.patStep3Back = function() { progSet('pat', 2); stepShow('pat', 2); };
+}
+function patStep3Back() { progSet('pat', 2); stepShow('pat', 2); }
 
-/* ── Provider steps ── */
-window.prvStep1Next = function() {
+H('btn-pat-s1-next').addEventListener('click', patStep1Next);
+H('btn-pat-s2-back').addEventListener('click', patStep2Back);
+H('btn-pat-s2-next').addEventListener('click', patStep2Next);
+H('btn-pat-s3-back').addEventListener('click', patStep3Back);
+
+/* ── Provider step navigation ── */
+function prvStep1Next() {
   if (!validateAccount('prv-name','prv-email','prv-phone_hidden','prv-pw','prv-cf')) return;
   progSet('prv', 2); stepShow('prv', 2);
-};
-window.prvStep2Back = function() { progSet('prv', 1); stepShow('prv', 1); };
-window.prvStep2Next = function() {
+}
+function prvStep2Back() { progSet('prv', 1); stepShow('prv', 1); }
+function prvStep2Next() {
   if (!gv('prv-specialty')) { alert('Please select your specialty.'); H('prv-specialty').focus(); return; }
   H('prv-rv-name').textContent  = gv('prv-name')  || '—';
   H('prv-rv-email').textContent = gv('prv-email') || '—';
@@ -871,58 +890,65 @@ window.prvStep2Next = function() {
   H('prv-rv-folio').textContent = gv('prv-folio') || 'Not provided';
   H('prv-rv-lic').textContent   = gv('prv-lic')   || 'Not provided';
   progSet('prv', 3); stepShow('prv', 3);
-};
-window.prvStep3Back = function() { progSet('prv', 2); stepShow('prv', 2); };
+}
+function prvStep3Back() { progSet('prv', 2); stepShow('prv', 2); }
 
-/* ── Org steps ── */
-window.orgStep1Next = function() {
+H('btn-prv-s1-next').addEventListener('click', prvStep1Next);
+H('btn-prv-s2-back').addEventListener('click', prvStep2Back);
+H('btn-prv-s2-next').addEventListener('click', prvStep2Next);
+H('btn-prv-s3-back').addEventListener('click', prvStep3Back);
+
+/* ── Org step navigation ── */
+function orgStep1Next() {
   if (!validateAccount('org-name','org-email','org-phone_hidden','org-pw','org-cf')) return;
   progSet('org', 2); stepShow('org', 2);
-};
-window.orgStep2Back = function() { progSet('org', 1); stepShow('org', 1); };
-window.orgStep2Next = function() {
+}
+function orgStep2Back() { progSet('org', 1); stepShow('org', 1); }
+function orgStep2Next() {
   if (!gv('org-org-name')) { alert('Please enter the organisation name.'); H('org-org-name').focus(); return; }
   var isPharm = (currentType === 'pharmacy');
+  var addr = gv('org-addr'), city = gv('org-city'), state = H('org-state');
   H('org-rv-name').textContent  = gv('org-name')  || '—';
   H('org-rv-email').textContent = gv('org-email') || '—';
   H('org-rv-phone').textContent = gv('org-phone_hidden') || '—';
   H('org-rv-org').textContent   = gv('org-org-name') || '—';
   if (!isPharm) H('org-rv-type').textContent = selText('org-org-type') || '—';
-  var addr = gv('org-addr'), city = gv('org-city');
-  var state = H('org-state');
   H('org-rv-lic').textContent   = gv('org-lic')  || 'Not provided';
   H('org-rv-addr').textContent  = [addr, city].filter(Boolean).join(', ') || 'Not provided';
   H('org-rv-state').textContent = (state && state.value) || 'Not provided';
   progSet('org', 3); stepShow('org', 3);
-};
-window.orgStep3Back = function() { progSet('org', 2); stepShow('org', 2); };
+}
+function orgStep3Back() { progSet('org', 2); stepShow('org', 2); }
 
-/* ── Copy the active phone value to the single name="phone" field before submit ── */
+H('btn-org-s1-next').addEventListener('click', orgStep1Next);
+H('btn-org-s2-back').addEventListener('click', orgStep2Back);
+H('btn-org-s2-next').addEventListener('click', orgStep2Next);
+H('btn-org-s3-back').addEventListener('click', orgStep3Back);
+
+/* ── Phone sync + submit guard ── */
 function syncPhone() {
-  var phoneMap = { patient: 'pat-phone_hidden', provider: 'prv-phone_hidden', hospital: 'org-phone_hidden', clinic: 'org-phone_hidden', pharmacy: 'org-phone_hidden' };
-  var srcId = phoneMap[currentType];
-  var src   = srcId ? H(srcId) : null;
+  var map = { patient:'pat-phone_hidden', provider:'prv-phone_hidden', hospital:'org-phone_hidden', clinic:'org-phone_hidden', pharmacy:'org-phone_hidden' };
+  var src = H(map[currentType] || '');
   H('rg-phone-out').value = src ? src.value : '';
 }
 
-/* ── Submit guard ── */
 H('regForm').addEventListener('submit', function(e) {
-  var termId = { patient: 'pat-terms', provider: 'prv-terms' }[currentType] || 'org-terms';
+  var termId = { patient:'pat-terms', provider:'prv-terms' }[currentType] || 'org-terms';
   if (!H(termId) || !H(termId).checked) {
     e.preventDefault();
     alert('Please accept the Terms of Service to continue.');
     return;
   }
   syncPhone();
-  var btnId = { patient: 'pat-submit', provider: 'prv-submit' }[currentType] || 'org-submit';
+  var btnId = { patient:'pat-submit', provider:'prv-submit' }[currentType] || 'org-submit';
   var btn = H(btnId);
   if (btn) { btn.disabled = true; btn.textContent = 'Creating account…'; }
 });
 
-/* ── Re-open correct step on server validation error ── */
+/* ── Re-open correct screen+step on server validation error ── */
 @if($errors->any())
 (function() {
-  var t = '{{ old('reg_type', 'patient') }}';
+  var t = '{{ old("reg_type", "patient") }}';
   if (t === 'provider') {
     chooseType('provider');
     @if($errors->hasAny(['specialty','license_no','mdcn_folio']))
@@ -948,7 +974,7 @@ H('regForm').addEventListener('submit', function(e) {
 }());
 @endif
 
-}());
+}); /* end DOMContentLoaded */
 </script>
 
 @endsection
