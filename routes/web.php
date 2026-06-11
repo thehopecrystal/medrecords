@@ -72,8 +72,13 @@ Route::middleware('auth')->group(function () {
 });
 
 // ─── Patient ──────────────────────────────────────────────────────────────────
+// Welcome/onboarding page is reachable before email verification so new users
+// aren't immediately blocked after registration.
+Route::prefix('patient')->middleware(['auth', 'role:patient'])->name('patient.')->group(function () {
+    Route::get('/welcome', [PatientDashboard::class, 'welcome'])->name('welcome');
+});
+
 Route::prefix('patient')->middleware(['auth', 'verified', 'role:patient'])->name('patient.')->group(function () {
-    Route::get('/welcome',                [PatientDashboard::class, 'welcome'])->name('welcome');
     Route::get('/dashboard',              [PatientDashboard::class, 'index'])->name('dashboard');
     Route::get('/record/{tab?}',          [RecordController::class, 'index'])->name('record');
     Route::get('/prescription/{id}',      [RecordController::class, 'prescription'])->name('prescription');

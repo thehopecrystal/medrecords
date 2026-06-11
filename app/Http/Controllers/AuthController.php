@@ -10,6 +10,7 @@ use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -127,7 +128,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
         $user->update(['last_login_at' => now()]);
-        $user->sendEmailVerificationNotification();
+        try { $user->sendEmailVerificationNotification(); } catch (\Throwable $e) { Log::warning("Verification email failed for user {$user->id}: " . $e->getMessage()); }
 
         return redirect()->route('patient.welcome');
     }
@@ -170,7 +171,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
         $user->update(['last_login_at' => now()]);
-        $user->sendEmailVerificationNotification();
+        try { $user->sendEmailVerificationNotification(); } catch (\Throwable $e) { Log::warning("Verification email failed for user {$user->id}: " . $e->getMessage()); }
 
         return redirect()->route('provider.dashboard')->with('onboarding', true);
     }
@@ -225,7 +226,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
         $user->update(['last_login_at' => now()]);
-        $user->sendEmailVerificationNotification();
+        try { $user->sendEmailVerificationNotification(); } catch (\Throwable $e) { Log::warning("Verification email failed for user {$user->id}: " . $e->getMessage()); }
 
         return redirect()->route('admin.dashboard')->with('onboarding', true);
     }
