@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Rules\SafeFileType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -11,12 +12,13 @@ class AvatarController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            // gif excluded — animated GIFs can contain executable content in some parsers.
-            'avatar' => 'required|image|mimes:jpeg,jpg,png,webp|max:2048|dimensions:max_width=3000,max_height=3000',
+            'avatar' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048',
+                         'dimensions:max_width=3000,max_height=3000',
+                         new SafeFileType(['image/jpeg', 'image/png', 'image/webp'])],
         ]);
 
         /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $user = $request->user();
 
         if ($user->avatar) {
             Storage::disk('public')->delete($user->avatar);

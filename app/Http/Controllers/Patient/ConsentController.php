@@ -25,8 +25,26 @@ class ConsentController extends Controller
 
         $consent->update(['status' => 'revoked', 'revoked_at' => now()]);
 
-        AuditLog::record($patient->id, auth()->id(), 'consent_revoked', "Revoked consent for {$consent->grantee->name}");
+        AuditLog::record($patient->id, (int) auth()->id(), 'consent_revoked', "Revoked consent for {$consent->grantee->name}");
 
         return back()->with('success', 'Consent revoked.');
+    }
+
+    public function renew(int $id)
+    {
+        $patient = $this->currentPatient();
+        $consent = $patient->consents()->with('grantee')->findOrFail($id);
+
+        abort_if(!in_array($consent->status, ['active', 'expired']), 422, 'Only active or expired consents can be renewed.');
+
+        $consent->update([
+            'status'     => 'active',
+            'expires_at' => now()->addDays(90),
+            'revoked_at' => null,
+        ]);
+
+        AuditLog::record($patient->id, (int) auth()->id(), 'consent_renewed', "Renewed consent for {$consent->grantee->name} (90 days)");
+
+        return back()->with('success', 'Consent renewed for 90 days.');
     }
 }

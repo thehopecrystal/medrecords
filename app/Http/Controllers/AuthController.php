@@ -127,6 +127,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
         $user->update(['last_login_at' => now()]);
+        $user->sendEmailVerificationNotification();
 
         return redirect()->route('patient.welcome');
     }
@@ -169,6 +170,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
         $user->update(['last_login_at' => now()]);
+        $user->sendEmailVerificationNotification();
 
         return redirect()->route('provider.dashboard')->with('onboarding', true);
     }
@@ -223,6 +225,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
         $user->update(['last_login_at' => now()]);
+        $user->sendEmailVerificationNotification();
 
         return redirect()->route('admin.dashboard')->with('onboarding', true);
     }

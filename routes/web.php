@@ -24,6 +24,7 @@ use App\Http\Controllers\Patient\NotificationController as PatientNotifications;
 use App\Http\Controllers\Patient\EncounterPrintController as PatientEncounterPrint;
 use App\Http\Controllers\Patient\ProfileController as PatientProfile;
 use App\Http\Controllers\Patient\RecordController;
+use App\Http\Controllers\Patient\RecordExportController;
 use App\Http\Controllers\Patient\RefillRequestController as PatientRefill;
 use App\Http\Controllers\Patient\VitalLogController;
 use App\Http\Controllers\Pharmacy\DispenseController;
@@ -35,6 +36,7 @@ use App\Http\Controllers\Provider\ReferralController;
 use App\Http\Controllers\Provider\RefillRequestController as ProviderRefill;
 use App\Http\Controllers\Provider\WorkstationController;
 use App\Http\Controllers\AvatarController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public ───────────────────────────────────────────────────────────────────
@@ -57,13 +59,20 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+// ─── Email Verification ───────────────────────────────────────────────────────
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])->middleware('throttle:3,1')->name('verification.send');
+});
+
 // ─── Shared (all authenticated roles) ─────────────────────────────────────────
 Route::middleware('auth')->group(function () {
     Route::post('/profile/avatar', [AvatarController::class, 'update'])->name('profile.avatar');
 });
 
 // ─── Patient ──────────────────────────────────────────────────────────────────
-Route::prefix('patient')->middleware(['auth', 'role:patient'])->name('patient.')->group(function () {
+Route::prefix('patient')->middleware(['auth', 'verified', 'role:patient'])->name('patient.')->group(function () {
     Route::get('/welcome',                [PatientDashboard::class, 'welcome'])->name('welcome');
     Route::get('/dashboard',              [PatientDashboard::class, 'index'])->name('dashboard');
     Route::get('/record/{tab?}',          [RecordController::class, 'index'])->name('record');
@@ -71,9 +80,10 @@ Route::prefix('patient')->middleware(['auth', 'role:patient'])->name('patient.')
 
     // Consents
     Route::get('/consents',               [ConsentController::class, 'index'])->name('consents');
-    Route::patch('/consents/{id}/revoke', [ConsentController::class, 'revoke'])->name('consents.revoke');
-    Route::patch('/consents/{id}/approve',[PatientConsentRequest::class, 'approve'])->name('consents.approve');
-    Route::delete('/consents/{id}/decline',[PatientConsentRequest::class, 'decline'])->name('consents.decline');
+    Route::patch('/consents/{id}/revoke', [ConsentController::class, 'revoke'])->name('consents.revoke')->middleware('throttle:consent-actions');
+    Route::patch('/consents/{id}/renew',  [ConsentController::class, 'renew'])->name('consents.renew')->middleware('throttle:consent-actions');
+    Route::patch('/consents/{id}/approve',[PatientConsentRequest::class, 'approve'])->name('consents.approve')->middleware('throttle:consent-actions');
+    Route::delete('/consents/{id}/decline',[PatientConsentRequest::class, 'decline'])->name('consents.decline')->middleware('throttle:consent-actions');
 
     // Access code
     Route::get('/access-code',            [PatientDashboard::class, 'showAccessCode'])->name('access-code');
@@ -111,7 +121,7 @@ Route::prefix('patient')->middleware(['auth', 'role:patient'])->name('patient.')
 
     // Lab upload
     Route::get('/lab-upload',             [LabUploadController::class, 'create'])->name('lab-upload');
-    Route::post('/lab-upload',            [LabUploadController::class, 'store'])->name('lab-upload.store');
+    Route::post('/lab-upload',            [LabUploadController::class, 'store'])->name('lab-upload.store')->middleware('throttle:patient-writes');
     Route::get('/lab-results/{id}/download', [LabUploadController::class, 'download'])->name('lab.download');
 
     // Notifications
@@ -126,27 +136,34 @@ Route::prefix('patient')->middleware(['auth', 'role:patient'])->name('patient.')
 
     // Encounter PDF export (patient can print their own encounters)
     Route::get('/encounters/{id}/print',  [PatientEncounterPrint::class, 'show'])->name('encounter.print');
+
+    // Full health record PDF export
+    Route::get('/export-pdf', [RecordExportController::class, 'export'])->name('record.export')->middleware('throttle:patient-writes');
 });
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
-Route::prefix('provider')->middleware(['auth', 'role:provider'])->name('provider.')->group(function () {
+Route::prefix('provider')->middleware(['auth', 'verified', 'role:provider', 'require.2fa'])->name('provider.')->group(function () {
     Route::get('/dashboard',  [WorkstationController::class, 'dashboard'])->name('dashboard');
     Route::get('/search',     [WorkstationController::class, 'search'])->name('search');
+    Route::get('/pending-verification', fn () => view('provider.pending-verification'))->name('pending-verification');
 
-    // Specific sub-paths MUST come before the {tab?} wildcard
-    Route::get('/patients/{id}/encounter/new',   [WorkstationController::class, 'newEncounter'])->name('encounter.new');
-    Route::post('/patients/{id}/encounter',      [WorkstationController::class, 'storeEncounter'])->name('encounter.store');
-    Route::get('/patients/{id}/encounters/{eid}/print', [EncounterPrintController::class, 'show'])->name('encounter.print');
-    Route::get('/patients/{id}/break-glass',     [WorkstationController::class, 'breakGlass'])->name('break-glass');
-    Route::post('/patients/{id}/break-glass',    [WorkstationController::class, 'storeBreakGlass'])->name('break-glass.store');
-    Route::get('/patients/{id}/consent-request', [ProviderConsentRequest::class, 'create'])->name('consent-request.create');
-    Route::post('/patients/{id}/consent-request',[ProviderConsentRequest::class, 'store'])->name('consent-request.store');
-    Route::get('/patients/{id}/refer',           [ReferralController::class, 'create'])->name('referral.create');
-    Route::post('/patients/{id}/refer',          [ReferralController::class, 'store'])->name('referral.store');
-    Route::get('/patients/{id}/lab/new',         [LabResultController::class, 'create'])->name('lab.create');
-    Route::post('/patients/{id}/lab',            [LabResultController::class, 'store'])->name('lab.store');
+    // Patient-access routes require MDCN verification
+    Route::middleware('mdcn.verified')->group(function () {
+        // Specific sub-paths MUST come before the {tab?} wildcard
+        Route::get('/patients/{id}/encounter/new',   [WorkstationController::class, 'newEncounter'])->name('encounter.new');
+        Route::post('/patients/{id}/encounter',      [WorkstationController::class, 'storeEncounter'])->name('encounter.store')->middleware('throttle:provider-writes');
+        Route::get('/patients/{id}/encounters/{eid}/print', [EncounterPrintController::class, 'show'])->name('encounter.print');
+        Route::get('/patients/{id}/break-glass',     [WorkstationController::class, 'breakGlass'])->name('break-glass');
+        Route::post('/patients/{id}/break-glass',    [WorkstationController::class, 'storeBreakGlass'])->name('break-glass.store')->middleware('throttle:break-glass');
+        Route::get('/patients/{id}/consent-request', [ProviderConsentRequest::class, 'create'])->name('consent-request.create');
+        Route::post('/patients/{id}/consent-request',[ProviderConsentRequest::class, 'store'])->name('consent-request.store');
+        Route::get('/patients/{id}/refer',           [ReferralController::class, 'create'])->name('referral.create');
+        Route::post('/patients/{id}/refer',          [ReferralController::class, 'store'])->name('referral.store');
+        Route::get('/patients/{id}/lab/new',         [LabResultController::class, 'create'])->name('lab.create');
+        Route::post('/patients/{id}/lab',            [LabResultController::class, 'store'])->name('lab.store');
 
-    Route::get('/patients/{id}/{tab?}',          [WorkstationController::class, 'patient'])->name('patient');
+        Route::get('/patients/{id}/{tab?}',          [WorkstationController::class, 'patient'])->name('patient');
+    });
 
     // Provider appointments
     Route::get('/appointments',                  [ProviderAppointment::class, 'index'])->name('appointments');
@@ -165,7 +182,7 @@ Route::prefix('provider')->middleware(['auth', 'role:provider'])->name('provider
 });
 
 // ─── Pharmacy ─────────────────────────────────────────────────────────────────
-Route::prefix('pharmacy')->middleware(['auth', 'role:pharmacist'])->name('pharmacy.')->group(function () {
+Route::prefix('pharmacy')->middleware(['auth', 'verified', 'role:pharmacist', 'require.2fa'])->name('pharmacy.')->group(function () {
     Route::get('/dashboard',      [DispenseController::class, 'dashboard'])->name('dashboard');
     Route::get('/lookup',         [DispenseController::class, 'lookup'])->name('lookup');
     Route::post('/dispense/{id}', [DispenseController::class, 'dispense'])->name('dispense');
@@ -173,7 +190,7 @@ Route::prefix('pharmacy')->middleware(['auth', 'role:pharmacist'])->name('pharma
 });
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
-Route::prefix('admin')->middleware(['auth', 'role:facility_admin,super_admin'])->name('admin.')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'verified', 'role:facility_admin,super_admin', 'require.2fa'])->name('admin.')->group(function () {
     Route::get('/dashboard',               [AdminDashboard::class, 'index'])->name('dashboard');
     Route::get('/facilities',              [AdminDashboard::class, 'facilities'])->name('facilities');
     Route::get('/break-glass',             [AdminDashboard::class, 'breakGlass'])->name('break-glass');

@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LabResult extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'patient_id', 'encounter_id', 'ordered_by', 'test_name', 'loinc_code',
         'result', 'unit', 'reference_range', 'flag', 'collected_at', 'notes',

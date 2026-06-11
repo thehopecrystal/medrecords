@@ -7,8 +7,10 @@ use App\Models\AuditLog;
 use App\Models\BreakGlassEvent;
 use App\Models\Consent;
 use App\Models\Encounter;
+use App\Models\Notification;
 use App\Models\Patient;
 use App\Models\Prescription;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -188,18 +190,53 @@ class WorkstationController extends Controller
             'You already have an active emergency access session for this patient.'
         );
 
+        $providerId = (int) auth()->id();
+        $provider   = $this->currentProvider();
+
         $event = BreakGlassEvent::create([
             'patient_id'    => $patient->id,
-            'provider_id'   => auth()->id(),
+            'provider_id'   => $providerId,
             'reason_code'   => $request->reason_code,
             'justification' => $request->justification,
             'status'        => 'active',
-            'expires_at'    => now()->addHours(4), // Reduced from 24 h — re-invoke if still needed.
+            'expires_at'    => now()->addHours(4),
         ]);
 
-        AuditLog::record($patient->id, auth()->id(), 'break_glass', "Break-glass invoked: {$request->reason_code}", 'BreakGlassEvent', $event->id);
+        AuditLog::record($patient->id, $providerId, 'break_glass', "Break-glass invoked: {$request->reason_code}", 'BreakGlassEvent', $event->id);
+
+        // Notify the patient their record was accessed under emergency override.
+        if ($patient->user_id) {
+            Notification::send(
+                $patient->user_id,
+                'break_glass',
+                'Emergency record access',
+                auth()->user()->name . " accessed your medical record under an emergency override (" . $request->reason_code . "). This event has been logged and will be reviewed by your facility administrator.",
+                ['event_id' => $event->id, 'reason_code' => $request->reason_code]
+            );
+        }
+
+        // Notify the facility admin so they can review immediately.
+        if ($provider->facility_id) {
+            $adminUser = User::where('role', 'facility_admin')
+                ->whereHas('provider', fn ($q) => $q->where('facility_id', $provider->facility_id))
+                ->orWhere(function ($q) use ($provider) {
+                    $q->where('role', 'facility_admin')
+                      ->whereHas('facility', fn ($fq) => $fq->where('id', $provider->facility_id));
+                })
+                ->first();
+
+            if ($adminUser) {
+                Notification::send(
+                    $adminUser->id,
+                    'break_glass_review',
+                    'Break-glass access requires review',
+                    auth()->user()->name . " invoked emergency override for patient MED-ID {$patient->med_id}. Reason: {$request->reason_code}. Review and close this event in the admin dashboard.",
+                    ['event_id' => $event->id, 'patient_id' => $patient->id]
+                );
+            }
+        }
 
         return redirect()->route('provider.patient', $patient->id)
-            ->with('success', 'Emergency access granted for 4 hours. Patient has been notified.');
+            ->with('success', 'Emergency access granted for 4 hours. Patient and administrator have been notified.');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use App\Models\LabResult;
+use App\Rules\SafeFileType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -27,7 +28,8 @@ class LabUploadController extends Controller
             'flag'         => 'nullable|in:normal,high,low,critical',
             'notes'        => 'nullable|string|max:500',
             // Stored privately — never on public disk.
-            'file'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'file'         => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120',
+                              new SafeFileType(['application/pdf', 'image/jpeg', 'image/png'])],
         ]);
 
         $filePath = null;

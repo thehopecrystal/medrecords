@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Encounter extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'patient_id', 'provider_id', 'facility_id', 'type',
         'chief_complaint', 'history', 'diagnosis', 'icd10_code',
