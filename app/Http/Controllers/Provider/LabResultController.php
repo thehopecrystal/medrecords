@@ -21,17 +21,32 @@ class LabResultController extends Controller
     {
         $this->requireConsent($patientId);
         $request->validate([
-            'test_name'    => 'required|string|max:200',
-            'result'       => 'required|string|max:100',
-            'collected_at' => 'required|date',
+            'test_name'       => 'required|string|max:200',
+            'result'          => 'required|string|max:100',
+            'collected_at'    => 'required|date',
+            'encounter_id'    => 'nullable|integer|exists:encounters,id',
+            'flag'            => 'nullable|in:normal,low,high,critical',
+            'loinc_code'      => 'nullable|string|max:20',
+            'unit'            => 'nullable|string|max:50',
+            'reference_range' => 'nullable|string|max:100',
+            'notes'           => 'nullable|string|max:2000',
         ]);
 
         $patient = Patient::findOrFail($patientId);
 
+        // Prevent IDOR: encounter must belong to this patient.
+        if ($request->encounter_id) {
+            abort_unless(
+                $patient->encounters()->where('id', $request->encounter_id)->exists(),
+                422,
+                'Encounter does not belong to this patient.'
+            );
+        }
+
         $lab = LabResult::create([
             'patient_id'      => $patient->id,
             'encounter_id'    => $request->encounter_id ?: null,
-            'ordered_by'      => auth()->id(),
+            'ordered_by'      => (int) auth()->id(),
             'test_name'       => $request->test_name,
             'loinc_code'      => $request->loinc_code,
             'result'          => $request->result,

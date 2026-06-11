@@ -85,7 +85,7 @@ class ProfileController extends Controller
         return back()->with('success', 'Password changed successfully. All other active sessions have been signed out.');
     }
 
-    public function toggle2fa()
+    public function toggle2fa(Request $request)
     {
         $user    = $this->currentUser();
         $enabled = !$user->two_factor_enabled;
@@ -94,7 +94,15 @@ class ProfileController extends Controller
             return back()->with('error', 'A verified phone number is required to enable two-factor authentication.');
         }
 
-        $user->update(['two_factor_enabled' => $enabled]);
+        if (!$enabled) {
+            $request->validate(['current_password' => 'required']);
+            if (!Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+            }
+        }
+
+        $user->two_factor_enabled = $enabled;
+        $user->save();
 
         return back()->with('success', $enabled
             ? 'Two-factor authentication enabled. You will receive an SMS code on each login.'

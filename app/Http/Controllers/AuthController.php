@@ -49,7 +49,9 @@ class AuthController extends Controller
             if ($user->two_factor_enabled && $user->phone) {
                 $otp    = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
                 $userId = $user->id;
-                $user->update(['otp_code' => Hash::make($otp), 'otp_expires_at' => now()->addMinutes(10)]);
+                $user->otp_code      = Hash::make($otp);
+                $user->otp_expires_at = now()->addMinutes(10);
+                $user->save();
                 Auth::logout();
                 // Invalidate (wipe all session data) then regenerate ID — prevents session fixation.
                 $request->session()->invalidate();
@@ -88,6 +90,7 @@ class AuthController extends Controller
     private function registerPatient(Request $request)
     {
         $request->validate([
+            'terms'      => 'accepted',
             'name'       => 'required|string|max:120',
             'email'      => 'required|email|unique:users,email',
             'phone'      => ['required', 'string', 'regex:/^\+[1-9]\d{7,14}$/', 'unique:users,phone'],
@@ -111,12 +114,12 @@ class AuthController extends Controller
             'email'    => $request->email,
             'phone'    => $request->phone,
             'nin'      => $request->nin ?: null,
-            'role'     => 'patient',
             'password' => Hash::make($request->password),
         ]);
+        $user->role = 'patient';
+        $user->save();
 
-        Patient::create([
-            'user_id'    => $user->id,
+        $patient = new Patient([
             'med_id'     => 'MR-' . strtoupper(Str::random(6)) . '-' . strtoupper(Str::random(6)),
             'dob'        => $request->dob ?: null,
             'gender'     => $request->gender ?: null,
@@ -124,6 +127,8 @@ class AuthController extends Controller
             'genotype'   => $request->genotype ?: null,
             'state'      => $request->state ?: null,
         ]);
+        $patient->user_id = $user->id;
+        $patient->save();
 
         Auth::login($user);
         $request->session()->regenerate();
@@ -138,6 +143,7 @@ class AuthController extends Controller
     private function registerProvider(Request $request)
     {
         $request->validate([
+            'terms'      => 'accepted',
             'name'       => 'required|string|max:120',
             'email'      => 'required|email|unique:users,email',
             'phone'      => ['required', 'string', 'regex:/^\+[1-9]\d{7,14}$/', 'unique:users,phone'],
@@ -156,9 +162,10 @@ class AuthController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'phone'    => $request->phone,
-            'role'     => 'provider',
             'password' => Hash::make($request->password),
         ]);
+        $user->role = 'provider';
+        $user->save();
 
         Provider::create([
             'user_id'     => $user->id,
@@ -184,6 +191,7 @@ class AuthController extends Controller
         $facilityType  = $facilityTypes[$type] ?? 'hospital';
 
         $request->validate([
+            'terms'       => 'accepted',
             'name'        => 'required|string|max:120',
             'email'       => 'required|email|unique:users,email',
             'phone'       => ['required', 'string', 'regex:/^\+[1-9]\d{7,14}$/', 'unique:users,phone'],
@@ -207,9 +215,10 @@ class AuthController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'phone'    => $request->phone,
-            'role'     => 'facility_admin',
             'password' => Hash::make($request->password),
         ]);
+        $user->role = 'facility_admin';
+        $user->save();
 
         Facility::create([
             'owner_user_id' => $user->id,
@@ -260,16 +269,20 @@ class AuthController extends Controller
         $mismatch = !Hash::check($request->otp, $user->otp_code ?? '');
 
         if ($expired || $mismatch) {
-            // Wipe code immediately — one-use guarantee even on failure.
-            if ($expired) {
-                $user->update(['otp_code' => null, 'otp_expires_at' => null]);
-            }
-            return back()->withErrors(['otp' => $expired
+            // Always wipe the code — one attempt per issued OTP.
+            $user->otp_code       = null;
+            $user->otp_expires_at = null;
+            $user->save();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')->withErrors(['otp' => $expired
                 ? 'Code has expired. Please log in again.'
-                : 'Invalid code. Please try again.']);
+                : 'Invalid code. Please log in again.']);
         }
 
-        $user->update(['otp_code' => null, 'otp_expires_at' => null, 'last_login_at' => now()]);
+        $user->otp_code       = null;
+        $user->otp_expires_at = null;
+        $user->save();
         $request->session()->forget('2fa_user_id');
 
         Auth::login($user);

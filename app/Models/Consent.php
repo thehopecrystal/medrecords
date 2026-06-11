@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Consent extends Model
 {
     protected $fillable = [
-        'patient_id', 'grantee_id', 'scope', 'scope_details',
-        'status', 'expires_at', 'granted_at', 'revoked_at',
+        'scope', 'scope_details', 'status', 'expires_at', 'granted_at', 'revoked_at',
     ];
 
     protected function casts(): array

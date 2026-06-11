@@ -193,14 +193,15 @@ class WorkstationController extends Controller
         $providerId = (int) auth()->id();
         $provider   = $this->currentProvider();
 
-        $event = BreakGlassEvent::create([
-            'patient_id'    => $patient->id,
-            'provider_id'   => $providerId,
+        $event = new BreakGlassEvent([
             'reason_code'   => $request->reason_code,
             'justification' => $request->justification,
-            'status'        => 'active',
-            'expires_at'    => now()->addHours(4),
         ]);
+        $event->patient_id  = $patient->id;
+        $event->provider_id = $providerId;
+        $event->status      = 'active';
+        $event->expires_at  = now()->addHours(4);
+        $event->save();
 
         AuditLog::record($patient->id, $providerId, 'break_glass', "Break-glass invoked: {$request->reason_code}", 'BreakGlassEvent', $event->id);
 

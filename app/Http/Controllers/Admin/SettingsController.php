@@ -38,8 +38,12 @@ class SettingsController extends Controller
     {
         SiteSetting::loadAll();
         $settings = [];
-        foreach (array_merge($this->keys, $this->encryptedKeys) as $k) {
+        foreach ($this->keys as $k) {
             $settings[$k] = SiteSetting::get($k);
+        }
+        // Never send decrypted secrets to the browser — show a placeholder if a value is stored.
+        foreach ($this->encryptedKeys as $k) {
+            $settings[$k] = SiteSetting::get($k) ? '••••••••••••••••' : '';
         }
         return view('admin.settings', compact('settings'));
     }

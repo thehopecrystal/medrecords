@@ -1179,7 +1179,7 @@ H('regForm').addEventListener('submit', function(e) {
 /* ── Re-open correct screen+step on server validation error ── */
 @if($errors->any())
 (function() {
-  var t = '{{ old("reg_type", "patient") }}';
+  var t = {{ Illuminate\Support\Js::from(old('reg_type', 'patient')) }};
   if (t === 'provider') {
     chooseType('provider');
     @if($errors->hasAny(['specialty','license_no','mdcn_folio']))

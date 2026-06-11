@@ -8,7 +8,6 @@ class BreakGlassEvent extends Model
 {
     protected $fillable = [
         'patient_id', 'provider_id', 'reason_code', 'justification',
-        'status', 'expires_at', 'reviewed_at', 'reviewed_by', 'review_notes',
     ];
 
     protected function casts(): array

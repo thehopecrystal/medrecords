@@ -8,6 +8,7 @@ use App\Models\Dispense;
 use App\Models\Prescription;
 use App\Services\NhiaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DispenseController extends Controller
 {
@@ -56,46 +57,53 @@ class DispenseController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $prescription = Prescription::with('patient')->findOrFail($prescriptionId);
-
         $pharmacist = $this->currentUser();
         $facilityId = $pharmacist->provider?->facility_id;
         abort_if($facilityId === null, 422, 'Pharmacist is not linked to a facility.');
 
-        // Scope check: only dispense prescriptions issued by a provider at this facility.
-        abort_if(
-            $prescription->facility_id && $prescription->facility_id !== $facilityId,
-            403,
-            'This prescription was not issued at your facility.'
-        );
+        $dispense = DB::transaction(function () use ($request, $prescriptionId, $pharmacist, $facilityId) {
+            // Lock the row so concurrent requests can't double-dispense.
+            $prescription = Prescription::with('patient')->lockForUpdate()->findOrFail($prescriptionId);
 
-        abort_if(
-            $prescription->status === 'dispensed' || Dispense::where('prescription_id', $prescription->id)->exists(),
-            422,
-            'This prescription has already been dispensed and cannot be dispensed again.'
-        );
+            // Require facility match even when prescription has no facility_id (no open-network dispense).
+            abort_unless(
+                $prescription->facility_id === $facilityId,
+                403,
+                'This prescription was not issued at your facility.'
+            );
 
-        $dispense = Dispense::create([
-            'prescription_id' => $prescription->id,
-            'pharmacist_id'   => $pharmacist->id,
-            'facility_id'     => $facilityId,
-            'quantity'        => $request->quantity,
-            'batch_lot'       => $request->batch_lot,
-            'price'           => $request->price,
-            'payment_method'  => $request->payment_method,
-            'counseling_notes' => $request->counseling_notes,
-        ]);
+            abort_if(
+                $prescription->status === 'dispensed' || Dispense::where('prescription_id', $prescription->id)->exists(),
+                422,
+                'This prescription has already been dispensed and cannot be dispensed again.'
+            );
 
-        $prescription->update(['status' => 'dispensed']);
+            $dispense = Dispense::create([
+                'prescription_id'  => $prescription->id,
+                'pharmacist_id'    => $pharmacist->id,
+                'facility_id'      => $facilityId,
+                'quantity'         => $request->quantity,
+                'batch_lot'        => $request->batch_lot,
+                'price'            => $request->price,
+                'payment_method'   => $request->payment_method,
+                'counseling_notes' => $request->counseling_notes,
+            ]);
 
-        AuditLog::record(
-            $prescription->patient_id,
-            $pharmacist->id,
-            'dispensed',
-            "Dispensed {$prescription->drug_name} ({$request->quantity} units)",
-            'Dispense',
-            $dispense->id
-        );
+            $prescription->update(['status' => 'dispensed']);
+
+            AuditLog::record(
+                $prescription->patient_id,
+                $pharmacist->id,
+                'dispensed',
+                "Dispensed {$prescription->drug_name} ({$request->quantity} units)",
+                'Dispense',
+                $dispense->id
+            );
+
+            return $dispense;
+        });
+
+        $prescription = Prescription::findOrFail($prescriptionId);
 
         return redirect()->route('pharmacy.lookup', ['rx_id' => $prescription->rx_id])
             ->with('success', 'Dispense recorded successfully.');

@@ -34,8 +34,13 @@ class LabUploadController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file')) {
-            $ext      = $request->file('file')->getClientOriginalExtension();
-            $filename = Str::uuid() . '.' . strtolower($ext);
+            $ext = match($request->file('file')->getMimeType()) {
+                'application/pdf' => 'pdf',
+                'image/jpeg'      => 'jpg',
+                'image/png'       => 'png',
+                default           => 'bin',
+            };
+            $filename = Str::uuid() . '.' . $ext;
             $filePath = $request->file('file')->storeAs(
                 "lab-results/{$patient->id}",
                 $filename,

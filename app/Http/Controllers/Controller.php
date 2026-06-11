@@ -19,12 +19,16 @@ abstract class Controller
 
     protected function currentPatient(): Patient
     {
-        return $this->currentUser()->patient;
+        $patient = $this->currentUser()->patient;
+        abort_if($patient === null, 403, 'No patient profile found for this account.');
+        return $patient;
     }
 
     protected function currentProvider(): Provider
     {
-        return $this->currentUser()->provider;
+        $provider = $this->currentUser()->provider;
+        abort_if($provider === null, 403, 'No provider profile found for this account.');
+        return $provider;
     }
 
     /**

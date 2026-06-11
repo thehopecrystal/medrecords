@@ -9,9 +9,9 @@ class Patient extends Model
 {
     use SoftDeletes;
     protected $fillable = [
-        'user_id', 'med_id', 'dob', 'gender', 'blood_type', 'genotype',
+        'med_id', 'dob', 'gender', 'blood_type', 'genotype',
         'address', 'city', 'state', 'emergency_contact_name',
-        'emergency_contact_phone', 'nin_verified',
+        'emergency_contact_phone',
     ];
 
     protected function casts(): array

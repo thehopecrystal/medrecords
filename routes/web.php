@@ -37,6 +37,7 @@ use App\Http\Controllers\Provider\RefillRequestController as ProviderRefill;
 use App\Http\Controllers\Provider\WorkstationController;
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public ───────────────────────────────────────────────────────────────────
@@ -67,8 +68,16 @@ Route::middleware('auth')->group(function () {
 });
 
 // ─── Shared (all authenticated roles) ─────────────────────────────────────────
-Route::middleware('auth')->group(function () {
+// Avatar upload requires email verification (same as all other sensitive actions).
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/profile/avatar', [AvatarController::class, 'update'])->name('profile.avatar');
+});
+
+// 2FA setup — reachable without 2FA being enabled (required to escape the Require2FA gate).
+// Only requires auth + verified, NOT require.2fa, so it's always accessible.
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/account/2fa',  [TwoFactorController::class, 'show'])->name('account.2fa');
+    Route::post('/account/2fa', [TwoFactorController::class, 'toggle'])->name('account.2fa.toggle');
 });
 
 // ─── Patient ──────────────────────────────────────────────────────────────────
@@ -133,8 +142,8 @@ Route::prefix('patient')->middleware(['auth', 'verified', 'role:patient'])->name
     Route::get('/notifications',          [PatientNotifications::class, 'index'])->name('notifications');
     Route::delete('/notifications/{id}',  [PatientNotifications::class, 'destroy'])->name('notifications.destroy');
 
-    // Audit log CSV export
-    Route::get('/audit-log/export',       [AuditLogController::class, 'export'])->name('audit-log.export');
+    // Audit log CSV export — low limit to prevent bulk PHI extraction.
+    Route::get('/audit-log/export',       [AuditLogController::class, 'export'])->name('audit-log.export')->middleware('throttle:5,10');
 
     // Family health summary
     Route::get('/family/summary',         [FamilySummaryController::class, 'index'])->name('family.summary');

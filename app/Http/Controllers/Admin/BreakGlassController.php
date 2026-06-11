@@ -11,13 +11,13 @@ class BreakGlassController extends Controller
 {
     public function approve(Request $request, int $id)
     {
+        $request->validate(['review_notes' => 'nullable|string|max:1000']);
         $event = BreakGlassEvent::with('patient.user')->findOrFail($id);
-        $event->update([
-            'status'       => 'approved',
-            'reviewed_at'  => now(),
-            'reviewed_by'  => auth()->id(),
-            'review_notes' => $request->review_notes,
-        ]);
+        $event->status       = 'approved';
+        $event->reviewed_at  = now();
+        $event->reviewed_by  = (int) auth()->id();
+        $event->review_notes = $request->review_notes;
+        $event->save();
 
         Notification::create([
             'user_id' => $event->provider_id,
@@ -32,13 +32,13 @@ class BreakGlassController extends Controller
 
     public function dispute(Request $request, int $id)
     {
+        $request->validate(['review_notes' => 'nullable|string|max:1000']);
         $event = BreakGlassEvent::with('patient.user')->findOrFail($id);
-        $event->update([
-            'status'       => 'disputed',
-            'reviewed_at'  => now(),
-            'reviewed_by'  => auth()->id(),
-            'review_notes' => $request->review_notes,
-        ]);
+        $event->status       = 'disputed';
+        $event->reviewed_at  = now();
+        $event->reviewed_by  = (int) auth()->id();
+        $event->review_notes = $request->review_notes;
+        $event->save();
 
         // Notify patient that their dispute is being investigated
         Notification::create([
@@ -55,11 +55,10 @@ class BreakGlassController extends Controller
     public function close(int $id)
     {
         $event = BreakGlassEvent::findOrFail($id);
-        $event->update([
-            'status'      => 'closed',
-            'reviewed_at' => now(),
-            'reviewed_by' => auth()->id(),
-        ]);
+        $event->status      = 'closed';
+        $event->reviewed_at = now();
+        $event->reviewed_by = (int) auth()->id();
+        $event->save();
 
         return back()->with('success', 'Break-glass event closed.');
     }

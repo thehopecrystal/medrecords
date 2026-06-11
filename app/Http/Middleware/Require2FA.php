@@ -19,25 +19,15 @@ class Require2FA
         }
 
         if (!$user->two_factor_enabled) {
-            // Allow the profile route itself so the user can enable 2FA
-            if ($request->routeIs('*.profile*') || $request->routeIs('*.profile.2fa') || $request->routeIs('logout')) {
+            // Allow the shared 2FA setup page and logout — nothing else.
+            if ($request->routeIs('account.2fa', 'account.2fa.toggle', 'logout')) {
                 return $next($request);
             }
 
-            return redirect()->route($this->profileRoute($user->role))
-                ->with('warning', '2FA is required for your account type. Please enable two-factor authentication to continue.');
+            return redirect()->route('account.2fa')
+                ->with('warning', 'Two-factor authentication is required for your account. Please enable it to continue.');
         }
 
         return $next($request);
-    }
-
-    private function profileRoute(string $role): string
-    {
-        return match ($role) {
-            'provider'                      => 'provider.dashboard',
-            'facility_admin', 'super_admin' => 'admin.dashboard',
-            'pharmacist'                    => 'pharmacy.dashboard',
-            default                         => 'login',
-        };
     }
 }

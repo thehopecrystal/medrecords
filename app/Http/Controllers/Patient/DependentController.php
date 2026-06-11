@@ -43,16 +43,18 @@ class DependentController extends Controller
         $depUser = User::create([
             'name'     => $request->name,
             'email'    => 'dep_' . Str::random(8) . '@medrecords.internal',
-            'role'     => 'patient',
             'password' => Hash::make(Str::random(32)),
         ]);
+        $depUser->role = 'patient';
+        $depUser->save();
 
-        $depPatient = Patient::create([
-            'user_id' => $depUser->id,
-            'med_id'  => 'MR-' . strtoupper(Str::random(6)) . '-' . strtoupper(Str::random(6)),
-            'dob'     => $request->dob,
-            'gender'  => $request->gender,
+        $depPatient = new Patient([
+            'med_id' => 'MR-' . strtoupper(Str::random(6)) . '-' . strtoupper(Str::random(6)),
+            'dob'    => $request->dob,
+            'gender' => $request->gender,
         ]);
+        $depPatient->user_id = $depUser->id;
+        $depPatient->save();
 
         Dependent::create([
             'guardian_patient_id'  => $guardian->id,

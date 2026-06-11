@@ -12,7 +12,7 @@ class SmsService
     public function send(string $phone, string $message): bool
     {
         if (SiteSetting::get('sms_enabled', '1') !== '1') {
-            Log::info("SMS suppressed (disabled in settings). To: {$phone}");
+            Log::info('SMS suppressed (disabled in settings).');
             return true;
         }
 
@@ -28,8 +28,8 @@ class SmsService
         try {
             $token = Crypt::decryptString($encryptedToken);
         } catch (\Throwable) {
-            // Token saved before encryption was applied — use as-is
-            $token = $encryptedToken;
+            Log::error('Twilio auth token could not be decrypted. Re-save credentials in Settings.');
+            return false;
         }
 
         $to = $this->toE164($phone);
@@ -44,7 +44,7 @@ class SmsService
                 ]);
 
             if ($response->failed()) {
-                Log::error("Twilio SMS failed to {$to}: " . $response->body());
+                Log::error('Twilio SMS failed: ' . $response->body());
                 return false;
             }
 

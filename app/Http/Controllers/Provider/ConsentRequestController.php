@@ -19,7 +19,7 @@ class ConsentRequestController extends Controller
     public function store(Request $request, int $patientId)
     {
         $request->validate([
-            'scope'      => 'required|string',
+            'scope'      => 'required|in:full,encounter,prescription,lab,dental,eye_care,vaccination,dispense,custom',
             'expires_in' => 'required|integer|min:1|max:365',
         ]);
 
@@ -34,13 +34,14 @@ class ConsentRequestController extends Controller
             'You already have a pending consent request with this patient.'
         );
 
-        $consent = Consent::create([
-            'patient_id' => $patient->id,
-            'grantee_id' => auth()->id(),
+        $consent = new Consent([
             'scope'      => $request->scope,
             'status'     => 'pending',
             'expires_at' => now()->addDays($request->expires_in),
         ]);
+        $consent->patient_id = $patient->id;
+        $consent->grantee_id = (int) auth()->id();
+        $consent->save();
 
         // Notify the patient in-app
         Notification::create([

@@ -76,19 +76,21 @@ class UserController extends Controller
         ]);
 
         $user = User::create([
-            'name'      => $request->name,
-            'email'     => $request->email,
-            'phone'     => $this->normalizePhone($request->phone),
-            'role'      => $request->role,
-            'is_active' => true,
-            'password'  => Hash::make($request->password),
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'phone'    => $this->normalizePhone($request->phone),
+            'password' => Hash::make($request->password),
         ]);
+        $user->role      = $request->role;
+        $user->is_active = true;
+        $user->save();
 
         if ($request->role === 'patient') {
-            Patient::create([
-                'user_id' => $user->id,
-                'med_id'  => 'MR-' . strtoupper(Str::random(6)) . '-' . strtoupper(Str::random(6)),
+            $patient = new Patient([
+                'med_id' => 'MR-' . strtoupper(Str::random(6)) . '-' . strtoupper(Str::random(6)),
             ]);
+            $patient->user_id = $user->id;
+            $patient->save();
         }
 
         if ($isProvider) {
@@ -132,8 +134,9 @@ class UserController extends Controller
             'name'  => $request->name,
             'email' => $request->email,
             'phone' => $this->normalizePhone($request->phone),
-            'role'  => $request->role,
         ]);
+        $user->role = $request->role;
+        $user->save();
 
         return back()->with('success', 'User updated successfully.');
     }
@@ -147,7 +150,8 @@ class UserController extends Controller
         // Prevent deactivating yourself
         abort_if($user->id === auth()->id(), 422, 'You cannot deactivate your own account.');
 
-        $user->update(['is_active' => !$user->is_active]);
+        $user->is_active = !$user->is_active;
+        $user->save();
 
         $status = $user->is_active ? 'activated' : 'deactivated';
 
