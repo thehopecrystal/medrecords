@@ -951,11 +951,53 @@ function initPh(wrapId, valId) {
   var list   = wrap.querySelector('.rg-ph-list');
   var code   = btn ? btn.dataset.code : '+234';
 
+  // Build code-map sorted longest-first so +1876 matches before +1
+  var codeMap = (function() {
+    var entries = [];
+    list.querySelectorAll('.rg-ph-item').forEach(function(item) {
+      entries.push({ code: item.dataset.code, item: item });
+    });
+    entries.sort(function(a, b) { return b.code.length - a.code.length; });
+    return entries;
+  })();
+
+  // Find the first entry whose code is a prefix of raw (raw must start with '+')
+  function detectCode(raw) {
+    for (var i = 0; i < codeMap.length; i++) {
+      if (raw.indexOf(codeMap[i].code) === 0) return codeMap[i];
+    }
+    return null;
+  }
+
+  // Update button + list to reflect a matched country
+  function applyCountry(entry) {
+    code = entry.code;
+    btn.querySelector('.rg-ph-flag').textContent = entry.item.dataset.flag;
+    btn.querySelector('.rg-ph-code').textContent = entry.code;
+    local.placeholder = entry.item.dataset.ph;
+    list.querySelectorAll('.rg-ph-item').forEach(function(i) { i.classList.remove('is-sel'); });
+    entry.item.classList.add('is-sel');
+  }
+
   function syncVal() {
-    var n = local.value.replace(/\D/g, '');
+    var raw = local.value;
+    // Auto-detect country when user types or pastes a +code prefix
+    if (raw && raw[0] === '+') {
+      var match = detectCode(raw);
+      if (match) {
+        applyCountry(match);
+        // Strip the code from the visible input, keep only the local digits
+        // Setting .value programmatically does NOT re-fire the input event
+        var rest = raw.slice(match.code.length).replace(/^\s+/, '');
+        local.value = rest;
+        raw = rest;
+      }
+    }
+    var n = raw.replace(/\D/g, '');
     if (n && n[0] === '0') n = n.slice(1);
     if (val) val.value = n ? code + n : '';
   }
+
   function closeDrop() { drop.classList.remove('is-open'); }
   function openDrop() {
     document.querySelectorAll('.rg-ph-drop.is-open').forEach(function(d) { d.classList.remove('is-open'); });
