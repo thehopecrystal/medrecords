@@ -131,32 +131,54 @@ if ($value && str_starts_with($value, '+')) {
 
 <style nonce="{{ $cspNonce }}">
 /* ── Phone input component ─────────────────────────── */
-.pi-wrap  { position: relative; }
-.pi-row   { display: flex; }
+.pi-wrap  { position: relative; width: 100%; }
+.pi-row   { display: flex; width: 100%; }
 
 .pi-trigger {
   display: flex; align-items: center; gap: 5px;
-  padding: 0 10px; height: 42px;
-  background: #F8FAFC; border: 1.5px solid #D1D5DB;
-  border-right: none; border-radius: 8px 0 0 8px;
+  padding: 0 10px;
+  height: 44px;
+  background: #F8FAFC; border: 1.5px solid #E2E8F0;
+  border-right: none; border-radius: 9px 0 0 9px;
   cursor: pointer; font-size: 13px; font-weight: 600;
   color: #374151; white-space: nowrap; flex-shrink: 0;
   font-family: inherit; transition: background .15s, border-color .15s;
   line-height: 1;
 }
-.pi-trigger:hover { background: #EFF3F8; border-color: #9CA3AF; }
+.pi-trigger:hover { background: #EFF3F8; border-color: #CBD5E1; }
 .pi-trigger:focus-visible { outline: 2px solid #1e3a5f; outline-offset: 2px; }
 
 .pi-flag { font-size: 20px; line-height: 1; }
 .pi-code { font-size: 12px; font-weight: 700; letter-spacing: -.2px; }
 .pi-chevron { opacity: .45; flex-shrink: 0; margin-left: 1px; }
 
-.pi-local {
-  flex: 1; min-width: 0;
-  border-radius: 0 8px 8px 0 !important;
+/* Override any host-page "input" styles — component controls its own sizing */
+.pi-local,
+.pi-wrap input.pi-local {
+  flex: 1 !important;
+  width: 0 !important;       /* flex:1 determines actual width */
+  min-width: 0 !important;
+  height: 44px !important;
+  border-radius: 0 9px 9px 0 !important;
+  border: 1.5px solid #E2E8F0 !important;
   border-left: none !important;
+  padding: 0 14px !important;
+  font-size: 14px;
+  color: #0F172A;
+  background: #fff;
+  font-family: inherit;
+  transition: border-color .15s, box-shadow .15s;
+  display: block;
+  box-sizing: border-box;
 }
-.pi-local:focus { z-index: 1; }
+.pi-local:focus,
+.pi-wrap input.pi-local:focus {
+  outline: none !important;
+  border-color: #1E3A5F !important;
+  box-shadow: 0 0 0 3px rgba(30,58,95,0.08) !important;
+  z-index: 1;
+}
+.pi-local::placeholder { color: #CBD5E1; }
 
 .pi-dropdown {
   position: absolute; top: calc(100% + 5px); left: 0;
@@ -167,13 +189,20 @@ if ($value && str_starts_with($value, '+')) {
 }
 
 .pi-search-wrap { padding: 8px 8px 6px; }
-.pi-search {
-  width: 100%; box-sizing: border-box;
-  border: 1.5px solid #E5E7EB; border-radius: 7px;
-  padding: 7px 10px; font-size: 13px;
+.pi-search,
+.pi-wrap .pi-search {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  border-radius: 7px !important;
+  border: 1.5px solid #E5E7EB !important;
+  padding: 7px 10px !important;
+  font-size: 13px;
   font-family: inherit; outline: none; background: #F9FAFB;
+  box-sizing: border-box;
 }
-.pi-search:focus { border-color: #1e3a5f; background: #fff; }
+.pi-search:focus,
+.pi-wrap .pi-search:focus { border-color: #1e3a5f !important; background: #fff; box-shadow: none !important; }
 
 .pi-list { max-height: 230px; overflow-y: auto; }
 .pi-list::-webkit-scrollbar { width: 5px; }

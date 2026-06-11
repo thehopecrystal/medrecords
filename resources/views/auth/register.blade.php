@@ -637,9 +637,22 @@
 .btn-row {
   display: flex;
   gap: 10px;
-  margin-top: 6px;
+  margin-top: 8px;
+  align-items: stretch;
 }
-.btn-flex { flex: 1; }
+/* Reset global width:100% and margin-top when btn-submit is inside a flex row */
+.btn-row .btn-submit {
+  width: auto;
+  flex: 1;
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-row .btn-back {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
 .btn-arrow { font-size: 15px; }
 .btn-green { background: #2C5F2D; }
 .btn-green:hover { background: #1E4020; }
@@ -702,6 +715,18 @@
 .review-row span { color: #64748B; font-size: 12px; }
 .review-row strong { text-align: right; max-width: 58%; word-break: break-all; font-weight: 600; color: #0F172A; }
 
+/* ── Password / confirm fields ────────────────────────── */
+/* Override the auth layout's padding shorthand for password fields with eye icon */
+.form-field .input-with-action input { padding-right: 40px; }
+.input-with-action { position: relative; display: flex; align-items: center; }
+.input-action {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  font-size: 15px; line-height: 1; color: #94A3B8; padding: 2px;
+  transition: color 0.15s;
+}
+.input-action:hover { color: #475569; }
+
 /* ── Misc overrides ───────────────────────────────────── */
 .checkbox-label {
   display: flex;
@@ -718,9 +743,8 @@
 .req { color: #B23A48; }
 .field-hint { font-size: 11px; color: #94A3B8; margin-top: 4px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.input-with-action { position: relative; display: flex; align-items: center; }
-.input-with-action input { padding-right: 40px; }
-.input-action { position: absolute; right: 10px; background: none; border: none; cursor: pointer; font-size: 15px; line-height: 1; color: #94A3B8; padding: 2px; }
+/* Ensure form-row children with form-field > input get width:100% from auth layout,
+   which they do since .form-field > input matches them */
 .strength-bar { height: 3px; background: #E2E8F0; border-radius: 3px; margin-top: 6px; overflow: hidden; }
 .strength-fill { height: 100%; width: 0; border-radius: 3px; transition: width .3s, background .3s; background: #B23A48; }
 .match-hint { min-height: 14px; }
@@ -728,6 +752,9 @@
 @media (max-width: 520px) {
   .form-row { grid-template-columns: 1fr; }
   .auth-box { max-width: 100%; }
+  .btn-row { flex-wrap: wrap; }
+  .btn-row .btn-back { width: 100%; text-align: center; }
+  .btn-row .btn-submit { width: 100%; }
 }
 </style>
 

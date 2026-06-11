@@ -15,7 +15,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Arial, sans-serif;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr;
   color: #0F172A;
@@ -29,6 +30,7 @@ body {
   justify-content: space-between;
   padding: 40px 48px;
   position: relative; overflow: hidden;
+  height: 100%;
 }
 .auth-left::before {
   content: '';
@@ -78,17 +80,16 @@ body {
 /* ─── Right panel (form) ────────────────────── */
 .auth-right {
   background: #F8FAFC;
+  height: 100%;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px;
-  overflow-y: auto;
-  min-height: 100vh;
+  padding: 48px 32px;
 }
 .auth-box {
   width: 100%; max-width: 440px;
-  margin: auto;
-  padding: 24px 0;
+  margin: auto 0;
 }
 .auth-box-header { margin-bottom: 28px; }
 .auth-box-header h2 { font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; }
@@ -104,7 +105,10 @@ h2 { font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;
   text-transform: uppercase; letter-spacing: 0.06em;
   color: #475569; margin-bottom: 6px;
 }
-.form-field input, .form-field select {
+/* Scope to direct text inputs — exclude phone-component internals */
+.form-field > input,
+.form-field > select,
+.form-field .input-with-action input {
   width: 100%;
   background: #fff;
   border: 1.5px solid #E2E8F0;
@@ -113,14 +117,20 @@ h2 { font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;
   font-size: 14px; color: #0F172A;
   transition: border-color 0.15s, box-shadow 0.15s;
   font-family: inherit;
+  display: block;
 }
-.form-field input:focus, .form-field select:focus {
+.form-field > select { width: 100%; }
+.form-field > input:focus,
+.form-field > select:focus,
+.form-field .input-with-action input:focus {
   outline: none;
   border-color: #1E3A5F;
   box-shadow: 0 0 0 3px rgba(30,58,95,0.08);
 }
-.form-field input::placeholder { color: #CBD5E1; }
+.form-field > input::placeholder,
+.form-field .input-with-action input::placeholder { color: #CBD5E1; }
 .btn-submit {
+  display: block;
   width: 100%;
   background: #1E3A5F; color: #fff;
   border: none; border-radius: 10px;
@@ -129,6 +139,7 @@ h2 { font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;
   cursor: pointer; margin-top: 6px;
   transition: background 0.15s, transform 0.1s;
   font-family: inherit;
+  text-align: center;
 }
 .btn-submit:hover { background: #163050; }
 .btn-submit:active { transform: scale(0.99); }
@@ -244,9 +255,9 @@ h2 { font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;
 
 /* ─── Responsive ────────────────────────────── */
 @media (max-width: 768px) {
-  body { grid-template-columns: 1fr; }
+  body { grid-template-columns: 1fr; height: auto; overflow: visible; }
   .auth-left { display: none; }
-  .auth-right { padding: 24px 20px; background: #fff; }
+  .auth-right { height: auto; min-height: 100vh; padding: 32px 20px; background: #fff; }
 }
 </style>
 </head>
