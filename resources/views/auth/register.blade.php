@@ -2,6 +2,35 @@
 @section('title', 'Create Account')
 @section('content')
 
+@php
+$phoneCountries = [
+  ['code'=>'+234','flag'=>'🇳🇬','name'=>'Nigeria',             'ph'=>'08012345678'],
+  ['code'=>'+233','flag'=>'🇬🇭','name'=>'Ghana',               'ph'=>'0241234567'],
+  ['code'=>'+254','flag'=>'🇰🇪','name'=>'Kenya',               'ph'=>'0712345678'],
+  ['code'=>'+27', 'flag'=>'🇿🇦','name'=>'South Africa',        'ph'=>'0812345678'],
+  ['code'=>'+251','flag'=>'🇪🇹','name'=>'Ethiopia',            'ph'=>'0912345678'],
+  ['code'=>'+255','flag'=>'🇹🇿','name'=>'Tanzania',            'ph'=>'0712345678'],
+  ['code'=>'+256','flag'=>'🇺🇬','name'=>'Uganda',              'ph'=>'0712345678'],
+  ['code'=>'+237','flag'=>'🇨🇲','name'=>'Cameroon',            'ph'=>'671234567'],
+  ['code'=>'+221','flag'=>'🇸🇳','name'=>'Senegal',             'ph'=>'701234567'],
+  ['code'=>'+225','flag'=>'🇨🇮','name'=>"Côte d'Ivoire",       'ph'=>'0712345678'],
+  ['code'=>'+20', 'flag'=>'🇪🇬','name'=>'Egypt',               'ph'=>'01012345678'],
+  ['code'=>'+212','flag'=>'🇲🇦','name'=>'Morocco',             'ph'=>'0612345678'],
+  ['code'=>'+44', 'flag'=>'🇬🇧','name'=>'United Kingdom',      'ph'=>'07911123456'],
+  ['code'=>'+1',  'flag'=>'🇺🇸','name'=>'United States',       'ph'=>'2025551234'],
+  ['code'=>'+1',  'flag'=>'🇨🇦','name'=>'Canada',              'ph'=>'4165551234'],
+  ['code'=>'+33', 'flag'=>'🇫🇷','name'=>'France',              'ph'=>'0612345678'],
+  ['code'=>'+49', 'flag'=>'🇩🇪','name'=>'Germany',             'ph'=>'01512345678'],
+  ['code'=>'+39', 'flag'=>'🇮🇹','name'=>'Italy',               'ph'=>'3121234567'],
+  ['code'=>'+31', 'flag'=>'🇳🇱','name'=>'Netherlands',         'ph'=>'0612345678'],
+  ['code'=>'+353','flag'=>'🇮🇪','name'=>'Ireland',             'ph'=>'0871234567'],
+  ['code'=>'+971','flag'=>'🇦🇪','name'=>'United Arab Emirates','ph'=>'501234567'],
+  ['code'=>'+966','flag'=>'🇸🇦','name'=>'Saudi Arabia',        'ph'=>'501234567'],
+  ['code'=>'+91', 'flag'=>'🇮🇳','name'=>'India',               'ph'=>'9876543210'],
+  ['code'=>'+61', 'flag'=>'🇦🇺','name'=>'Australia',           'ph'=>'0412345678'],
+];
+@endphp
+
 <style nonce="{{ $cspNonce ?? '' }}">
 .auth-box { max-width: 480px; }
 
@@ -89,33 +118,58 @@
 .rg-input::placeholder { color: #CBD5E1; }
 .rg-hint { display: block; font-size: 11px; color: #94A3B8; margin-top: 5px; }
 
-/* ── Phone field wrapper — forces correct flex layout ── */
-.rg-phone-field { }
-.rg-phone-field .pi-wrap  { width: 100%; }
-.rg-phone-field .pi-row   { display: flex !important; width: 100% !important; }
-.rg-phone-field .pi-trigger {
-  display: flex !important; align-items: center; gap: 5px;
-  padding: 0 10px; height: 44px;
+/* ── Inline phone picker ── */
+.rg-ph { position: relative; }
+.rg-ph-row { display: flex; }
+.rg-ph-btn {
+  flex-shrink: 0; display: flex; align-items: center; gap: 5px;
+  height: 44px; padding: 0 11px;
   background: #F8FAFC; border: 1.5px solid #E2E8F0;
   border-right: none; border-radius: 9px 0 0 9px;
   cursor: pointer; font-size: 13px; font-weight: 600;
-  color: #374151; white-space: nowrap; flex-shrink: 0 !important;
-  font-family: inherit; width: auto !important; min-width: 0;
+  color: #374151; white-space: nowrap; font-family: inherit;
+  line-height: 1; transition: background .15s;
 }
-.rg-phone-field .pi-local,
-.rg-phone-field input.pi-local {
-  flex: 1 1 0% !important; width: 0 !important; min-width: 0 !important;
-  height: 44px !important; border-radius: 0 9px 9px 0 !important;
-  border: 1.5px solid #E2E8F0 !important; border-left: none !important;
-  padding: 0 14px !important; font-size: 14px; color: #0F172A;
-  background: #fff; font-family: inherit; display: block !important;
-  box-sizing: border-box !important;
+.rg-ph-btn:hover { background: #EFF3F8; border-color: #CBD5E1; }
+.rg-ph-flag { font-size: 19px; line-height: 1; }
+.rg-ph-code { font-size: 12px; font-weight: 700; }
+.rg-ph-local {
+  flex: 1; min-width: 0; height: 44px;
+  border: 1.5px solid #E2E8F0; border-left: none;
+  border-radius: 0 9px 9px 0; padding: 0 14px;
+  font-size: 14px; color: #0F172A; background: #fff;
+  font-family: inherit; transition: border-color .15s, box-shadow .15s;
 }
-.rg-phone-field .pi-local:focus,
-.rg-phone-field input.pi-local:focus {
-  outline: none !important; border-color: #1E3A5F !important;
-  box-shadow: 0 0 0 3px rgba(30,58,95,.08) !important; z-index: 1;
+.rg-ph-local:focus { outline: none; border-color: #1E3A5F; box-shadow: 0 0 0 3px rgba(30,58,95,.08); z-index: 1; }
+.rg-ph-local::placeholder { color: #CBD5E1; }
+.rg-ph-drop {
+  display: none; position: absolute; top: calc(100% + 4px); left: 0;
+  width: 300px; max-width: calc(100vw - 24px);
+  background: #fff; border: 1.5px solid #D1D5DB; border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.14); z-index: 9999; overflow: hidden;
 }
+.rg-ph-drop.is-open { display: block; }
+.rg-ph-swrap { padding: 8px; }
+.rg-ph-search {
+  display: block; width: 100%; padding: 7px 10px;
+  border: 1.5px solid #E5E7EB; border-radius: 7px;
+  font-size: 13px; font-family: inherit;
+  background: #F9FAFB; box-sizing: border-box; outline: none;
+}
+.rg-ph-search:focus { border-color: #1E3A5F; background: #fff; }
+.rg-ph-list { max-height: 230px; overflow-y: auto; }
+.rg-ph-list::-webkit-scrollbar { width: 5px; }
+.rg-ph-list::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 5px; }
+.rg-ph-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 13px; cursor: pointer; font-size: 13px;
+  transition: background .1s; user-select: none;
+}
+.rg-ph-item:hover { background: #F0F4FF; }
+.rg-ph-item.is-sel { background: #EFF6FF; }
+.rg-ph-if { font-size: 19px; line-height: 1; flex-shrink: 0; }
+.rg-ph-in { flex: 1; color: #1F2937; }
+.rg-ph-ic { color: #6B7280; font-size: 12px; font-weight: 600; flex-shrink: 0; }
 
 /* ── Password wrap ── */
 .rg-pw-wrap { position: relative; }
@@ -271,9 +325,30 @@
       <label class="rg-label">Email address <span class="rg-req">*</span></label>
       <input class="rg-input" type="email" name="email" id="pat-email" value="{{ old('email') }}" placeholder="adaeze@gmail.com" autocomplete="email">
     </div>
-    <div class="rg-field rg-phone-field">
+    <div class="rg-field">
       <label class="rg-label">Phone number <span class="rg-req">*</span></label>
-      <x-phone-input name="_pat_phone" id="pat-phone" :value="old('phone','')" />
+      <input type="hidden" name="_pat_phone" id="pat-ph-val" value="{{ old('phone','') }}">
+      <div class="rg-ph" id="pat-ph">
+        <div class="rg-ph-row">
+          <button type="button" class="rg-ph-btn" data-code="+234">
+            <span class="rg-ph-flag">🇳🇬</span>
+            <span class="rg-ph-code">+234</span>
+            <svg viewBox="0 0 10 6" width="9" height="6" aria-hidden="true"><path d="M0 0l5 6 5-6z" fill="currentColor" opacity=".45"/></svg>
+          </button>
+          <input type="tel" class="rg-ph-local" placeholder="08012345678" autocomplete="tel" inputmode="tel">
+        </div>
+        <div class="rg-ph-drop" id="pat-ph-drop">
+          <div class="rg-ph-swrap"><input type="text" class="rg-ph-search" placeholder="Search country…" autocomplete="off" spellcheck="false"></div>
+          <div class="rg-ph-list">
+            @foreach($phoneCountries as $c)
+            <div class="rg-ph-item{{ $c['code']==='+234'&&$c['name']==='Nigeria' ? ' is-sel' : '' }}"
+                 data-code="{{ $c['code'] }}" data-flag="{{ $c['flag'] }}" data-name="{{ $c['name'] }}" data-ph="{{ $c['ph'] }}">
+              <span class="rg-ph-if">{{ $c['flag'] }}</span><span class="rg-ph-in">{{ $c['name'] }}</span><span class="rg-ph-ic">{{ $c['code'] }}</span>
+            </div>
+            @endforeach
+          </div>
+        </div>
+      </div>
     </div>
     <div class="rg-field">
       <label class="rg-label">Password <span class="rg-req">*</span></label>
@@ -420,9 +495,30 @@
       <label class="rg-label">Email address <span class="rg-req">*</span></label>
       <input class="rg-input" type="email" name="email" id="prv-email" value="{{ old('email') }}" placeholder="emeka.obi@gmail.com">
     </div>
-    <div class="rg-field rg-phone-field">
+    <div class="rg-field">
       <label class="rg-label">Phone number <span class="rg-req">*</span></label>
-      <x-phone-input name="_prv_phone" id="prv-phone" :value="old('phone','')" />
+      <input type="hidden" name="_prv_phone" id="prv-ph-val" value="{{ old('phone','') }}">
+      <div class="rg-ph" id="prv-ph">
+        <div class="rg-ph-row">
+          <button type="button" class="rg-ph-btn" data-code="+234">
+            <span class="rg-ph-flag">🇳🇬</span>
+            <span class="rg-ph-code">+234</span>
+            <svg viewBox="0 0 10 6" width="9" height="6" aria-hidden="true"><path d="M0 0l5 6 5-6z" fill="currentColor" opacity=".45"/></svg>
+          </button>
+          <input type="tel" class="rg-ph-local" placeholder="08012345678" autocomplete="tel" inputmode="tel">
+        </div>
+        <div class="rg-ph-drop" id="prv-ph-drop">
+          <div class="rg-ph-swrap"><input type="text" class="rg-ph-search" placeholder="Search country…" autocomplete="off" spellcheck="false"></div>
+          <div class="rg-ph-list">
+            @foreach($phoneCountries as $c)
+            <div class="rg-ph-item{{ $c['code']==='+234'&&$c['name']==='Nigeria' ? ' is-sel' : '' }}"
+                 data-code="{{ $c['code'] }}" data-flag="{{ $c['flag'] }}" data-name="{{ $c['name'] }}" data-ph="{{ $c['ph'] }}">
+              <span class="rg-ph-if">{{ $c['flag'] }}</span><span class="rg-ph-in">{{ $c['name'] }}</span><span class="rg-ph-ic">{{ $c['code'] }}</span>
+            </div>
+            @endforeach
+          </div>
+        </div>
+      </div>
     </div>
     <div class="rg-field">
       <label class="rg-label">Password <span class="rg-req">*</span></label>
@@ -538,9 +634,30 @@
       <label class="rg-label">Your email address <span class="rg-req">*</span></label>
       <input class="rg-input" type="email" name="email" id="org-email" value="{{ old('email') }}" placeholder="admin@yourhospital.ng">
     </div>
-    <div class="rg-field rg-phone-field">
+    <div class="rg-field">
       <label class="rg-label">Your phone number <span class="rg-req">*</span></label>
-      <x-phone-input name="_org_phone" id="org-phone" :value="old('phone','')" />
+      <input type="hidden" name="_org_phone" id="org-ph-val" value="{{ old('phone','') }}">
+      <div class="rg-ph" id="org-ph">
+        <div class="rg-ph-row">
+          <button type="button" class="rg-ph-btn" data-code="+234">
+            <span class="rg-ph-flag">🇳🇬</span>
+            <span class="rg-ph-code">+234</span>
+            <svg viewBox="0 0 10 6" width="9" height="6" aria-hidden="true"><path d="M0 0l5 6 5-6z" fill="currentColor" opacity=".45"/></svg>
+          </button>
+          <input type="tel" class="rg-ph-local" placeholder="08012345678" autocomplete="tel" inputmode="tel">
+        </div>
+        <div class="rg-ph-drop" id="org-ph-drop">
+          <div class="rg-ph-swrap"><input type="text" class="rg-ph-search" placeholder="Search country…" autocomplete="off" spellcheck="false"></div>
+          <div class="rg-ph-list">
+            @foreach($phoneCountries as $c)
+            <div class="rg-ph-item{{ $c['code']==='+234'&&$c['name']==='Nigeria' ? ' is-sel' : '' }}"
+                 data-code="{{ $c['code'] }}" data-flag="{{ $c['flag'] }}" data-name="{{ $c['name'] }}" data-ph="{{ $c['ph'] }}">
+              <span class="rg-ph-if">{{ $c['flag'] }}</span><span class="rg-ph-in">{{ $c['name'] }}</span><span class="rg-ph-ic">{{ $c['code'] }}</span>
+            </div>
+            @endforeach
+          </div>
+        </div>
+      </div>
     </div>
     <div class="rg-field">
       <label class="rg-label">Password <span class="rg-req">*</span></label>
@@ -823,6 +940,65 @@ function bindMatch(pwId, cfId, hintId) {
   if (cf) cf.addEventListener('input', check);
 }
 
+/* ── Inline phone pickers ── */
+function initPh(wrapId, valId) {
+  var wrap = H(wrapId); if (!wrap) return;
+  var val    = H(valId);
+  var btn    = wrap.querySelector('.rg-ph-btn');
+  var local  = wrap.querySelector('.rg-ph-local');
+  var drop   = wrap.querySelector('.rg-ph-drop');
+  var search = wrap.querySelector('.rg-ph-search');
+  var list   = wrap.querySelector('.rg-ph-list');
+  var code   = btn ? btn.dataset.code : '+234';
+
+  function syncVal() {
+    var n = local.value.replace(/\D/g, '');
+    if (n && n[0] === '0') n = n.slice(1);
+    if (val) val.value = n ? code + n : '';
+  }
+  function closeDrop() { drop.classList.remove('is-open'); }
+  function openDrop() {
+    document.querySelectorAll('.rg-ph-drop.is-open').forEach(function(d) { d.classList.remove('is-open'); });
+    drop.classList.add('is-open');
+    search.value = ''; filterItems('');
+    search.focus();
+  }
+  function filterItems(q) {
+    var lq = q.toLowerCase().trim();
+    list.querySelectorAll('.rg-ph-item').forEach(function(item) {
+      item.style.display = (!lq
+        || item.dataset.name.toLowerCase().includes(lq)
+        || item.dataset.code.includes(lq)) ? '' : 'none';
+    });
+  }
+  btn.addEventListener('click', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    if (drop.classList.contains('is-open')) closeDrop(); else openDrop();
+  });
+  list.addEventListener('click', function(e) {
+    var item = e.target.closest('.rg-ph-item');
+    if (!item) return;
+    code = item.dataset.code;
+    btn.querySelector('.rg-ph-flag').textContent = item.dataset.flag;
+    btn.querySelector('.rg-ph-code').textContent = item.dataset.code;
+    local.placeholder = item.dataset.ph;
+    list.querySelectorAll('.rg-ph-item').forEach(function(i) { i.classList.remove('is-sel'); });
+    item.classList.add('is-sel');
+    closeDrop(); syncVal(); local.focus();
+  });
+  search.addEventListener('input', function() { filterItems(this.value); });
+  local.addEventListener('input', syncVal);
+  syncVal();
+}
+initPh('pat-ph','pat-ph-val');
+initPh('prv-ph','prv-ph-val');
+initPh('org-ph','org-ph-val');
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.rg-ph')) {
+    document.querySelectorAll('.rg-ph-drop.is-open').forEach(function(d) { d.classList.remove('is-open'); });
+  }
+});
+
 /* ── Strength + match ── */
 bindStrength('pat-pw','pat-str','pat-str-lbl'); bindMatch('pat-pw','pat-cf','pat-match');
 bindStrength('prv-pw','prv-str','prv-str-lbl'); bindMatch('prv-pw','prv-cf','prv-match');
@@ -849,7 +1025,7 @@ document.querySelectorAll('.rg-pw-eye[data-target]').forEach(function(btn) {
 
 /* ── Patient step navigation ── */
 function patStep1Next() {
-  if (!validateAccount('pat-name','pat-email','pat-phone_hidden','pat-pw','pat-cf')) return;
+  if (!validateAccount('pat-name','pat-email','pat-ph-val','pat-pw','pat-cf')) return;
   progSet('pat', 2); stepShow('pat', 2);
 }
 function patStep2Back() { progSet('pat', 1); stepShow('pat', 1); }
@@ -858,7 +1034,7 @@ function patStep2Next() {
   if (nin && !/^\d{11}$/.test(nin)) { alert('NIN must be exactly 11 digits, or leave it blank.'); H('pat-nin').focus(); return; }
   H('pat-rv-name').textContent   = gv('pat-name')  || '—';
   H('pat-rv-email').textContent  = gv('pat-email') || '—';
-  H('pat-rv-phone').textContent  = gv('pat-phone_hidden') || '—';
+  H('pat-rv-phone').textContent  = gv('pat-ph-val') || '—';
   H('pat-rv-dob').textContent    = fmtDate(gv('pat-dob'));
   var gender = H('pat-gender'), blood = H('pat-blood'), geno = H('pat-geno'), state = H('pat-state');
   H('pat-rv-gender').textContent = (gender && gender.value) ? selText('pat-gender') : 'Not provided';
@@ -877,7 +1053,7 @@ H('btn-pat-s3-back').addEventListener('click', patStep3Back);
 
 /* ── Provider step navigation ── */
 function prvStep1Next() {
-  if (!validateAccount('prv-name','prv-email','prv-phone_hidden','prv-pw','prv-cf')) return;
+  if (!validateAccount('prv-name','prv-email','prv-ph-val','prv-pw','prv-cf')) return;
   progSet('prv', 2); stepShow('prv', 2);
 }
 function prvStep2Back() { progSet('prv', 1); stepShow('prv', 1); }
@@ -885,7 +1061,7 @@ function prvStep2Next() {
   if (!gv('prv-specialty')) { alert('Please select your specialty.'); H('prv-specialty').focus(); return; }
   H('prv-rv-name').textContent  = gv('prv-name')  || '—';
   H('prv-rv-email').textContent = gv('prv-email') || '—';
-  H('prv-rv-phone').textContent = gv('prv-phone_hidden') || '—';
+  H('prv-rv-phone').textContent = gv('prv-ph-val') || '—';
   H('prv-rv-spec').textContent  = gv('prv-specialty') || '—';
   H('prv-rv-folio').textContent = gv('prv-folio') || 'Not provided';
   H('prv-rv-lic').textContent   = gv('prv-lic')   || 'Not provided';
@@ -900,7 +1076,7 @@ H('btn-prv-s3-back').addEventListener('click', prvStep3Back);
 
 /* ── Org step navigation ── */
 function orgStep1Next() {
-  if (!validateAccount('org-name','org-email','org-phone_hidden','org-pw','org-cf')) return;
+  if (!validateAccount('org-name','org-email','org-ph-val','org-pw','org-cf')) return;
   progSet('org', 2); stepShow('org', 2);
 }
 function orgStep2Back() { progSet('org', 1); stepShow('org', 1); }
@@ -910,7 +1086,7 @@ function orgStep2Next() {
   var addr = gv('org-addr'), city = gv('org-city'), state = H('org-state');
   H('org-rv-name').textContent  = gv('org-name')  || '—';
   H('org-rv-email').textContent = gv('org-email') || '—';
-  H('org-rv-phone').textContent = gv('org-phone_hidden') || '—';
+  H('org-rv-phone').textContent = gv('org-ph-val') || '—';
   H('org-rv-org').textContent   = gv('org-org-name') || '—';
   if (!isPharm) H('org-rv-type').textContent = selText('org-org-type') || '—';
   H('org-rv-lic').textContent   = gv('org-lic')  || 'Not provided';
@@ -927,7 +1103,7 @@ H('btn-org-s3-back').addEventListener('click', orgStep3Back);
 
 /* ── Phone sync + submit guard ── */
 function syncPhone() {
-  var map = { patient:'pat-phone_hidden', provider:'prv-phone_hidden', hospital:'org-phone_hidden', clinic:'org-phone_hidden', pharmacy:'org-phone_hidden' };
+  var map = { patient:'pat-ph-val', provider:'prv-ph-val', hospital:'org-ph-val', clinic:'org-ph-val', pharmacy:'org-ph-val' };
   var src = H(map[currentType] || '');
   H('rg-phone-out').value = src ? src.value : '';
 }
