@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LabResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class LabUploadController extends Controller
 {
@@ -20,19 +21,24 @@ class LabUploadController extends Controller
         $patient = $this->currentPatient();
 
         $request->validate([
-            'test_name'   => 'required|string|max:150',
-            'result'      => 'required|string|max:500',
-            'collected_at'=> 'required|date|before_or_equal:today',
-            'flag'        => 'nullable|in:normal,high,low,critical',
-            'notes'       => 'nullable|string|max:500',
-            // Store privately — never in public disk.
-            'file'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'test_name'    => 'required|string|max:150',
+            'result'       => 'required|string|max:500',
+            'collected_at' => 'required|date|before_or_equal:today',
+            'flag'         => 'nullable|in:normal,high,low,critical',
+            'notes'        => 'nullable|string|max:500',
+            // Stored privately — never on public disk.
+            'file'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         $filePath = null;
         if ($request->hasFile('file')) {
-            // 'local' disk → storage/app/  (not web-accessible)
-            $filePath = $request->file('file')->store("lab-results/{$patient->id}", 'local');
+            $ext      = $request->file('file')->getClientOriginalExtension();
+            $filename = Str::uuid() . '.' . strtolower($ext);
+            $filePath = $request->file('file')->storeAs(
+                "lab-results/{$patient->id}",
+                $filename,
+                'local'
+            );
         }
 
         LabResult::create([
@@ -56,10 +62,21 @@ class LabUploadController extends Controller
         $patient   = $this->currentPatient();
         $labResult = LabResult::where('patient_id', $patient->id)->findOrFail($id);
 
-        if (!$labResult->file_path || !Storage::disk('local')->exists($labResult->file_path)) {
+        if (!$labResult->file_path) {
+            abort(404, 'No file attached to this result.');
+        }
+
+        // Prevent path traversal — stored path must be inside this patient's directory.
+        $expectedPrefix = "lab-results/{$patient->id}/";
+        if (Str::startsWith($labResult->file_path, '/') || !Str::startsWith($labResult->file_path, $expectedPrefix)) {
+            abort(403, 'Unauthorized file access.');
+        }
+
+        if (!Storage::disk('local')->exists($labResult->file_path)) {
             abort(404, 'File not found.');
         }
 
-        return Storage::disk('local')->download($labResult->file_path);
+        $absolutePath = Storage::disk('local')->path($labResult->file_path);
+        return response()->download($absolutePath);
     }
 }

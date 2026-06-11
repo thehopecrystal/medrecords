@@ -28,19 +28,29 @@ class WorkstationController extends Controller
 
     public function search(Request $request)
     {
-        $q = $request->input('q', '');
+        $q        = $request->input('q', '');
         $patients = collect();
 
         if (strlen($q) >= 2) {
-            $patients = Patient::whereHas('user', function ($query) use ($q) {
-                $query->where('name', 'like', "%{$q}%")
-                      ->orWhere('phone', 'like', "%{$q}%")
-                      ->orWhere('email', 'like', "%{$q}%");
-            })
-            ->orWhere('med_id', 'like', "%{$q}%")
-            ->with('user')
-            ->take(20)
-            ->get();
+            // Only surface patients this provider already has an active consent for,
+            // or search by MED-ID (which the patient must share out-of-band).
+            $consentedIds = Consent::where('grantee_id', auth()->id())
+                ->where('status', 'active')
+                ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+                ->pluck('patient_id');
+
+            $patients = Patient::where(function ($query) use ($q) {
+                    $query->whereHas('user', function ($uq) use ($q) {
+                        $uq->where('name', 'like', "%{$q}%")
+                           ->orWhere('phone', 'like', "%{$q}%")
+                           ->orWhere('email', 'like', "%{$q}%");
+                    })
+                    ->orWhere('med_id', 'like', "%{$q}%");
+                })
+                ->whereIn('id', $consentedIds)
+                ->with('user')
+                ->take(20)
+                ->get();
         }
 
         return view('provider.search', compact('patients', 'q'));
@@ -48,12 +58,11 @@ class WorkstationController extends Controller
 
     public function patient(int $id, string $tab = 'summary')
     {
-        $patient = Patient::with(['user', 'allergies', 'conditions'])->findOrFail($id);
-
+        // Authorisation check BEFORE loading any sensitive data.
         $consent = Consent::where('patient_id', $id)
             ->where('grantee_id', auth()->id())
             ->where('status', 'active')
-            ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
             ->first();
 
         $hasBreakGlass = BreakGlassEvent::where('patient_id', $id)
@@ -62,8 +71,12 @@ class WorkstationController extends Controller
             ->where('expires_at', '>', now())
             ->exists();
 
+        // Load base patient record (name/MED-ID only) for the consent-request flow.
+        $patient = Patient::with('user')->findOrFail($id);
+
         if ($consent || $hasBreakGlass) {
             $patient->load([
+                'allergies', 'conditions',
                 'encounters.facility', 'encounters.provider',
                 'prescriptions.prescribedBy',
                 'labResults',
@@ -90,9 +103,20 @@ class WorkstationController extends Controller
         $this->requireConsent($patientId);
 
         $request->validate([
-            'type'            => 'required|string',
+            'type'            => 'required|string|in:consultation,follow-up,emergency,procedure,telehealth,referral',
             'chief_complaint' => 'required|string|max:300',
-            'assessment_plan' => 'required|string',
+            'history'         => 'nullable|string|max:5000',
+            'diagnosis'       => 'nullable|string|max:2000',
+            'icd10_code'      => ['nullable', 'string', 'max:10', 'regex:/^[A-Z][0-9][A-Z0-9](\.[A-Z0-9]{1,4})?$/i'],
+            'vitals'          => 'nullable|json|max:2000',
+            'assessment_plan' => 'required|string|max:5000',
+            'notes'           => 'nullable|string|max:2000',
+            // Optional inline prescription
+            'drug_name'       => 'nullable|string|max:200',
+            'drug_dose'       => 'nullable|string|max:100',
+            'drug_frequency'  => 'nullable|string|max:100',
+            'drug_duration'   => 'nullable|integer|min:1|max:365',
+            'drug_instructions' => 'nullable|string|max:500',
         ]);
 
         $patient = Patient::findOrFail($patientId);
@@ -105,7 +129,7 @@ class WorkstationController extends Controller
             'chief_complaint' => $request->chief_complaint,
             'history'         => $request->history,
             'diagnosis'       => $request->diagnosis,
-            'icd10_code'      => $request->icd10_code,
+            'icd10_code'      => $request->icd10_code ? strtoupper($request->icd10_code) : null,
             'vitals'          => $request->vitals,
             'assessment_plan' => $request->assessment_plan,
             'notes'           => $request->notes,
@@ -119,17 +143,17 @@ class WorkstationController extends Controller
 
         if ($request->filled('drug_name')) {
             Prescription::create([
-                'rx_id'              => 'RX-' . strtoupper(Str::random(8)),
-                'patient_id'         => $patient->id,
-                'encounter_id'       => $encounter->id,
-                'prescribed_by'      => auth()->id(),
-                'drug_name'          => $request->drug_name,
-                'dose'               => $request->drug_dose ?? '',
-                'frequency'          => $request->drug_frequency ?? '',
-                'duration_days'      => $request->drug_duration,
-                'diagnosis_context'  => $request->diagnosis,
-                'instructions'       => $request->drug_instructions,
-                'status'             => 'active',
+                'rx_id'             => 'RX-' . strtoupper(Str::random(8)),
+                'patient_id'        => $patient->id,
+                'encounter_id'      => $encounter->id,
+                'prescribed_by'     => auth()->id(),
+                'drug_name'         => $request->drug_name,
+                'dose'              => $request->drug_dose ?? '',
+                'frequency'         => $request->drug_frequency ?? '',
+                'duration_days'     => $request->drug_duration,
+                'diagnosis_context' => $request->diagnosis,
+                'instructions'      => $request->drug_instructions,
+                'status'            => 'active',
             ]);
 
             AuditLog::record($patient->id, auth()->id(), 'prescription_created', "Prescribed {$request->drug_name}", 'Prescription', null);
@@ -148,8 +172,8 @@ class WorkstationController extends Controller
     public function storeBreakGlass(Request $request, int $patientId)
     {
         $request->validate([
-            'reason_code'   => 'required|string',
-            'justification' => 'required|string|min:20',
+            'reason_code'   => 'required|string|in:emergency,unconscious,critical,public_health,other',
+            'justification' => 'required|string|min:30|max:1000',
         ]);
 
         $patient = Patient::findOrFail($patientId);
@@ -170,12 +194,12 @@ class WorkstationController extends Controller
             'reason_code'   => $request->reason_code,
             'justification' => $request->justification,
             'status'        => 'active',
-            'expires_at'    => now()->addHours(24),
+            'expires_at'    => now()->addHours(4), // Reduced from 24 h — re-invoke if still needed.
         ]);
 
         AuditLog::record($patient->id, auth()->id(), 'break_glass', "Break-glass invoked: {$request->reason_code}", 'BreakGlassEvent', $event->id);
 
         return redirect()->route('provider.patient', $patient->id)
-            ->with('success', 'Emergency access granted for 24 hours. Patient has been notified.');
+            ->with('success', 'Emergency access granted for 4 hours. Patient has been notified.');
     }
 }

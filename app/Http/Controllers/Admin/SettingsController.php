@@ -112,13 +112,15 @@ class SettingsController extends Controller
             );
             return back()->with('success', "Test email sent to {$to}.");
         } catch (\Throwable $e) {
-            return back()->with('error', 'SMTP test failed: ' . $e->getMessage());
+            // Log the real error privately — never expose SMTP credentials or server details.
+            \Illuminate\Support\Facades\Log::error('SMTP test failed', ['error' => $e->getMessage()]);
+            return back()->with('error', 'SMTP test failed. Check your SMTP settings and try again.');
         }
     }
 
     public function testSms(Request $request)
     {
-        $request->validate(['test_phone' => 'required|string|max:20']);
+        $request->validate(['test_phone' => 'required|string|regex:/^\+[1-9]\d{7,14}$/|max:20']);
 
         $sms = new \App\Services\SmsService();
         $ok  = $sms->send($request->test_phone, 'MedRecords SMS test — your configuration is working correctly.');

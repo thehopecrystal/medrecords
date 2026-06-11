@@ -19,14 +19,17 @@ class SecurityHeaders
         $response->headers->set('X-Frame-Options', 'DENY');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-XSS-Protection', '1; mode=block');
-        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+        $response->headers->set('Referrer-Policy', 'no-referrer');
+        $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=(), usb=()');
+        $response->headers->set('X-Permitted-Cross-Domain-Policies', 'none');
+        $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
+        $response->headers->set('Cross-Origin-Resource-Policy', 'same-origin');
 
-        // HSTS — only send over HTTPS; tells browsers to always use HTTPS for 1 year.
+        // HSTS — send over HTTPS only; 1 year + subdomains + preload.
         if ($request->isSecure()) {
             $response->headers->set(
                 'Strict-Transport-Security',
-                'max-age=31536000; includeSubDomains'
+                'max-age=31536000; includeSubDomains; preload'
             );
         }
 
@@ -34,9 +37,12 @@ class SecurityHeaders
             "default-src 'self'; " .
             "script-src 'self' 'nonce-{$nonce}' https://cdn.jsdelivr.net; " .
             "style-src 'self' 'nonce-{$nonce}'; " .
-            "img-src 'self' data: blob:; " .
+            "img-src 'self' blob:; " .
             "font-src 'self'; " .
             "connect-src 'self'; " .
+            "object-src 'none'; " .
+            "base-uri 'self'; " .
+            "form-action 'self'; " .
             "frame-ancestors 'none';"
         );
 

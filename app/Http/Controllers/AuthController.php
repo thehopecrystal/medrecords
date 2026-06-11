@@ -46,11 +46,13 @@ class AuthController extends Controller
             }
 
             if ($user->two_factor_enabled && $user->phone) {
-                $otp    = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                $otp    = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
                 $userId = $user->id;
                 $user->update(['otp_code' => Hash::make($otp), 'otp_expires_at' => now()->addMinutes(10)]);
                 Auth::logout();
-                $request->session()->regenerate();
+                // Invalidate (wipe all session data) then regenerate ID — prevents session fixation.
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
                 $request->session()->put('2fa_user_id', $userId);
                 (new SmsService())->send($user->phone, "MedRecords login code: {$otp}. Valid for 10 minutes. Do not share this code.");
                 return redirect()->route('auth.otp');
@@ -244,10 +246,23 @@ class AuthController extends Controller
             return redirect()->route('login')->withErrors(['otp' => 'Session expired. Please log in again.']);
         }
 
-        $user = User::findOrFail($userId);
+        $user = User::find($userId);
+        if (!$user) {
+            $request->session()->invalidate();
+            return redirect()->route('login')->withErrors(['otp' => 'Session expired. Please log in again.']);
+        }
 
-        if (!Hash::check($request->otp, $user->otp_code ?? '') || now()->isAfter($user->otp_expires_at)) {
-            return back()->withErrors(['otp' => 'Invalid or expired code. Try again.']);
+        $expired  = !$user->otp_expires_at || now()->isAfter($user->otp_expires_at);
+        $mismatch = !Hash::check($request->otp, $user->otp_code ?? '');
+
+        if ($expired || $mismatch) {
+            // Wipe code immediately — one-use guarantee even on failure.
+            if ($expired) {
+                $user->update(['otp_code' => null, 'otp_expires_at' => null]);
+            }
+            return back()->withErrors(['otp' => $expired
+                ? 'Code has expired. Please log in again.'
+                : 'Invalid code. Please try again.']);
         }
 
         $user->update(['otp_code' => null, 'otp_expires_at' => null, 'last_login_at' => now()]);

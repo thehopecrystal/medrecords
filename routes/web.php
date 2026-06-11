@@ -52,7 +52,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/forgot-password',         [ForgotPasswordController::class, 'showForm'])->name('password.request');
     Route::post('/forgot-password',        [ForgotPasswordController::class, 'sendLink'])->name('password.email')->middleware('throttle:5,1');
     Route::get('/reset-password/{token}',  [ResetPasswordController::class, 'showForm'])->name('password.reset');
-    Route::post('/reset-password',         [ResetPasswordController::class, 'reset'])->name('password.update');
+    Route::post('/reset-password',         [ResetPasswordController::class, 'reset'])->middleware('throttle:5,15')->name('password.update');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
