@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\AuditLog;
 use App\Models\BreakGlassEvent;
 use App\Models\Facility;
@@ -20,7 +21,7 @@ class DashboardController extends Controller
             'facilities'  => Facility::count(),
             'break_glass' => BreakGlassEvent::where('status', 'active')->count(),
             'pharmacists' => User::where('role', 'pharmacist')->count(),
-            'total_users' => User::count(),
+            'total_users' => User::count() + Admin::count(),
         ];
 
         $recentLogs = AuditLog::with(['patient.user', 'actor'])->latest()->take(10)->get();
@@ -59,15 +60,16 @@ class DashboardController extends Controller
             $encCounts[] = $encData[$yw] ?? 0;
         }
 
-        // Chart: user role distribution
-        $roleRows  = User::selectRaw('role, COUNT(*) as cnt')->groupBy('role')->pluck('cnt', 'role');
+        // Chart: user role distribution (admins are now in the admins table)
+        $roleRows   = User::selectRaw('role, COUNT(*) as cnt')->groupBy('role')->pluck('cnt', 'role');
+        $adminRows  = Admin::selectRaw('role, COUNT(*) as cnt')->groupBy('role')->pluck('cnt', 'role');
         $roleLabels = ['Patient', 'Provider', 'Pharmacist', 'Facility Admin', 'Super Admin'];
         $roleValues = [
-            $roleRows['patient'] ?? 0,
-            $roleRows['provider'] ?? 0,
-            $roleRows['pharmacist'] ?? 0,
-            $roleRows['facility_admin'] ?? 0,
-            $roleRows['super_admin'] ?? 0,
+            $roleRows['patient']          ?? 0,
+            $roleRows['provider']         ?? 0,
+            $roleRows['pharmacist']       ?? 0,
+            $adminRows['facility_admin']  ?? 0,
+            $adminRows['super_admin']     ?? 0,
         ];
 
         // Chart: dispenses per month for last 6 months

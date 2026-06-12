@@ -10,11 +10,10 @@ use App\Models\User;
 
 abstract class Controller
 {
-    protected function currentUser(): User
+    protected function currentUser(): User|\App\Models\Admin
     {
-        /** @var User $user */
-        $user = auth()->user();
-        return $user;
+        /** @var User|\App\Models\Admin $user */
+        return request()->user() ?? auth()->user();
     }
 
     protected function currentPatient(): Patient

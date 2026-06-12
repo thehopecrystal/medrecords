@@ -58,24 +58,23 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password',         [ResetPasswordController::class, 'reset'])->middleware('throttle:5,15')->name('password.update');
 });
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth:admin,web');
 
 // ─── Email Verification ───────────────────────────────────────────────────────
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:admin,web')->group(function () {
     Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])->middleware('throttle:3,1')->name('verification.send');
 });
 
-// ─── Shared (all authenticated roles) ─────────────────────────────────────────
-// Avatar upload requires email verification (same as all other sensitive actions).
-Route::middleware(['auth', 'verified'])->group(function () {
+// ─── Shared (all authenticated roles, both guards) ────────────────────────────
+Route::middleware(['auth:admin,web', 'verified'])->group(function () {
     Route::post('/profile/avatar', [AvatarController::class, 'update'])->name('profile.avatar');
 });
 
 // 2FA setup — reachable without 2FA being enabled (required to escape the Require2FA gate).
-// Only requires auth + verified, NOT require.2fa, so it's always accessible.
-Route::middleware(['auth', 'verified'])->group(function () {
+// Supports both the web (patient/provider/pharmacist) and admin guards.
+Route::middleware(['auth:admin,web', 'verified'])->group(function () {
     Route::get('/account/2fa',  [TwoFactorController::class, 'show'])->name('account.2fa');
     Route::post('/account/2fa', [TwoFactorController::class, 'toggle'])->name('account.2fa.toggle');
 });
@@ -204,7 +203,7 @@ Route::prefix('pharmacy')->middleware(['auth', 'verified', 'role:pharmacist', 'r
 });
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
-Route::prefix('admin')->middleware(['auth', 'verified', 'role:facility_admin,super_admin', 'require.2fa'])->name('admin.')->group(function () {
+Route::prefix('admin')->middleware(['auth:admin', 'verified', 'role:facility_admin,super_admin', 'require.2fa'])->name('admin.')->group(function () {
     Route::get('/dashboard',               [AdminDashboard::class, 'index'])->name('dashboard');
     Route::get('/facilities',              [AdminDashboard::class, 'facilities'])->name('facilities');
     Route::get('/break-glass',             [AdminDashboard::class, 'breakGlass'])->name('break-glass');

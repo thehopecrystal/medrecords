@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Facility;
 use App\Models\Patient;
 use App\Models\Provider;
@@ -36,27 +37,37 @@ class AuthController extends Controller
         }
 
         $credentials = [$field => $request->login, 'password' => $request->password];
+        $remember    = $request->boolean('remember');
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        // Prefer the admin guard when the credential matches an admin account.
+        $isAdmin = Admin::where($field, $request->login)->exists();
+        $guard   = $isAdmin ? 'admin' : 'web';
+
+        $authenticated = $isAdmin
+            ? Auth::guard('admin')->attempt($credentials, $remember)
+            : Auth::attempt($credentials, $remember);
+
+        if ($authenticated) {
             $request->session()->regenerate();
-            $user = Auth::user();
+            $user = $isAdmin ? Auth::guard('admin')->user() : Auth::user();
 
             if (!$user->is_active) {
-                Auth::logout();
+                $isAdmin ? Auth::guard('admin')->logout() : Auth::logout();
                 return back()->withErrors(['login' => 'Your account has been deactivated. Please contact support.'])->withInput();
             }
 
             if ($user->two_factor_enabled && $user->phone) {
                 $otp    = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
                 $userId = $user->id;
-                $user->otp_code      = Hash::make($otp);
+                $user->otp_code       = Hash::make($otp);
                 $user->otp_expires_at = now()->addMinutes(10);
                 $user->save();
-                Auth::logout();
-                // Invalidate (wipe all session data) then regenerate ID — prevents session fixation.
+
+                $isAdmin ? Auth::guard('admin')->logout() : Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
                 $request->session()->put('2fa_user_id', $userId);
+                $request->session()->put('2fa_guard', $guard);
                 (new SmsService())->send($user->phone, "MedRecords login code: {$otp}. Valid for 10 minutes. Do not share this code.");
                 return redirect()->route('auth.otp');
             }
@@ -78,10 +89,10 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         return match ($request->input('reg_type', 'patient')) {
-            'provider'          => $this->registerProvider($request),
+            'provider'           => $this->registerProvider($request),
             'hospital', 'clinic' => $this->registerOrg($request, $request->input('reg_type')),
-            'pharmacy'          => $this->registerOrg($request, 'pharmacy'),
-            default             => $this->registerPatient($request),
+            'pharmacy'           => $this->registerOrg($request, 'pharmacy'),
+            default              => $this->registerPatient($request),
         };
     }
 
@@ -152,9 +163,9 @@ class AuthController extends Controller
             'license_no' => 'nullable|string|max:50',
             'mdcn_folio' => 'nullable|string|max:50',
         ], [
-            'phone.regex'     => 'Phone must include a country code (e.g. +2348012345678).',
-            'email.unique'    => 'This email address is already registered.',
-            'phone.unique'    => 'This phone number is already registered.',
+            'phone.regex'        => 'Phone must include a country code (e.g. +2348012345678).',
+            'email.unique'       => 'This email address is already registered.',
+            'phone.unique'       => 'This phone number is already registered.',
             'specialty.required' => 'Please enter your specialty.',
         ]);
 
@@ -193,8 +204,8 @@ class AuthController extends Controller
         $request->validate([
             'terms'       => 'accepted',
             'name'        => 'required|string|max:120',
-            'email'       => 'required|email|unique:users,email',
-            'phone'       => ['required', 'string', 'regex:/^\+[1-9]\d{7,14}$/', 'unique:users,phone'],
+            'email'       => 'required|email|unique:admins,email',
+            'phone'       => ['required', 'string', 'regex:/^\+[1-9]\d{7,14}$/', 'unique:admins,phone'],
             'password'    => 'required|string|min:8|confirmed',
             'org_name'    => 'required|string|max:200',
             'org_type'    => 'nullable|in:hospital,clinic,lab,dental,optical,pharmacy',
@@ -205,23 +216,23 @@ class AuthController extends Controller
             'org_email'   => 'nullable|email|max:120',
             'org_license' => 'nullable|string|max:80',
         ], [
-            'phone.regex'   => 'Phone must include a country code (e.g. +2348012345678).',
-            'email.unique'  => 'This email address is already registered.',
-            'phone.unique'  => 'This phone number is already registered.',
+            'phone.regex'       => 'Phone must include a country code (e.g. +2348012345678).',
+            'email.unique'      => 'This email address is already registered.',
+            'phone.unique'      => 'This phone number is already registered.',
             'org_name.required' => 'Please enter your organisation name.',
         ]);
 
-        $user = User::create([
+        $admin = Admin::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'phone'    => $request->phone,
             'password' => Hash::make($request->password),
         ]);
-        $user->role = 'facility_admin';
-        $user->save();
+        $admin->role = 'facility_admin';
+        $admin->save();
 
         Facility::create([
-            'owner_user_id' => $user->id,
+            'owner_user_id' => $admin->id,
             'name'          => $request->org_name,
             'type'          => $request->org_type ?: $facilityType,
             'license_no'    => $request->org_license ?: null,
@@ -232,10 +243,10 @@ class AuthController extends Controller
             'email'         => $request->org_email ?: null,
         ]);
 
-        Auth::login($user);
+        Auth::guard('admin')->login($admin);
         $request->session()->regenerate();
-        $user->update(['last_login_at' => now()]);
-        try { $user->sendEmailVerificationNotification(); } catch (\Throwable $e) { Log::warning("Verification email failed for user {$user->id}: " . $e->getMessage()); }
+        $admin->update(['last_login_at' => now()]);
+        try { $admin->sendEmailVerificationNotification(); } catch (\Throwable $e) { Log::warning("Verification email failed for admin {$admin->id}: " . $e->getMessage()); }
 
         return redirect()->route('admin.dashboard')->with('onboarding', true);
     }
@@ -255,11 +266,14 @@ class AuthController extends Controller
         $request->validate(['otp' => 'required|string|digits:6']);
 
         $userId = $request->session()->get('2fa_user_id');
+        $guard  = $request->session()->get('2fa_guard', 'web');
+
         if (!$userId) {
             return redirect()->route('login')->withErrors(['otp' => 'Session expired. Please log in again.']);
         }
 
-        $user = User::find($userId);
+        $user = $guard === 'admin' ? Admin::find($userId) : User::find($userId);
+
         if (!$user) {
             $request->session()->invalidate();
             return redirect()->route('login')->withErrors(['otp' => 'Session expired. Please log in again.']);
@@ -269,7 +283,6 @@ class AuthController extends Controller
         $mismatch = !Hash::check($request->otp, $user->otp_code ?? '');
 
         if ($expired || $mismatch) {
-            // Always wipe the code — one attempt per issued OTP.
             $user->otp_code       = null;
             $user->otp_expires_at = null;
             $user->save();
@@ -283,9 +296,9 @@ class AuthController extends Controller
         $user->otp_code       = null;
         $user->otp_expires_at = null;
         $user->save();
-        $request->session()->forget('2fa_user_id');
+        $request->session()->forget(['2fa_user_id', '2fa_guard']);
 
-        Auth::login($user);
+        Auth::guard($guard)->login($user);
         $request->session()->regenerate();
 
         return $this->redirectByRole($user->role);
@@ -293,7 +306,11 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        if (Auth::guard('admin')->check()) {
+            Auth::guard('admin')->logout();
+        } else {
+            Auth::logout();
+        }
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');
@@ -304,11 +321,11 @@ class AuthController extends Controller
     private function redirectByRole(string $role)
     {
         return match ($role) {
-            'patient'                        => redirect()->route('patient.dashboard'),
-            'provider'                       => redirect()->route('provider.dashboard'),
-            'pharmacist'                     => redirect()->route('pharmacy.dashboard'),
-            'facility_admin', 'super_admin'  => redirect()->route('admin.dashboard'),
-            default                          => redirect('/'),
+            'patient'                       => redirect()->route('patient.dashboard'),
+            'provider'                      => redirect()->route('provider.dashboard'),
+            'pharmacist'                    => redirect()->route('pharmacy.dashboard'),
+            'facility_admin', 'super_admin' => redirect()->route('admin.dashboard'),
+            default                         => redirect('/'),
         };
     }
 }

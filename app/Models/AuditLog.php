@@ -18,8 +18,9 @@ class AuditLog extends Model
         return ['created_at' => 'datetime'];
     }
 
-    public function patient() { return $this->belongsTo(Patient::class); }
-    public function actor() { return $this->belongsTo(User::class, 'actor_id'); }
+    public function patient()     { return $this->belongsTo(Patient::class); }
+    public function actor()      { return $this->belongsTo(User::class, 'actor_id'); }
+    public function adminActor() { return $this->belongsTo(\App\Models\Admin::class, 'actor_id'); }
 
     public static function record(int $patientId, int $actorId, string $action, string $description, ?string $resourceType = null, ?int $resourceId = null): void
     {

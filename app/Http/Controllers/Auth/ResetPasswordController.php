@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,11 @@ class ResetPasswordController extends Controller
             'password' => 'required|min:8|confirmed',
         ]);
 
-        $status = Password::reset(
+        $broker = Admin::where('email', $request->email)->exists()
+            ? Password::broker('admins')
+            : Password::broker();
+
+        $status = $broker->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 $user->forceFill([
@@ -36,8 +41,6 @@ class ResetPasswordController extends Controller
                     'remember_token' => Str::random(60),
                 ])->save();
 
-                // Invalidate all existing sessions for this user. The reset link
-                // may have been obtained by an attacker — any live sessions must die.
                 DB::table('sessions')->where('user_id', $user->id)->delete();
 
                 event(new PasswordReset($user));
