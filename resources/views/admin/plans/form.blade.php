@@ -11,12 +11,12 @@
   <a href="{{ route('admin.plans') }}" class="btn btn-secondary">← Back to Plans</a>
 </div>
 
-<div style="max-width:720px;">
+<div class="max-720">
   <form method="POST" action="{{ isset($plan->id) ? route('admin.plans.update', $plan->id) : route('admin.plans.store') }}">
     @csrf
     @if(isset($plan->id)) @method('PUT') @endif
 
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card mb-20">
       <div class="card-header"><div class="card-title">Plan Details</div></div>
       <div class="card-body">
         <div class="form-grid">
@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card mb-20">
       <div class="card-header"><div class="card-title">Features List</div></div>
       <div class="card-body">
         <div class="form-field">
@@ -75,18 +75,16 @@
       </div>
     </div>
 
-    <div class="card" style="margin-bottom:24px;">
+    <div class="card mb-24">
       <div class="card-header"><div class="card-title">Visibility</div></div>
       <div class="card-body">
-        <div style="display:flex;gap:24px;flex-wrap:wrap;">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;">
-            <input type="checkbox" name="is_active" value="1" {{ old('is_active', $plan->is_active ?? true) ? 'checked' : '' }}
-              style="width:16px;height:16px;accent-color:var(--navy);">
+        <div class="check-row">
+          <label class="check-label">
+            <input type="checkbox" name="is_active" value="1" {{ old('is_active', $plan->is_active ?? true) ? 'checked' : '' }} class="check-input">
             Active (show on pricing page)
           </label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;">
-            <input type="checkbox" name="is_featured" value="1" {{ old('is_featured', $plan->is_featured ?? false) ? 'checked' : '' }}
-              style="width:16px;height:16px;accent-color:var(--navy);">
+          <label class="check-label">
+            <input type="checkbox" name="is_featured" value="1" {{ old('is_featured', $plan->is_featured ?? false) ? 'checked' : '' }} class="check-input">
             Featured (highlighted card)
           </label>
         </div>

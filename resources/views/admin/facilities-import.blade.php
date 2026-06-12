@@ -8,20 +8,19 @@
   <a href="{{ route('admin.facilities') }}" class="btn btn-secondary">← Back to Facilities</a>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:960px;">
+<div class="import-2col-grid">
   <div class="card">
     <div class="card-header"><div class="card-title">Upload CSV</div></div>
     <div class="card-body">
       <form method="POST" action="{{ route('admin.facilities.import.store') }}" enctype="multipart/form-data">
         @csrf
-        <div class="form-field" style="margin-bottom:20px;">
+        <div class="form-field mb-20">
           <label>CSV File *</label>
-          <input type="file" name="csv_file" accept=".csv,.txt" required
-            style="background:#fff;padding:10px;border:2px dashed var(--border);border-radius:8px;cursor:pointer;width:100%;">
+          <input type="file" name="csv_file" accept=".csv,.txt" required class="import-file-input">
           <div class="form-hint">Max 2 MB. UTF-8 encoded. First row must be column headers.</div>
           @error('csv_file')<div class="form-error">{{ $message }}</div>@enderror
         </div>
-        <div class="alert navy" style="font-size:12px;margin-bottom:16px;">
+        <div class="alert navy mb-16">
           ℹ️ Existing facilities (matched by name) will be skipped — no duplicates are created.
         </div>
         <button type="submit" class="btn btn-primary">Import Facilities</button>
@@ -32,12 +31,12 @@
   <div class="card">
     <div class="card-header"><div class="card-title">CSV Format</div></div>
     <div class="card-body">
-      <p style="font-size:13px;color:var(--text-2);margin-bottom:14px;">Your CSV must have at least a <code style="background:#F1F5F9;padding:2px 6px;border-radius:4px;">name</code> column. All other columns are optional:</p>
+      <p class="import-desc">Your CSV must have at least a <code class="import-code">name</code> column. All other columns are optional:</p>
       <div class="table-wrap">
-        <table style="font-size:12px;">
+        <table>
           <thead><tr><th>Column</th><th>Required</th><th>Example</th></tr></thead>
           <tbody>
-            <tr><td><code>name</code></td><td><span class="pill red" style="font-size:10px;">Required</span></td><td>Lagos Island General Hospital</td></tr>
+            <tr><td><code>name</code></td><td><span class="pill red pill-xs">Required</span></td><td>Lagos Island General Hospital</td></tr>
             <tr><td><code>type</code></td><td>Optional</td><td>hospital / clinic / pharmacy</td></tr>
             <tr><td><code>state</code></td><td>Optional</td><td>Lagos</td></tr>
             <tr><td><code>city</code></td><td>Optional</td><td>Lagos Island</td></tr>
@@ -47,9 +46,9 @@
           </tbody>
         </table>
       </div>
-      <div style="margin-top:16px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-2);margin-bottom:6px;">Example CSV</div>
-        <pre style="background:#F8FAFC;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:11px;overflow-x:auto;color:var(--text-2);">name,type,state,city
+      <div class="import-template">
+        <div class="import-template-label">Example CSV</div>
+        <pre class="import-pre">name,type,state,city
 Lagos Island General,hospital,Lagos,Lagos Island
 Eko Hospital,hospital,Lagos,Surulere
 First Cardiology,clinic,Lagos,Victoria Island</pre>

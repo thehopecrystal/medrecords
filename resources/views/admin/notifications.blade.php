@@ -10,7 +10,7 @@
   </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+<div class="notif-compose-grid">
 
   {{-- Compose form --}}
   <div class="card">
@@ -25,21 +25,21 @@
         @csrf
 
         {{-- Audience --}}
-        <div class="form-field" style="margin-bottom:18px;">
+        <div class="form-field mb-18">
           <label>Audience</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px;">
+          <div class="audience-grid">
             @foreach(['all' => ['label'=>'All Users','icon'=>'👥'], 'role' => ['label'=>'By Role','icon'=>'🏷'], 'user' => ['label'=>'Specific User','icon'=>'👤']] as $val => $opt)
             <label class="audience-card {{ old('audience','all') === $val ? 'active' : '' }}">
-              <input type="radio" name="audience" value="{{ $val }}" {{ old('audience','all') === $val ? 'checked' : '' }} style="display:none;">
-              <span style="font-size:22px;display:block;margin-bottom:4px;">{{ $opt['icon'] }}</span>
-              <span style="font-size:12px;font-weight:600;">{{ $opt['label'] }}</span>
+              <input type="radio" name="audience" value="{{ $val }}" {{ old('audience','all') === $val ? 'checked' : '' }} class="input-hidden">
+              <span class="audience-icon">{{ $opt['icon'] }}</span>
+              <span class="audience-label">{{ $opt['label'] }}</span>
             </label>
             @endforeach
           </div>
         </div>
 
         {{-- Role selector --}}
-        <div class="form-field" id="extra-role" style="display:none;margin-bottom:18px;">
+        <div class="form-field mb-18 js-hidden" id="extra-role">
           <label>Role</label>
           <select name="role">
             <option value="">Select role…</option>
@@ -50,7 +50,7 @@
         </div>
 
         {{-- Specific user --}}
-        <div class="form-field" id="extra-user" style="display:none;margin-bottom:18px;">
+        <div class="form-field mb-18 js-hidden" id="extra-user">
           <label>User email or MedID</label>
           <input type="text" name="user_identifier" value="{{ old('user_identifier') }}"
                  placeholder="patient@example.com or MR-XXXXXX-XXXXXX"
@@ -64,7 +64,7 @@
         </div>
 
         {{-- Title --}}
-        <div class="form-field" style="margin-bottom:18px;">
+        <div class="form-field mb-18">
           <label>Notification Title *</label>
           <input type="text" name="title" value="{{ old('title') }}"
                  placeholder="System maintenance on Saturday, 14 June"
@@ -73,19 +73,19 @@
         </div>
 
         {{-- Body --}}
-        <div class="form-field" style="margin-bottom:24px;">
+        <div class="form-field mb-24">
           <label>Message *</label>
           <textarea name="body" rows="5" maxlength="2000" required
                     placeholder="Dear user, please be informed that…&#10;&#10;Thank you for using MedRecords.">{{ old('body') }}</textarea>
-          <div class="form-hint" id="charCount" style="text-align:right;">0 / 2000 characters</div>
+          <div class="form-hint form-hint-right" id="charCount">0 / 2000 characters</div>
         </div>
 
-        <div class="alert navy" style="margin-bottom:20px;">
+        <div class="alert navy mb-20">
           <span>ℹ</span>
           <span>Sending creates one in-app notification and one email per recipient. Large audiences may take a moment.</span>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width:100%;" id="sendBtn">
+        <button type="submit" class="btn btn-primary btn-full" id="sendBtn">
           📣 Send Notification
         </button>
       </form>
@@ -121,18 +121,16 @@
           @foreach($rows as $n)
           <tr>
             <td>
-              <div style="font-weight:600;margin-bottom:2px;">{{ $n->title }}</div>
-              <div style="font-size:12px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px;">
-                {{ $n->body }}
-              </div>
+              <div class="notif-table-title">{{ $n->title }}</div>
+              <div class="notif-table-body">{{ $n->body }}</div>
             </td>
             <td>
               <span class="pill navy">{{ number_format($n->recipient_count) }}</span>
             </td>
-            <td style="font-size:13px;">{{ $n->sent_by_name }}</td>
-            <td style="font-size:12px;color:var(--text-2);white-space:nowrap;">
+            <td class="td-sm">{{ $n->sent_by_name }}</td>
+            <td class="td-date">
               {{ $n->created_at->format('d M Y') }}<br>
-              <span style="opacity:.7;">{{ $n->created_at->format('H:i') }}</span>
+              <span class="td-date-sub">{{ $n->created_at->format('H:i') }}</span>
             </td>
           </tr>
           @endforeach
@@ -150,16 +148,16 @@ document.querySelectorAll('.audience-card').forEach(function(card) {
     document.querySelectorAll('.audience-card').forEach(c => c.classList.remove('active'));
     this.classList.add('active');
     var val = this.querySelector('input').value;
-    document.getElementById('extra-role').style.display = val === 'role' ? '' : 'none';
-    document.getElementById('extra-user').style.display = val === 'user' ? '' : 'none';
+    document.getElementById('extra-role').classList.toggle('js-hidden', val !== 'role');
+    document.getElementById('extra-user').classList.toggle('js-hidden', val !== 'user');
   });
 });
 
 (function() {
   var checked = document.querySelector('input[name="audience"]:checked');
   if (checked) {
-    document.getElementById('extra-role').style.display = checked.value === 'role' ? '' : 'none';
-    document.getElementById('extra-user').style.display = checked.value === 'user' ? '' : 'none';
+    document.getElementById('extra-role').classList.toggle('js-hidden', checked.value !== 'role');
+    document.getElementById('extra-user').classList.toggle('js-hidden', checked.value !== 'user');
   }
 })();
 

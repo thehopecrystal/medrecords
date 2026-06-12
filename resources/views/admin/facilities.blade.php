@@ -14,14 +14,14 @@
 </div>
 
 {{-- Filters --}}
-<div class="card" style="margin-bottom:20px;">
+<div class="card mb-20">
   <div class="card-pad">
-    <form method="GET" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-      <div class="form-field" style="flex:1;min-width:200px;">
+    <form method="GET" class="filter-row">
+      <div class="form-field filter-field-flex">
         <label>Search</label>
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Name, city, state, or licence…">
       </div>
-      <div class="form-field" style="width:160px;">
+      <div class="form-field filter-field">
         <label>Type</label>
         <select name="type">
           <option value="">All types</option>
@@ -30,7 +30,7 @@
           @endforeach
         </select>
       </div>
-      <div class="form-field" style="width:140px;">
+      <div class="form-field filter-field-sm">
         <label>Status</label>
         <select name="status">
           <option value="">All</option>
@@ -38,9 +38,9 @@
           <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primary btn-sm" style="align-self:flex-end;">Filter</button>
+      <button type="submit" class="btn btn-primary btn-sm self-end">Filter</button>
       @if(request()->hasAny(['search','type','status']))
-        <a href="{{ route('admin.facilities') }}" class="btn btn-secondary btn-sm" style="align-self:flex-end;">Clear</a>
+        <a href="{{ route('admin.facilities') }}" class="btn btn-secondary btn-sm self-end">Clear</a>
       @endif
     </form>
   </div>
@@ -65,24 +65,16 @@
         @forelse($facilities as $f)
         <tr>
           <td>
-            <div style="font-weight:600;">{{ $f->name }}</div>
+            <div class="td-fw">{{ $f->name }}</div>
             @if($f->email)
-            <div style="font-size:11px;color:var(--text-3);">{{ $f->email }}</div>
+            <div class="td-xs-muted">{{ $f->email }}</div>
             @endif
           </td>
           <td><span class="pill navy">{{ ucfirst($f->type ?? 'N/A') }}</span></td>
-          <td style="font-size:13px;">
-            {{ implode(', ', array_filter([$f->city, $f->state])) ?: '—' }}
-          </td>
-          <td style="font-family:monospace;font-size:12px;color:var(--text-2);">
-            {{ $f->license_no ?: '—' }}
-          </td>
-          <td>
-            <span style="font-weight:600;">{{ $f->providers_count }}</span>
-          </td>
-          <td style="font-size:12px;color:var(--text-2);">
-            {{ $f->owner?->name ?? '—' }}
-          </td>
+          <td class="td-sm">{{ implode(', ', array_filter([$f->city, $f->state])) ?: '—' }}</td>
+          <td class="td-mono">{{ $f->license_no ?: '—' }}</td>
+          <td><span class="td-fw">{{ $f->providers_count }}</span></td>
+          <td class="td-muted">{{ $f->owner?->name ?? '—' }}</td>
           <td>
             <span class="pill {{ $f->is_active ? 'green' : 'grey' }}">
               {{ $f->is_active ? '● Active' : '● Inactive' }}
@@ -110,9 +102,7 @@
     </table>
   </div>
   @if($facilities->hasPages())
-  <div style="padding:14px 22px;border-top:1px solid var(--border);">
-    {{ $facilities->links() }}
-  </div>
+  <div class="pager-row">{{ $facilities->links() }}</div>
   @endif
 </div>
 @endsection

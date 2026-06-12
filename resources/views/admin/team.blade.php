@@ -12,7 +12,7 @@
   </div>
 
   @forelse($facilities as $fac)
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card mb-20">
       <div class="card-header">
         <div>
           <div class="card-title">{{ $fac->name }}</div>
@@ -22,20 +22,18 @@
       </div>
 
       @if($fac->providers->isEmpty())
-        <div class="card-body" style="color:var(--text-2);font-size:13px;">
+        <div class="card-body card-body-muted">
           No providers assigned to this facility yet.
         </div>
       @else
-        <div class="card-body" style="padding:0;">
+        <div class="card-body card-body-0">
           @foreach($fac->providers as $p)
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 22px;border-bottom:1px solid var(--border);">
-              <div style="display:flex;align-items:center;gap:10px;">
-                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--green));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">
-                  {{ strtoupper(substr($p->user->name, 0, 1)) }}
-                </div>
+            <div class="list-row">
+              <div class="list-left">
+                <div class="avatar avatar-md">{{ strtoupper(substr($p->user->name, 0, 1)) }}</div>
                 <div>
-                  <div style="font-size:13px;font-weight:600;">{{ $p->user->name }}</div>
-                  <div style="font-size:11px;color:var(--text-2);">{{ $p->specialty }} · {{ $p->user->email }}</div>
+                  <div class="person-name">{{ $p->user->name }}</div>
+                  <div class="person-sub">{{ $p->specialty }} · {{ $p->user->email }}</div>
                 </div>
               </div>
               <form method="POST" action="{{ route('admin.team.remove', $p->id) }}"
@@ -72,7 +70,7 @@
     <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">← Dashboard</a>
   </div>
 
-  <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:24px;">
+  <div class="stat-grid stat-grid-2 mb-24">
     <div class="stat-card">
       <div class="stat-label">Team Members</div>
       <div class="stat-value">{{ $team->count() }}</div>
@@ -87,7 +85,7 @@
   </div>
 
   {{-- Current team --}}
-  <div class="card" style="margin-bottom:20px;">
+  <div class="card mb-20">
     <div class="card-header">
       <div>
         <div class="card-title">Your Team</div>
@@ -95,26 +93,24 @@
       </div>
     </div>
     @if($team->isEmpty())
-      <div class="empty-state" style="padding:32px;">
+      <div class="empty-state empty-state-sm">
         <div class="empty-icon">👨‍⚕️</div>
         <h3>No team members yet</h3>
         <p>Add providers from the list below to build your team.</p>
       </div>
     @else
-      <div class="card-body" style="padding:0;">
+      <div class="card-body card-body-0">
         @foreach($team as $p)
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 22px;border-bottom:1px solid var(--border);">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--green));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;">
-                {{ strtoupper(substr($p->user->name, 0, 1)) }}
-              </div>
+          <div class="list-row-lg">
+            <div class="list-left-lg">
+              <div class="avatar avatar-lg">{{ strtoupper(substr($p->user->name, 0, 1)) }}</div>
               <div>
-                <div style="font-size:14px;font-weight:600;">{{ $p->user->name }}</div>
-                <div style="font-size:12px;color:var(--text-2);">
+                <div class="person-name-lg">{{ $p->user->name }}</div>
+                <div class="person-sub-md">
                   {{ $p->specialty }}
                   @if($p->mdcn_folio) · MDCN: {{ $p->mdcn_folio }} @endif
                   @if($p->mdcn_status === 'verified')
-                    <span class="pill green" style="font-size:10px;margin-left:4px;">Verified</span>
+                    <span class="pill green pill-xs">Verified</span>
                   @endif
                 </div>
               </div>
@@ -139,16 +135,14 @@
           <div class="card-sub">Registered providers not yet assigned to any facility.</div>
         </div>
       </div>
-      <div class="card-body" style="padding:0;">
+      <div class="card-body card-body-0">
         @foreach($available as $p)
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 22px;border-bottom:1px solid var(--border);">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div style="width:40px;height:40px;border-radius:50%;background:var(--navy-lt);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;">
-                {{ strtoupper(substr($p->user->name, 0, 1)) }}
-              </div>
+          <div class="list-row-lg">
+            <div class="list-left-lg">
+              <div class="avatar avatar-lg avatar-light">{{ strtoupper(substr($p->user->name, 0, 1)) }}</div>
               <div>
-                <div style="font-size:14px;font-weight:600;">{{ $p->user->name }}</div>
-                <div style="font-size:12px;color:var(--text-2);">{{ $p->specialty }} · {{ $p->user->email }}</div>
+                <div class="person-name-lg">{{ $p->user->name }}</div>
+                <div class="person-sub-md">{{ $p->specialty }} · {{ $p->user->email }}</div>
               </div>
             </div>
             <form method="POST" action="{{ route('admin.team.add') }}">

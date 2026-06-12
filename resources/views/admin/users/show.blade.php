@@ -21,16 +21,16 @@
       @endif
     </p>
   </div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+  <div class="btn-group-row">
     @if($user->id !== auth()->id())
-      <form method="POST" action="{{ route('admin.users.toggle-active', $user->id) }}" style="display:inline;">
+      <form method="POST" action="{{ route('admin.users.toggle-active', $user->id) }}" class="form-inline">
         @csrf @method('PATCH')
         <button type="submit" class="btn {{ $user->is_active ? 'btn-danger' : 'btn-green' }} btn-sm"
           onclick="return confirm('{{ $user->is_active ? 'Deactivate' : 'Activate' }} this user?')">
           {{ $user->is_active ? '⊘ Deactivate' : '✓ Activate' }}
         </button>
       </form>
-      <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" style="display:inline;">
+      <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" class="form-inline">
         @csrf @method('DELETE')
         <button type="submit" class="btn btn-danger btn-sm"
           onclick="return confirm('Permanently delete {{ addslashes($user->name) }}? This cannot be undone.')">
@@ -42,7 +42,7 @@
   </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+<div class="page-2col-grid">
 
   {{-- Edit profile --}}
   <div class="card">
@@ -50,22 +50,22 @@
     <div class="card-body">
       <form method="POST" action="{{ route('admin.users.update', $user->id) }}">
         @csrf @method('PUT')
-        <div class="form-field" style="margin-bottom:12px;">
+        <div class="form-field mb-12">
           <label>Full Name</label>
           <input type="text" name="name" value="{{ old('name', $user->name) }}" required>
           @error('name')<div class="form-error">{{ $message }}</div>@enderror
         </div>
-        <div class="form-field" style="margin-bottom:12px;">
+        <div class="form-field mb-12">
           <label>Email</label>
           <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
           @error('email')<div class="form-error">{{ $message }}</div>@enderror
         </div>
-        <div class="form-field" style="margin-bottom:12px;">
+        <div class="form-field mb-12">
           <label>Phone</label>
           <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" required>
           @error('phone')<div class="form-error">{{ $message }}</div>@enderror
         </div>
-        <div class="form-field" style="margin-bottom:20px;">
+        <div class="form-field mb-20">
           <label>Role</label>
           <select name="role" required>
             @foreach(['patient'=>'Patient','provider'=>'Provider','pharmacist'=>'Pharmacist'] as $val => $label)
@@ -80,7 +80,7 @@
   </div>
 
   {{-- Account info & reset password --}}
-  <div style="display:flex;flex-direction:column;gap:20px;">
+  <div class="col-stack">
 
     <div class="card">
       <div class="card-header"><div class="card-title">Account Information</div></div>
@@ -92,7 +92,7 @@
         <div class="detail-row"><span class="k">NIN</span><span class="v">{{ $user->nin }}</span></div>
         @endif
         @if($user->patient)
-        <div class="detail-row"><span class="k">MedID</span><span class="v" style="font-family:monospace;">{{ $user->patient->med_id }}</span></div>
+        <div class="detail-row"><span class="k">MedID</span><span class="v monospace">{{ $user->patient->med_id }}</span></div>
         @endif
         @if($user->provider)
         <div class="detail-row"><span class="k">MDCN Folio</span><span class="v">{{ $user->provider->mdcn_folio ?? '—' }}</span></div>
@@ -115,12 +115,12 @@
       <div class="card-body">
         <form method="POST" action="{{ route('admin.users.reset-password', $user->id) }}">
           @csrf
-          <div class="form-field" style="margin-bottom:12px;">
+          <div class="form-field mb-12">
             <label>New Password</label>
             <input type="password" name="new_password" required placeholder="Min. 8 characters">
             @error('new_password')<div class="form-error">{{ $message }}</div>@enderror
           </div>
-          <div class="form-field" style="margin-bottom:16px;">
+          <div class="form-field mb-16">
             <label>Confirm New Password</label>
             <input type="password" name="new_password_confirmation" required>
           </div>

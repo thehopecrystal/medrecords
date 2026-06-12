@@ -11,7 +11,7 @@
   <a href="{{ route('admin.users') }}" class="btn btn-secondary">← Back to Users</a>
 </div>
 
-<div style="max-width:680px;">
+<div class="max-680">
   <div class="card">
     <div class="card-header">
       <div>
@@ -22,7 +22,7 @@
     <div class="card-body">
       <form method="POST" action="{{ route('admin.users.store') }}">
         @csrf
-        <div class="form-grid" style="margin-bottom:16px;">
+        <div class="form-grid mb-16">
           <div class="form-field span-2">
             <label>Full Name *</label>
             <input type="text" name="name" value="{{ old('name') }}" required placeholder="e.g. Amaka Okonkwo">
@@ -60,8 +60,8 @@
         </div>
 
         {{-- Provider / Pharmacist fields --}}
-        <div id="providerFields" style="display:none;margin-bottom:16px;">
-          <div style="border-top:1px solid var(--border);margin:16px 0 14px;"></div>
+        <div id="providerFields" class="mb-16 js-hidden">
+          <div class="form-divider"></div>
           <div class="form-grid">
             <div class="form-field span-2">
               <label>Facility *</label>
@@ -85,10 +85,10 @@
           </div>
         </div>
 
-        <div class="alert navy" style="font-size:12px;">
+        <div class="alert navy">
           ℹ️ <strong>Patient</strong>: MedID auto-generated. &nbsp;|&nbsp; <strong>Provider / Pharmacist</strong>: facility and specialty required.
         </div>
-        <div class="form-actions" style="margin-top:20px;">
+        <div class="form-actions mt-20">
           <button type="submit" class="btn btn-primary">Create User</button>
           <a href="{{ route('admin.users') }}" class="btn btn-secondary">Cancel</a>
         </div>
@@ -101,7 +101,7 @@
 function toggleProviderFields() {
   var role = document.getElementById('roleSelect').value;
   var show = role === 'provider' || role === 'pharmacist';
-  document.getElementById('providerFields').style.display = show ? '' : 'none';
+  document.getElementById('providerFields').classList.toggle('js-hidden', !show);
 }
 document.addEventListener('DOMContentLoaded', toggleProviderFields);
 </script>

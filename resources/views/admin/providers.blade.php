@@ -11,7 +11,7 @@
 </div>
 
 {{-- Stats --}}
-<div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+<div class="stat-grid stat-grid-3 mb-20">
   <div class="stat-card">
     <div class="stat-label">Total Providers</div>
     <div class="stat-value">{{ number_format($counts['all']) }}</div>
@@ -30,14 +30,14 @@
 </div>
 
 {{-- Filters --}}
-<div class="card" style="margin-bottom:20px;">
+<div class="card mb-20">
   <div class="card-pad">
-    <form method="GET" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-      <div class="form-field" style="flex:1;min-width:200px;">
+    <form method="GET" class="filter-row">
+      <div class="form-field filter-field-flex">
         <label>Search</label>
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Provider name, email, or MDCN folio…">
       </div>
-      <div class="form-field" style="width:160px;">
+      <div class="form-field filter-field">
         <label>Status</label>
         <select name="status">
           <option value="">All providers</option>
@@ -45,9 +45,9 @@
           <option value="unverified" {{ request('status') === 'unverified' ? 'selected' : '' }}>Unverified</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primary btn-sm" style="align-self:flex-end;">Filter</button>
+      <button type="submit" class="btn btn-primary btn-sm self-end">Filter</button>
       @if(request()->hasAny(['search','status']))
-        <a href="{{ route('admin.providers') }}" class="btn btn-secondary btn-sm" style="align-self:flex-end;">Clear</a>
+        <a href="{{ route('admin.providers') }}" class="btn btn-secondary btn-sm self-end">Clear</a>
       @endif
     </form>
   </div>
@@ -64,35 +64,29 @@
           <th>Specialty</th>
           <th>MDCN Folio</th>
           <th>Status</th>
-          <th style="width:130px;">Action</th>
+          <th class="th-130">Action</th>
         </tr>
       </thead>
       <tbody>
         @forelse($providers as $p)
         <tr>
           <td>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--green));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">
-                {{ strtoupper(substr($p->user->name, 0, 1)) }}
-              </div>
+            <div class="person-cell">
+              <div class="avatar avatar-md">{{ strtoupper(substr($p->user->name, 0, 1)) }}</div>
               <div>
-                <div style="font-weight:600;">{{ $p->user->name }}</div>
-                <div style="font-size:11px;color:var(--text-3);">{{ $p->user->email }}</div>
+                <div class="td-fw">{{ $p->user->name }}</div>
+                <div class="td-xs-muted">{{ $p->user->email }}</div>
               </div>
             </div>
           </td>
-          <td style="font-size:13px;">{{ $p->facility?->name ?? '—' }}</td>
-          <td style="font-size:13px;">{{ $p->specialty ?? '—' }}</td>
-          <td style="font-family:monospace;font-size:12px;color:var(--text-2);">
-            {{ $p->mdcn_folio ?: '—' }}
-          </td>
+          <td class="td-sm">{{ $p->facility?->name ?? '—' }}</td>
+          <td class="td-sm">{{ $p->specialty ?? '—' }}</td>
+          <td class="td-mono">{{ $p->mdcn_folio ?: '—' }}</td>
           <td>
             @if($p->mdcn_verified)
               <span class="pill green">✓ Verified</span>
               @if($p->mdcn_verified_at)
-              <div style="font-size:10px;color:var(--text-3);margin-top:3px;">
-                {{ $p->mdcn_verified_at->format('d M Y') }}
-              </div>
+              <div class="td-xs-top">{{ $p->mdcn_verified_at->format('d M Y') }}</div>
               @endif
             @elseif($p->mdcn_status === 'pending')
               <span class="pill amber">Pending</span>
@@ -130,9 +124,7 @@
     </table>
   </div>
   @if($providers->hasPages())
-  <div style="padding:14px 22px;border-top:1px solid var(--border);">
-    {{ $providers->links() }}
-  </div>
+  <div class="pager-row">{{ $providers->links() }}</div>
   @endif
 </div>
 @endsection
