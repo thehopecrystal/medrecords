@@ -5,8 +5,26 @@
 <div style="max-width:380px;margin:0 auto;">
   <div style="text-align:center;margin-bottom:32px;">
     <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#1E3A5F,#2C5F2D);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px;">🔐</div>
-    <h1 style="font-size:24px;font-weight:800;color:#0F172A;margin-bottom:8px;">Check your phone</h1>
-    <p style="color:#64748B;font-size:14px;line-height:1.6;">We sent a 6-digit code to your registered phone number. Enter it below to continue.</p>
+    @php $channels = session('2fa_channels', ['sms']); @endphp
+    <h1 style="font-size:24px;font-weight:800;color:#0F172A;margin-bottom:8px;">
+      @if(in_array('sms', $channels) && in_array('email', $channels))
+        Check your phone &amp; email
+      @elseif(in_array('email', $channels))
+        Check your email
+      @else
+        Check your phone
+      @endif
+    </h1>
+    <p style="color:#64748B;font-size:14px;line-height:1.6;">
+      @if(in_array('sms', $channels) && in_array('email', $channels))
+        We sent a 6-digit code to your registered phone number and email address.
+      @elseif(in_array('email', $channels))
+        We sent a 6-digit code to your registered email address.
+      @else
+        We sent a 6-digit code to your registered phone number.
+      @endif
+      Enter it below to continue.
+    </p>
   </div>
 
   @if($errors->any())

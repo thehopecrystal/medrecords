@@ -56,20 +56,46 @@ class AuthController extends Controller
                 return back()->withErrors(['login' => 'Your account has been deactivated. Please contact support.'])->withInput();
             }
 
-            if ($user->two_factor_enabled && $user->phone) {
-                $otp    = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
-                $userId = $user->id;
-                $user->otp_code       = Hash::make($otp);
-                $user->otp_expires_at = now()->addMinutes(10);
-                $user->save();
+            // Super admins bypass OTP — direct sign-in only.
+            $isSuper = $isAdmin && $user->role === 'super_admin';
 
-                $isAdmin ? Auth::guard('admin')->logout() : Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-                $request->session()->put('2fa_user_id', $userId);
-                $request->session()->put('2fa_guard', $guard);
-                (new SmsService())->send($user->phone, "MedRecords login code: {$otp}. Valid for 10 minutes. Do not share this code.");
-                return redirect()->route('auth.otp');
+            if (!$isSuper && $user->two_factor_enabled) {
+                \App\Models\SiteSetting::loadAll();
+                $otpSms   = \App\Models\SiteSetting::get('otp_sms_enabled',   '1') === '1';
+                $otpEmail = \App\Models\SiteSetting::get('otp_email_enabled',  '0') === '1';
+
+                $sendSms   = $otpSms   && !empty($user->phone);
+                $sendEmail = $otpEmail && !empty($user->email);
+
+                if ($sendSms || $sendEmail) {
+                    $otp = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+                    $user->otp_code       = Hash::make($otp);
+                    $user->otp_expires_at = now()->addMinutes(10);
+                    $user->save();
+
+                    $isAdmin ? Auth::guard('admin')->logout() : Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                    $request->session()->put('2fa_user_id', $user->id);
+                    $request->session()->put('2fa_guard',   $guard);
+                    $request->session()->put('2fa_channels', array_keys(array_filter(['sms' => $sendSms, 'email' => $sendEmail])));
+
+                    if ($sendSms) {
+                        (new SmsService())->send($user->phone, "MedRecords login code: {$otp}. Valid for 10 minutes. Do not share this code.");
+                    }
+                    if ($sendEmail) {
+                        try {
+                            \Illuminate\Support\Facades\Mail::raw(
+                                "Your MedRecords login code is: {$otp}\n\nThis code expires in 10 minutes. Do not share it with anyone.",
+                                fn ($msg) => $msg->to($user->email)->subject('MedRecords Login Code')
+                            );
+                        } catch (\Throwable $e) {
+                            Log::warning("OTP email failed for user {$user->id}: " . $e->getMessage());
+                        }
+                    }
+
+                    return redirect()->route('auth.otp');
+                }
             }
 
             $user->update(['last_login_at' => now()]);
@@ -296,7 +322,7 @@ class AuthController extends Controller
         $user->otp_code       = null;
         $user->otp_expires_at = null;
         $user->save();
-        $request->session()->forget(['2fa_user_id', '2fa_guard']);
+        $request->session()->forget(['2fa_user_id', '2fa_guard', '2fa_channels']);
 
         Auth::guard($guard)->login($user);
         $request->session()->regenerate();

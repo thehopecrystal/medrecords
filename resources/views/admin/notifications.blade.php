@@ -144,16 +144,6 @@
 
 </div>
 
-<style nonce="{{ $cspNonce }}">
-.audience-card {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 14px 8px; border: 2px solid var(--border); border-radius: 10px;
-  cursor: pointer; transition: all 0.15s; text-align: center; gap: 2px;
-}
-.audience-card:hover { border-color: var(--navy); background: var(--navy-lt); }
-.audience-card.active { border-color: var(--navy); background: var(--navy); color: #fff; }
-</style>
-
 <script nonce="{{ $cspNonce }}">
 document.querySelectorAll('.audience-card').forEach(function(card) {
   card.addEventListener('click', function() {

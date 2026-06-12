@@ -79,9 +79,4 @@
   @endforelse
 </div>
 
-<style nonce="{{ $cspNonce }}">
-.plan-card { transition: box-shadow 0.15s, transform 0.15s; }
-.plan-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
-.plan-featured { border: 2px solid var(--navy); }
-</style>
 @endsection

@@ -166,14 +166,6 @@
   </div>
 </div>
 
-<style nonce="{{ $cspNonce }}">
-.dash-grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-.dash-grid-1-1 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-@media (max-width: 900px) {
-  .dash-grid-2-1, .dash-grid-1-1 { grid-template-columns: 1fr; }
-}
-</style>
-
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script nonce="{{ $cspNonce }}">

@@ -22,6 +22,8 @@ class SettingsController extends Controller
         'smtp_username', 'smtp_from_email', 'smtp_from_name',
         // SMS
         'sms_enabled', 'twilio_account_sid', 'twilio_from_number',
+        // OTP / 2FA channels
+        'otp_sms_enabled', 'otp_email_enabled',
         // Payments
         'payment_gateway', 'paystack_public_key', 'flutterwave_public_key',
     ];
@@ -55,7 +57,9 @@ class SettingsController extends Controller
             'contact_email'    => 'nullable|email',
             'smtp_port'        => 'nullable|integer',
             'smtp_encryption'  => 'nullable|in:tls,ssl,none',
-            'sms_enabled'      => 'nullable|in:0,1',
+            'sms_enabled'       => 'nullable|in:0,1',
+            'otp_sms_enabled'  => 'nullable|in:0,1',
+            'otp_email_enabled' => 'nullable|in:0,1',
             'payment_gateway'  => 'nullable|in:none,paystack,flutterwave',
             'site_logo_file'   => 'nullable|file|mimes:jpeg,jpg,png,gif,svg,webp|max:2048',
             'site_favicon_file'=> 'nullable|file|mimes:ico,png,svg,jpeg,jpg,gif,webp|max:512',
@@ -87,8 +91,8 @@ class SettingsController extends Controller
         // Plain keys
         foreach ($keys as $key) {
             // Checkbox: if not present in request treat as '0'
-            if ($key === 'sms_enabled') {
-                SiteSetting::set($key, $request->has('sms_enabled') ? '1' : '0');
+            if (in_array($key, ['sms_enabled', 'otp_sms_enabled', 'otp_email_enabled'])) {
+                SiteSetting::set($key, $request->has($key) ? '1' : '0');
             } else {
                 SiteSetting::set($key, $request->input($key, ''));
             }
