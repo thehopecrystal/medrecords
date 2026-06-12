@@ -24,7 +24,7 @@ class DashboardController extends Controller
             'total_users' => User::count() + Admin::count(),
         ];
 
-        $recentLogs = AuditLog::with(['patient.user', 'actor'])->latest()->take(10)->get();
+        $recentLogs = AuditLog::with(['patient.user', 'actor', 'adminActor'])->latest()->take(10)->get();
         $breakGlass = BreakGlassEvent::with(['patient.user', 'provider'])->where('status', 'active')->latest()->take(5)->get();
 
         // Chart: new registrations per day for the last 30 days
@@ -96,15 +96,40 @@ class DashboardController extends Controller
 
     public function facilities()
     {
-        $facilities = Facility::withCount('providers')->orderBy('name')->paginate(30);
+        $query = Facility::with('owner')->withCount('providers')->orderBy('name');
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%")
+                  ->orWhere('state', 'like', "%{$search}%")
+                  ->orWhere('license_no', 'like', "%{$search}%");
+            });
+        }
+        if ($type = request('type')) {
+            $query->where('type', $type);
+        }
+        if (request('status') === 'active') {
+            $query->where('is_active', true);
+        } elseif (request('status') === 'inactive') {
+            $query->where('is_active', false);
+        }
+        $facilities = $query->paginate(30)->withQueryString();
         return view('admin.facilities', compact('facilities'));
     }
 
     public function breakGlass()
     {
-        $events = BreakGlassEvent::with(['patient.user', 'provider'])
-            ->latest()
-            ->paginate(30);
-        return view('admin.break-glass', compact('events'));
+        $query = BreakGlassEvent::with(['patient.user', 'provider'])->latest();
+        if ($status = request('status')) {
+            $query->where('status', $status);
+        }
+        $events = $query->paginate(30)->withQueryString();
+        $counts = [
+            'active'   => BreakGlassEvent::where('status', 'active')->count(),
+            'approved' => BreakGlassEvent::where('status', 'approved')->count(),
+            'disputed' => BreakGlassEvent::where('status', 'disputed')->count(),
+            'closed'   => BreakGlassEvent::where('status', 'closed')->count(),
+        ];
+        return view('admin.break-glass', compact('events', 'counts'));
     }
 }

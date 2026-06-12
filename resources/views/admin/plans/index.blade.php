@@ -13,42 +13,54 @@
 
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">
   @forelse($plans as $plan)
-  <div class="card" style="position:relative;overflow:hidden;{{ $plan->is_featured ? 'border:2px solid var(--navy);' : '' }}">
-    @if($plan->badge)
-      <div style="position:absolute;top:14px;right:-22px;background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:4px 30px;transform:rotate(35deg);letter-spacing:0.04em;">
-        {{ $plan->badge }}
-      </div>
-    @endif
+  <div class="card plan-card{{ $plan->is_featured ? ' plan-featured' : '' }}">
     <div class="card-pad">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
         <div>
           <div style="font-size:16px;font-weight:800;color:var(--navy);">{{ $plan->name }}</div>
-          @if(!$plan->is_active)<span class="pill grey" style="font-size:10px;">Inactive</span>@endif
+          <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;">
+            @if(!$plan->is_active)
+              <span class="pill grey" style="font-size:10px;">Inactive</span>
+            @endif
+            @if($plan->badge)
+              <span class="pill navy" style="font-size:10px;">{{ $plan->badge }}</span>
+            @endif
+          </div>
         </div>
         <div style="text-align:right;">
           <div style="font-size:22px;font-weight:800;color:{{ $plan->isFree() ? 'var(--green)' : 'var(--navy)' }};">
             {{ $plan->formattedPrice() }}
           </div>
-          <div style="font-size:11px;color:var(--text-3);">Sort: {{ $plan->sort_order }}</div>
+          <div style="font-size:11px;color:var(--text-3);">order: {{ $plan->sort_order }}</div>
         </div>
       </div>
-      <p style="font-size:12px;color:var(--text-2);margin-bottom:14px;min-height:36px;">{{ $plan->description }}</p>
-      <ul style="list-style:none;margin:0 0 16px;padding:0;font-size:12px;color:var(--text-2);">
+
+      <p style="font-size:12px;color:var(--text-2);margin:10px 0 14px;min-height:34px;line-height:1.5;">
+        {{ $plan->description }}
+      </p>
+
+      <ul style="list-style:none;margin:0 0 18px;padding:0;font-size:12px;color:var(--text-2);">
         @foreach(array_slice($plan->features ?? [], 0, 5) as $f)
           <li style="padding:3px 0;display:flex;gap:6px;">
-            <span style="color:var(--green);">✓</span> {{ $f }}
+            <span style="color:var(--green);flex-shrink:0;">✓</span> {{ $f }}
           </li>
         @endforeach
         @if(count($plan->features ?? []) > 5)
-          <li style="color:var(--text-3);padding:3px 0;">+ {{ count($plan->features) - 5 }} more…</li>
+          <li style="color:var(--text-3);padding:3px 0;font-style:italic;">
+            + {{ count($plan->features) - 5 }} more features…
+          </li>
         @endif
       </ul>
+
       <div style="display:flex;gap:8px;">
-        <a href="{{ route('admin.plans.edit', $plan->id) }}" class="btn btn-secondary btn-sm" style="flex:1;justify-content:center;">Edit</a>
+        <a href="{{ route('admin.plans.edit', $plan->id) }}"
+           class="btn btn-secondary btn-sm" style="flex:1;justify-content:center;">Edit</a>
         <form method="POST" action="{{ route('admin.plans.destroy', $plan->id) }}" style="flex:1;">
           @csrf @method('DELETE')
           <button type="submit" class="btn btn-danger btn-sm" style="width:100%;"
-            onclick="return confirm('Delete plan {{ addslashes($plan->name) }}?')">Delete</button>
+            onclick="return confirm('Delete plan {{ addslashes($plan->name) }}? This cannot be undone.')">
+            Delete
+          </button>
         </form>
       </div>
     </div>
@@ -58,9 +70,18 @@
     <div class="empty-state">
       <div class="empty-icon">💳</div>
       <h3>No plans yet</h3>
-      <p><a href="{{ route('admin.plans.create') }}" style="color:var(--navy);">Create your first plan</a> to show pricing on the landing page.</p>
+      <p>
+        <a href="{{ route('admin.plans.create') }}" style="color:var(--navy);">Create your first plan</a>
+        to display pricing on the landing page.
+      </p>
     </div>
   </div>
   @endforelse
 </div>
+
+<style nonce="{{ $cspNonce }}">
+.plan-card { transition: box-shadow 0.15s, transform 0.15s; }
+.plan-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+.plan-featured { border: 2px solid var(--navy); }
+</style>
 @endsection

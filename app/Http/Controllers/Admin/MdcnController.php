@@ -10,12 +10,31 @@ class MdcnController extends Controller
 {
     public function providers()
     {
-        $providers = Provider::with(['user', 'facility'])
+        $query = Provider::with(['user', 'facility'])
             ->orderBy('mdcn_verified')
-            ->orderBy('created_at', 'desc')
-            ->paginate(30);
+            ->orderBy('created_at', 'desc');
 
-        return view('admin.providers', compact('providers'));
+        if ($search = request('search')) {
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            })->orWhere('mdcn_folio', 'like', "%{$search}%");
+        }
+
+        if (request('status') === 'verified') {
+            $query->where('mdcn_verified', true);
+        } elseif (request('status') === 'unverified') {
+            $query->where('mdcn_verified', false);
+        }
+
+        $providers = $query->paginate(30)->withQueryString();
+        $counts = [
+            'all'        => Provider::count(),
+            'verified'   => Provider::where('mdcn_verified', true)->count(),
+            'unverified' => Provider::where('mdcn_verified', false)->count(),
+        ];
+
+        return view('admin.providers', compact('providers', 'counts'));
     }
 
     public function verify(int $id)

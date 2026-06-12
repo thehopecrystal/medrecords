@@ -6,20 +6,9 @@
 <div class="page-header-row">
   <div>
     <h1>Send Notification</h1>
-    <p>Compose and broadcast in-app and email notifications to your users</p>
+    <p>Compose and broadcast in-app and email notifications to your users.</p>
   </div>
 </div>
-
-@if(session('success'))
-  <div class="alert green" style="margin-bottom:20px;">
-    <span>✓</span><span>{{ session('success') }}</span>
-  </div>
-@endif
-@if($errors->any())
-  <div class="alert red" style="margin-bottom:20px;">
-    <span>✗</span><span>{{ $errors->first() }}</span>
-  </div>
-@endif
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
 
@@ -28,7 +17,7 @@
     <div class="card-header">
       <div>
         <div class="card-title">Compose Notification</div>
-        <div class="card-sub">Recipients receive both an in-app notification and an email</div>
+        <div class="card-sub">Recipients receive both an in-app notification and an email.</div>
       </div>
     </div>
     <div class="card-body">
@@ -50,18 +39,18 @@
         </div>
 
         {{-- Role selector --}}
-        <div class="form-field audience-extra" id="extra-role" style="display:none;margin-bottom:18px;">
+        <div class="form-field" id="extra-role" style="display:none;margin-bottom:18px;">
           <label>Role</label>
           <select name="role">
             <option value="">Select role…</option>
-            @foreach(['patient'=>'Patient','provider'=>'Provider / Doctor','pharmacist'=>'Pharmacist','facility_admin'=>'Facility Admin','super_admin'=>'Super Admin'] as $r => $label)
+            @foreach(['patient'=>'Patient','provider'=>'Provider / Doctor','pharmacist'=>'Pharmacist'] as $r => $label)
             <option value="{{ $r }}" {{ old('role') === $r ? 'selected' : '' }}>{{ $label }}</option>
             @endforeach
           </select>
         </div>
 
         {{-- Specific user --}}
-        <div class="form-field audience-extra" id="extra-user" style="display:none;margin-bottom:18px;">
+        <div class="form-field" id="extra-user" style="display:none;margin-bottom:18px;">
           <label>User email or MedID</label>
           <input type="text" name="user_identifier" value="{{ old('user_identifier') }}"
                  placeholder="patient@example.com or MR-XXXXXX-XXXXXX"
@@ -71,7 +60,7 @@
             <option value="{{ $u->email }}">{{ $u->name }}</option>
             @endforeach
           </datalist>
-          <div class="form-hint">Enter an email address or patient MedID</div>
+          <div class="form-hint">Enter an email address or patient MedID.</div>
         </div>
 
         {{-- Title --}}
@@ -80,7 +69,7 @@
           <input type="text" name="title" value="{{ old('title') }}"
                  placeholder="System maintenance on Saturday, 14 June"
                  maxlength="120" required>
-          <div class="form-hint">Appears as the subject line in email and bold heading in-app</div>
+          <div class="form-hint">Appears as the subject line in email and bold heading in-app.</div>
         </div>
 
         {{-- Body --}}
@@ -93,11 +82,11 @@
 
         <div class="alert navy" style="margin-bottom:20px;">
           <span>ℹ</span>
-          <span>Sending will create one in-app notification and one email per recipient. Large audiences may take a moment to process.</span>
+          <span>Sending creates one in-app notification and one email per recipient. Large audiences may take a moment.</span>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width:100%;" id="sendBtn">
-          Send Notification
+          📣 Send Notification
         </button>
       </form>
     </div>
@@ -108,18 +97,18 @@
     <div class="card-header">
       <div>
         <div class="card-title">Broadcast History</div>
-        <div class="card-sub">Recent admin notifications, newest first</div>
+        <div class="card-sub">Recent admin notifications, newest first.</div>
       </div>
     </div>
     @if($rows->isEmpty())
-    <div class="card-body" style="text-align:center;padding:48px 24px;color:var(--text-2);">
-      <div style="font-size:36px;margin-bottom:10px;">📭</div>
-      <div style="font-weight:600;">No broadcasts yet</div>
-      <div style="font-size:13px;margin-top:4px;">Sent notifications will appear here</div>
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No broadcasts yet</h3>
+      <p>Sent notifications will appear here.</p>
     </div>
     @else
-    <div style="overflow:hidden;">
-      <table style="width:100%;">
+    <div class="table-wrap">
+      <table>
         <thead>
           <tr>
             <th>Title</th>
@@ -132,8 +121,8 @@
           @foreach($rows as $n)
           <tr>
             <td>
-              <div style="font-weight:600;color:var(--text-1);margin-bottom:2px;">{{ $n->title }}</div>
-              <div style="font-size:12px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;">
+              <div style="font-weight:600;margin-bottom:2px;">{{ $n->title }}</div>
+              <div style="font-size:12px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px;">
                 {{ $n->body }}
               </div>
             </td>
@@ -166,7 +155,6 @@
 </style>
 
 <script nonce="{{ $cspNonce }}">
-// Audience card toggle
 document.querySelectorAll('.audience-card').forEach(function(card) {
   card.addEventListener('click', function() {
     document.querySelectorAll('.audience-card').forEach(c => c.classList.remove('active'));
@@ -177,7 +165,6 @@ document.querySelectorAll('.audience-card').forEach(function(card) {
   });
 });
 
-// Restore visibility on page load (validation error re-render)
 (function() {
   var checked = document.querySelector('input[name="audience"]:checked');
   if (checked) {
@@ -186,20 +173,16 @@ document.querySelectorAll('.audience-card').forEach(function(card) {
   }
 })();
 
-// Character counter
-var bodyEl = document.querySelector('textarea[name="body"]');
+var bodyEl  = document.querySelector('textarea[name="body"]');
 var counter = document.getElementById('charCount');
 function updateCount() { counter.textContent = bodyEl.value.length + ' / 2000 characters'; }
 bodyEl.addEventListener('input', updateCount);
 updateCount();
 
-// Confirm before sending to all
 document.getElementById('notifForm').addEventListener('submit', function(e) {
   var aud = document.querySelector('input[name="audience"]:checked')?.value;
-  if (aud === 'all') {
-    if (!confirm('Send this notification to ALL active users? This will also email each one.')) {
-      e.preventDefault();
-    }
+  if (aud === 'all' && !confirm('Send this notification to ALL active users? This will also email each one.')) {
+    e.preventDefault();
   }
 });
 </script>

@@ -4,8 +4,8 @@
 
 @section('content')
 @php
-  $roleColors = ['patient'=>'navy','provider'=>'green','pharmacist'=>'green','facility_admin'=>'amber','super_admin'=>'red'];
-  $roleLabels = ['patient'=>'Patient','provider'=>'Provider','pharmacist'=>'Pharmacist','facility_admin'=>'Facility Admin','super_admin'=>'Super Admin'];
+  $roleColors = ['patient'=>'navy','provider'=>'green','pharmacist'=>'green'];
+  $roleLabels = ['patient'=>'Patient','provider'=>'Provider','pharmacist'=>'Pharmacist'];
 @endphp
 
 <div class="page-header-row">
@@ -68,7 +68,7 @@
         <div class="form-field" style="margin-bottom:20px;">
           <label>Role</label>
           <select name="role" required>
-            @foreach(['patient'=>'Patient','provider'=>'Provider','pharmacist'=>'Pharmacist','facility_admin'=>'Facility Admin','super_admin'=>'Super Admin'] as $val => $label)
+            @foreach(['patient'=>'Patient','provider'=>'Provider','pharmacist'=>'Pharmacist'] as $val => $label)
               <option value="{{ $val }}" {{ $user->role === $val ? 'selected' : '' }}>{{ $label }}</option>
             @endforeach
           </select>

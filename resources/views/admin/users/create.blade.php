@@ -42,11 +42,9 @@
             <label>Role *</label>
             <select name="role" id="roleSelect" required onchange="toggleProviderFields()">
               <option value="">— Select role —</option>
-              <option value="patient"        {{ old('role')=='patient'        ? 'selected' : '' }}>Patient</option>
-              <option value="provider"       {{ old('role')=='provider'       ? 'selected' : '' }}>Provider (Doctor/Nurse)</option>
-              <option value="pharmacist"     {{ old('role')=='pharmacist'     ? 'selected' : '' }}>Pharmacist</option>
-              <option value="facility_admin" {{ old('role')=='facility_admin' ? 'selected' : '' }}>Facility Admin</option>
-              <option value="super_admin"    {{ old('role')=='super_admin'    ? 'selected' : '' }}>Super Admin</option>
+              <option value="patient"    {{ old('role')=='patient'    ? 'selected' : '' }}>Patient</option>
+              <option value="provider"   {{ old('role')=='provider'   ? 'selected' : '' }}>Provider (Doctor / Nurse)</option>
+              <option value="pharmacist" {{ old('role')=='pharmacist' ? 'selected' : '' }}>Pharmacist</option>
             </select>
             @error('role')<div class="form-error">{{ $message }}</div>@enderror
           </div>

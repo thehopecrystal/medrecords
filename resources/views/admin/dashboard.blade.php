@@ -3,8 +3,8 @@
 @section('topbar-title', 'Dashboard')
 
 @section('content')
-{{-- Stats row --}}
-<div class="stat-grid" style="grid-template-columns:repeat(6,1fr);margin-bottom:28px;">
+{{-- Stats --}}
+<div class="stat-grid" style="margin-bottom:28px;">
   <div class="stat-card">
     <div class="stat-label">Patients</div>
     <div class="stat-value">{{ number_format($stats['patients']) }}</div>
@@ -43,10 +43,8 @@
   </div>
 </div>
 
-{{-- Charts row 1 --}}
-<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px;">
-
-  {{-- Registrations line chart --}}
+{{-- Charts row 1: registrations + role donut --}}
+<div class="dash-grid-2-1" style="margin-bottom:20px;">
   <div class="card">
     <div class="card-header" style="padding-bottom:16px;">
       <div>
@@ -60,7 +58,6 @@
     </div>
   </div>
 
-  {{-- Role doughnut --}}
   <div class="card">
     <div class="card-header" style="padding-bottom:16px;">
       <div>
@@ -74,10 +71,8 @@
   </div>
 </div>
 
-{{-- Charts row 2 --}}
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
-
-  {{-- Encounters bar chart --}}
+{{-- Charts row 2: encounters + dispenses --}}
+<div class="dash-grid-1-1" style="margin-bottom:24px;">
   <div class="card">
     <div class="card-header" style="padding-bottom:16px;">
       <div>
@@ -90,7 +85,6 @@
     </div>
   </div>
 
-  {{-- Dispenses bar chart --}}
   <div class="card">
     <div class="card-header" style="padding-bottom:16px;">
       <div>
@@ -105,8 +99,7 @@
 </div>
 
 {{-- Bottom row: recent audit log + active break-glass --}}
-<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;">
-
+<div class="dash-grid-2-1">
   <div class="card">
     <div class="card-header">
       <div>
@@ -116,20 +109,23 @@
     </div>
     <div class="card-body" style="padding:0;">
       @forelse($recentLogs as $log)
+      @php
+        $actorName = $log->actor?->name ?? $log->adminActor?->name ?? 'System';
+        $action    = $log->action ?? '';
+        $icon = '🔵';
+        if (str_contains($action, 'view'))     $icon = '👁';
+        elseif (str_contains($action, 'break'))    $icon = '⚡';
+        elseif (str_contains($action, 'dispense')) $icon = '💊';
+        elseif (str_contains($action, 'encounter'))$icon = '📋';
+        elseif (str_contains($action, 'login'))    $icon = '🔑';
+      @endphp
       <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 22px;border-bottom:1px solid var(--border);font-size:12px;">
         <div style="width:32px;height:32px;border-radius:50%;background:var(--navy-lt);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">
-          @php
-            $icon = '🔵';
-            if(str_contains($log->action??'','view')) $icon = '👁';
-            elseif(str_contains($log->action??'','break')) $icon = '⚡';
-            elseif(str_contains($log->action??'','dispense')) $icon = '💊';
-            elseif(str_contains($log->action??'','encounter')) $icon = '📋';
-          @endphp
           {{ $icon }}
         </div>
         <div style="flex:1;min-width:0;">
-          <div style="font-weight:600;color:var(--text);">{{ $log->actor?->name ?? 'System' }}</div>
-          <div style="color:var(--text-2);margin-top:1px;">{{ ucfirst(str_replace('_',' ',$log->action ?? '')) }}</div>
+          <div style="font-weight:600;color:var(--text);">{{ $actorName }}</div>
+          <div style="color:var(--text-2);margin-top:1px;">{{ ucfirst(str_replace('_', ' ', $action)) }}</div>
         </div>
         <div style="color:var(--text-3);white-space:nowrap;">{{ $log->created_at->diffForHumans() }}</div>
       </div>
@@ -168,9 +164,17 @@
       @endforelse
     </div>
   </div>
-
 </div>
 
+<style nonce="{{ $cspNonce }}">
+.dash-grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+.dash-grid-1-1 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 900px) {
+  .dash-grid-2-1, .dash-grid-1-1 { grid-template-columns: 1fr; }
+}
+</style>
+
+@push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script nonce="{{ $cspNonce }}">
 Chart.defaults.font = { family: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif', size: 11 };
@@ -185,11 +189,8 @@ new Chart(document.getElementById('regChart'), {
       data: {!! json_encode($charts['regCounts']) !!},
       borderColor: '#1E3A5F',
       backgroundColor: 'rgba(30,58,95,0.07)',
-      borderWidth: 2,
-      pointRadius: 2,
-      pointHoverRadius: 5,
-      fill: true,
-      tension: 0.4,
+      borderWidth: 2, pointRadius: 2, pointHoverRadius: 5,
+      fill: true, tension: 0.4,
     }]
   },
   options: {
@@ -209,13 +210,11 @@ new Chart(document.getElementById('roleChart'), {
     datasets: [{
       data: {!! json_encode($charts['roleValues']) !!},
       backgroundColor: ['#1E3A5F','#2C5F2D','#3B8C6E','#B8860B','#B23A48'],
-      borderWidth: 2, borderColor: '#fff',
-      hoverOffset: 6,
+      borderWidth: 2, borderColor: '#fff', hoverOffset: 6,
     }]
   },
   options: {
-    responsive: true,
-    cutout: '65%',
+    responsive: true, cutout: '65%',
     plugins: {
       legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 11 } } }
     }
@@ -230,8 +229,7 @@ new Chart(document.getElementById('encChart'), {
       label: 'Encounters',
       data: {!! json_encode($charts['encCounts']) !!},
       backgroundColor: 'rgba(44,95,45,0.75)',
-      borderRadius: 5,
-      borderSkipped: false,
+      borderRadius: 5, borderSkipped: false,
     }]
   },
   options: {
@@ -252,8 +250,7 @@ new Chart(document.getElementById('dispChart'), {
       label: 'Dispenses',
       data: {!! json_encode($charts['dispCounts']) !!},
       backgroundColor: 'rgba(30,58,95,0.65)',
-      borderRadius: 5,
-      borderSkipped: false,
+      borderRadius: 5, borderSkipped: false,
     }]
   },
   options: {
@@ -266,4 +263,5 @@ new Chart(document.getElementById('dispChart'), {
   }
 });
 </script>
+@endpush
 @endsection

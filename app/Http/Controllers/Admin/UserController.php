@@ -65,7 +65,7 @@ class UserController extends Controller
             'name'        => 'required|string|max:120',
             'email'       => 'required|email|unique:users,email',
             'phone'       => ['required', 'regex:/^(\+?[0-9]{10,15})$/', 'unique:users,phone'],
-            'role'        => 'required|in:patient,provider,pharmacist,facility_admin,super_admin',
+            'role'        => 'required|in:patient,provider,pharmacist',
             'password'    => 'required|string|min:8|confirmed',
             'facility_id' => $isProvider ? 'required|exists:facilities,id' : 'nullable',
             'specialty'   => $isProvider ? 'required|string|max:100' : 'nullable|string|max:100',
@@ -125,7 +125,7 @@ class UserController extends Controller
             'name'  => 'required|string|max:120',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'phone' => ['required', 'regex:/^(\+?[0-9]{10,15})$/', Rule::unique('users')->ignore($user->id)],
-            'role'  => 'required|in:patient,provider,pharmacist,facility_admin,super_admin',
+            'role'  => 'required|in:patient,provider,pharmacist',
         ], [
             'phone.regex' => 'Phone must be a valid number (e.g. 08012345678 or +2348012345678).',
         ]);
