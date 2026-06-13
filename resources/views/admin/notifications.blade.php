@@ -167,10 +167,19 @@ function updateCount() { counter.textContent = bodyEl.value.length + ' / 2000 ch
 bodyEl.addEventListener('input', updateCount);
 updateCount();
 
+var _notifSubmitting = false;
 document.getElementById('notifForm').addEventListener('submit', function(e) {
+  if (_notifSubmitting) return;
   var aud = document.querySelector('input[name="audience"]:checked')?.value;
-  if (aud === 'all' && !confirm('Send this notification to ALL active users? This will also email each one.')) {
+  if (aud === 'all') {
     e.preventDefault();
+    window._showConfirm({
+      title: 'Send to All Users?',
+      body: 'Send this notification to ALL active users? This will also email each one.',
+      ok: 'Send',
+      okBtn: 'btn-danger',
+      onConfirm: function() { _notifSubmitting = true; document.getElementById('notifForm').submit(); }
+    });
   }
 });
 </script>

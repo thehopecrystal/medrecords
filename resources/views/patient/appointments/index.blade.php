@@ -33,10 +33,11 @@
         @php $colors=['pending'=>'amber','confirmed'=>'green','cancelled'=>'red','completed'=>'navy','no_show'=>'grey'] @endphp
         <span class="pill {{ $colors[$apt->status] ?? 'grey' }}">{{ ucfirst(str_replace('_',' ',$apt->status)) }}</span>
         @if($apt->isPending() || $apt->isConfirmed())
-        <form method="POST" action="{{ route('patient.appointments.cancel', $apt->id) }}">
+        <form method="POST" action="{{ route('patient.appointments.cancel', $apt->id) }}"
+              data-confirm="Cancel this appointment?"
+              data-confirm-ok="Cancel">
           @csrf
-          <button type="submit" class="btn btn-danger btn-sm"
-            onclick="return confirm('Cancel this appointment?')">Cancel</button>
+          <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
         </form>
         @endif
       </div>

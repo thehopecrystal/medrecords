@@ -33,10 +33,12 @@
                 @csrf
                 <button class="btn btn-green btn-sm">Approve</button>
               </form>
-              <form method="POST" action="{{ route('provider.refills.deny', $req->id) }}">
+              <form method="POST" action="{{ route('provider.refills.deny', $req->id) }}"
+                    data-confirm="Deny this refill request?"
+                    data-confirm-ok="Deny">
                 @csrf
                 <input type="hidden" name="notes" value="Request denied by provider.">
-                <button class="btn btn-danger btn-sm" onclick="return confirm('Deny this refill request?')">Deny</button>
+                <button class="btn btn-danger btn-sm">Deny</button>
               </form>
             </div>
             @else

@@ -51,12 +51,12 @@
       <div class="plan-actions">
         <a href="{{ route('admin.plans.edit', $plan->id) }}"
            class="btn btn-secondary btn-sm btn-stretch">Edit</a>
-        <form method="POST" action="{{ route('admin.plans.destroy', $plan->id) }}" class="btn-stretch">
+        <form method="POST" action="{{ route('admin.plans.destroy', $plan->id) }}" class="btn-stretch"
+              data-confirm="Delete plan {{ $plan->name }}? This cannot be undone."
+              data-confirm-title="Delete Plan"
+              data-confirm-ok="Delete">
           @csrf @method('DELETE')
-          <button type="submit" class="btn btn-danger btn-sm btn-full"
-            onclick="return confirm('Delete plan {{ addslashes($plan->name) }}? This cannot be undone.')">
-            Delete
-          </button>
+          <button type="submit" class="btn btn-danger btn-sm btn-full">Delete</button>
         </form>
       </div>
     </div>

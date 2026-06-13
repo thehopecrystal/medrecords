@@ -315,12 +315,12 @@
             <span>✓</span>
             <span>Two-factor authentication is active. You will receive a 6-digit OTP via SMS each time you log in.</span>
           </div>
-          <form method="POST" action="{{ route('patient.profile.2fa') }}">
+          <form method="POST" action="{{ route('patient.profile.2fa') }}"
+                data-confirm="Disable two-factor authentication?"
+                data-confirm-ok="Disable 2FA">
             @csrf
             <input type="hidden" name="action" value="disable">
-            <button type="submit" class="btn btn-danger" onclick="return confirm('Disable two-factor authentication?')">
-              Disable 2FA
-            </button>
+            <button type="submit" class="btn btn-danger">Disable 2FA</button>
           </form>
         @else
           <div class="alert amber" style="margin-bottom:16px;">

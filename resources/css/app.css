@@ -839,3 +839,23 @@ tbody tr:hover { background: #FAFCFF; }
 .import-template       { margin-top: 16px; }
 .import-template-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-2); margin-bottom: 6px; }
 .import-pre            { background: #F8FAFC; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 11px; overflow-x: auto; color: var(--text-2); }
+
+/* ═══════════════════════════════════════════════════════════ */
+/*  BOOTSTRAP CONFIRMATION MODAL                              */
+/* ═══════════════════════════════════════════════════════════ */
+body.modal-open        { overflow: hidden; }
+.modal                 { display: none; position: fixed; inset: 0; z-index: 1055; overflow-x: hidden; overflow-y: auto; }
+.modal-dialog          { position: relative; width: auto; margin: 0 auto; pointer-events: none; max-width: 440px; padding: 1.75rem .5rem; display: flex; align-items: flex-start; }
+.modal-dialog-centered { min-height: calc(100% - 3.5rem); align-items: center; }
+.modal-content         { position: relative; display: flex; flex-direction: column; width: 100%; pointer-events: auto; background: var(--card-bg, #fff); border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,.18), 0 6px 20px rgba(0,0,0,.1); outline: 0; }
+.modal-header          { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; padding: 20px 22px 0; }
+.modal-title           { font-size: 15px; font-weight: 800; color: var(--navy); }
+.modal-body            { position: relative; flex: 1 1 auto; padding: 14px 22px; font-size: 14px; color: var(--text-2); line-height: 1.65; }
+.modal-footer          { display: flex; flex-wrap: wrap; flex-shrink: 0; align-items: center; justify-content: flex-end; gap: 10px; padding: 0 22px 22px; margin-top: 6px; }
+.modal-backdrop        { position: fixed; top: 0; left: 0; z-index: 1050; width: 100vw; height: 100vh; background: rgba(0,0,0,0); transition: opacity .15s linear; }
+.modal-backdrop.fade   { opacity: 0; }
+.modal-backdrop.show   { opacity: 1; background: rgba(0,0,0,.45); }
+.btn-close             { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; background: none; border: 0; border-radius: 8px; opacity: .5; cursor: pointer; color: var(--text-2); font-size: 20px; line-height: 1; flex-shrink: 0; transition: opacity .15s, background .15s; }
+.btn-close:hover       { opacity: 1; background: var(--border); }
+.btn-close::before     { content: '×'; }
+[data-theme="dark"] .modal-content { background: #1A2744; }

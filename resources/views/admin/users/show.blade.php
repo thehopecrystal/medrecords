@@ -23,19 +23,21 @@
   </div>
   <div class="btn-group-row">
     @if($user->id !== auth()->id())
-      <form method="POST" action="{{ route('admin.users.toggle-active', $user->id) }}" class="form-inline">
+      <form method="POST" action="{{ route('admin.users.toggle-active', $user->id) }}" class="form-inline"
+            data-confirm="{{ $user->is_active ? 'Deactivate' : 'Activate' }} {{ $user->name }}?"
+            data-confirm-btn="{{ $user->is_active ? 'btn-danger' : 'btn-green' }}"
+            data-confirm-ok="{{ $user->is_active ? 'Deactivate' : 'Activate' }}">
         @csrf @method('PATCH')
-        <button type="submit" class="btn {{ $user->is_active ? 'btn-danger' : 'btn-green' }} btn-sm"
-          onclick="return confirm('{{ $user->is_active ? 'Deactivate' : 'Activate' }} this user?')">
+        <button type="submit" class="btn {{ $user->is_active ? 'btn-danger' : 'btn-green' }} btn-sm">
           {{ $user->is_active ? '⊘ Deactivate' : '✓ Activate' }}
         </button>
       </form>
-      <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" class="form-inline">
+      <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" class="form-inline"
+            data-confirm="Permanently delete {{ $user->name }}? This cannot be undone."
+            data-confirm-title="Delete User"
+            data-confirm-ok="Delete">
         @csrf @method('DELETE')
-        <button type="submit" class="btn btn-danger btn-sm"
-          onclick="return confirm('Permanently delete {{ addslashes($user->name) }}? This cannot be undone.')">
-          🗑 Delete
-        </button>
+        <button type="submit" class="btn btn-danger btn-sm">🗑 Delete</button>
       </form>
     @endif
     <a href="{{ route('admin.users') }}" class="btn btn-secondary btn-sm">← Back</a>
@@ -113,7 +115,10 @@
     <div class="card">
       <div class="card-header"><div class="card-title">Reset Password</div></div>
       <div class="card-body">
-        <form method="POST" action="{{ route('admin.users.reset-password', $user->id) }}">
+        <form method="POST" action="{{ route('admin.users.reset-password', $user->id) }}"
+              data-confirm="Reset password for {{ $user->name }}?"
+              data-confirm-btn="btn-secondary"
+              data-confirm-ok="Reset Password">
           @csrf
           <div class="form-field mb-12">
             <label>New Password</label>
@@ -124,10 +129,7 @@
             <label>Confirm New Password</label>
             <input type="password" name="new_password_confirmation" required>
           </div>
-          <button type="submit" class="btn btn-secondary"
-            onclick="return confirm('Reset password for {{ addslashes($user->name) }}?')">
-            🔑 Reset Password
-          </button>
+          <button type="submit" class="btn btn-secondary">🔑 Reset Password</button>
         </form>
       </div>
     </div>

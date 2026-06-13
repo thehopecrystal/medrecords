@@ -303,6 +303,81 @@
   </div>
 </div>
 
+{{-- Bootstrap 5 JS (modal behaviour — CDN allowed by CSP script-src) --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- Global confirmation modal --}}
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmTitle">Confirm Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="confirmBody">Are you sure?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmOk">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script nonce="{{ $cspNonce }}">
+(function () {
+  'use strict';
+  var _pending = null;
+  var _modal   = null;
+
+  function getModal() {
+    if (!_modal) {
+      var el = document.getElementById('confirmModal');
+      _modal = el ? new bootstrap.Modal(el, { keyboard: true }) : null;
+      if (el) {
+        el.addEventListener('hidden.bs.modal', function () { _pending = null; });
+      }
+    }
+    return _modal;
+  }
+
+  /* Public API — call window._showConfirm(opts) from any page script */
+  window._showConfirm = function (opts) {
+    var m = getModal();
+    if (!m) return opts.onConfirm && opts.onConfirm();
+    document.getElementById('confirmTitle').textContent = opts.title   || 'Confirm Action';
+    document.getElementById('confirmBody').textContent  = opts.message || 'Are you sure?';
+    var ok = document.getElementById('confirmOk');
+    ok.className  = 'btn ' + (opts.btnClass || 'btn-danger');
+    ok.textContent = opts.okLabel || 'Confirm';
+    _pending = opts.onConfirm || null;
+    m.show();
+  };
+
+  /* Confirm button handler */
+  document.getElementById('confirmOk').addEventListener('click', function () {
+    getModal().hide();
+    if (_pending) { var fn = _pending; _pending = null; fn(); }
+  });
+
+  /* Intercept any form[data-confirm] submission */
+  document.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (!form.hasAttribute('data-confirm')) return;
+    e.preventDefault();
+    window._showConfirm({
+      title:    form.dataset.confirmTitle || 'Confirm Action',
+      message:  form.dataset.confirm,
+      btnClass: form.dataset.confirmBtn   || 'btn-danger',
+      okLabel:  form.dataset.confirmOk    || 'Confirm',
+      onConfirm: function () {
+        form.removeAttribute('data-confirm');
+        form.submit();
+      }
+    });
+  }, false);
+})();
+</script>
+
 @stack('scripts')
 </body>
 </html>

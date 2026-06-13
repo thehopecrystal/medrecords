@@ -108,9 +108,11 @@
           <td>{{ $log->oxygen_saturation ? $log->oxygen_saturation.'%' : '—' }}</td>
           <td>{{ $log->pain_level !== null ? $log->pain_level.'/10' : '—' }}</td>
           <td>
-            <form method="POST" action="{{ route('patient.vitals.destroy', $log->id) }}">
+            <form method="POST" action="{{ route('patient.vitals.destroy', $log->id) }}"
+                  data-confirm="Delete this reading?"
+                  data-confirm-ok="Delete">
               @csrf @method('DELETE')
-              <button type="submit" class="btn btn-ghost btn-sm" onclick="return confirm('Delete this reading?')">✕</button>
+              <button type="submit" class="btn btn-ghost btn-sm">✕</button>
             </form>
           </td>
         </tr>

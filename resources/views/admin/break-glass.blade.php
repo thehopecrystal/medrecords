@@ -86,7 +86,8 @@
           <button type="submit" class="btn btn-green btn-sm btn-full">✓ Approve</button>
         </form>
         <form method="POST" action="{{ route('admin.break-glass.dispute', $e->id) }}"
-              onsubmit="return confirm('Mark as disputed? The patient will be notified.')">
+              data-confirm="Mark as disputed? The patient will be notified."
+              data-confirm-ok="Dispute">
           @csrf
           <input type="hidden" name="review_notes" value="Under investigation by compliance team.">
           <button type="submit" class="btn btn-danger btn-sm btn-full">⚠ Dispute</button>

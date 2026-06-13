@@ -57,9 +57,11 @@
           <div class="entry-title">{{ $c->grantee->name }} <span class="pill navy" style="margin-left:6px;">{{ $c->scopeLabel }}</span></div>
           <div class="entry-meta">{{ $c->grantee->role }} · expires {{ $c->expires_at ? $c->expires_at->format('d M Y') : 'no expiry' }}</div>
         </div>
-        <form method="POST" action="{{ route('patient.consents.revoke', $c->id) }}">
+        <form method="POST" action="{{ route('patient.consents.revoke', $c->id) }}"
+              data-confirm="Revoke this consent?"
+              data-confirm-ok="Revoke">
           @csrf @method('PATCH')
-          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Revoke this consent?')">Revoke</button>
+          <button type="submit" class="btn btn-danger btn-sm">Revoke</button>
         </form>
       </div>
     </div>

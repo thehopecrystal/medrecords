@@ -37,7 +37,8 @@
                 </div>
               </div>
               <form method="POST" action="{{ route('admin.team.remove', $p->id) }}"
-                    onsubmit="return confirm('Remove {{ addslashes($p->user->name) }} from this facility?')">
+                    data-confirm="Remove {{ $p->user->name }} from this facility?"
+                    data-confirm-ok="Remove">
                 @csrf @method('DELETE')
                 <button type="submit" class="btn btn-danger btn-sm">Remove</button>
               </form>
@@ -116,7 +117,8 @@
               </div>
             </div>
             <form method="POST" action="{{ route('admin.team.remove', $p->id) }}"
-                  onsubmit="return confirm('Remove {{ addslashes($p->user->name) }} from your facility?')">
+                  data-confirm="Remove {{ $p->user->name }} from your facility?"
+                  data-confirm-ok="Remove">
               @csrf @method('DELETE')
               <button type="submit" class="btn btn-danger btn-sm">Remove</button>
             </form>
