@@ -36,12 +36,11 @@
 
   {{-- Main content --}}
   <div class="flex-1 min-w-0">
-    <form method="POST" action="{{ route('admin.settings.update') }}"
-          enctype="multipart/form-data" id="settingsForm">
-      @csrf
 
-      {{-- ══════════════ GENERAL ══════════════ --}}
-      <div class="stab-panel stab-active" id="stab-general">
+    {{-- ══════════════ GENERAL ══════════════ --}}
+    <div class="stab-panel stab-active" id="stab-general">
+      <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data">
+        @csrf
 
         {{-- Platform Identity --}}
         <div class="s-card mb-4">
@@ -124,10 +123,18 @@
             </div>
           </div>
         </div>
-      </div>
 
-      {{-- ══════════════ CONTACT ══════════════ --}}
-      <div class="stab-panel" id="stab-contact">
+        <div class="s-save-bar">
+          <button type="submit" class="s-btn-primary">💾 Save general settings</button>
+        </div>
+      </form>
+    </div>
+
+    {{-- ══════════════ CONTACT ══════════════ --}}
+    <div class="stab-panel" id="stab-contact">
+      <form method="POST" action="{{ route('admin.settings.update') }}">
+        @csrf
+
         <div class="s-card mb-4">
           <div class="s-card-head">
             <div>
@@ -174,10 +181,18 @@
             </div>
           </div>
         </div>
-      </div>
 
-      {{-- ══════════════ SOCIAL MEDIA ══════════════ --}}
-      <div class="stab-panel" id="stab-social">
+        <div class="s-save-bar">
+          <button type="submit" class="s-btn-primary">💾 Save contact settings</button>
+        </div>
+      </form>
+    </div>
+
+    {{-- ══════════════ SOCIAL MEDIA ══════════════ --}}
+    <div class="stab-panel" id="stab-social">
+      <form method="POST" action="{{ route('admin.settings.update') }}">
+        @csrf
+
         <div class="s-card mb-4">
           <div class="s-card-head">
             <div>
@@ -203,10 +218,18 @@
             </div>
           </div>
         </div>
-      </div>
 
-      {{-- ══════════════ EMAIL / SMTP ══════════════ --}}
-      <div class="stab-panel" id="stab-smtp">
+        <div class="s-save-bar">
+          <button type="submit" class="s-btn-primary">💾 Save social links</button>
+        </div>
+      </form>
+    </div>
+
+    {{-- ══════════════ EMAIL / SMTP ══════════════ --}}
+    <div class="stab-panel" id="stab-smtp">
+      <form method="POST" action="{{ route('admin.settings.update') }}">
+        @csrf
+
         <div class="s-card mb-4">
           <div class="s-card-head">
             <div>
@@ -274,30 +297,37 @@
           </div>
         </div>
 
-        {{-- SMTP test --}}
-        <div class="s-card mb-4">
-          <div class="s-card-head s-card-head-row">
-            <div>
-              <p class="s-card-title">Test Email Delivery</p>
-              <p class="s-card-sub">Verify your SMTP configuration by sending a test message.</p>
-            </div>
-            <span class="s-badge">Save settings first</span>
+        <div class="s-save-bar">
+          <button type="submit" class="s-btn-primary">💾 Save SMTP settings</button>
+        </div>
+      </form>
+
+      {{-- SMTP test — standalone form, not nested --}}
+      <div class="s-card mb-4">
+        <div class="s-card-head s-card-head-row">
+          <div>
+            <p class="s-card-title">Test Email Delivery</p>
+            <p class="s-card-sub">Verify your SMTP configuration by sending a test message.</p>
           </div>
-          <div class="s-card-body">
-            <form method="POST" action="{{ route('admin.settings.smtp-test') }}" class="s-form-row">
-              @csrf
-              <input type="email" name="test_email" value="{{ auth()->user()->email }}"
-                placeholder="test@example.com" class="s-input s-flex-1">
-              <button type="submit" class="s-btn-secondary s-btn-no-shrink">
-                ✉️ Send test email
-              </button>
-            </form>
-          </div>
+          <span class="s-badge">Save settings first</span>
+        </div>
+        <div class="s-card-body">
+          <form method="POST" action="{{ route('admin.settings.smtp-test') }}" class="s-form-row">
+            @csrf
+            <input type="email" name="test_email" value="{{ auth()->user()->email }}"
+              placeholder="test@example.com" class="s-input s-flex-1">
+            <button type="submit" class="s-btn-secondary s-btn-no-shrink">
+              ✉️ Send test email
+            </button>
+          </form>
         </div>
       </div>
+    </div>
 
-      {{-- ══════════════ SMS / TWILIO ══════════════ --}}
-      <div class="stab-panel" id="stab-sms">
+    {{-- ══════════════ SMS / TWILIO ══════════════ --}}
+    <div class="stab-panel" id="stab-sms">
+      <form method="POST" action="{{ route('admin.settings.update') }}">
+        @csrf
 
         {{-- Enable/disable --}}
         <div class="s-card mb-4">
@@ -307,6 +337,7 @@
               <p class="s-card-sub">Controls whether OTP codes and alerts are sent via SMS.</p>
             </div>
             <label class="s-toggle">
+              <input type="hidden" name="sms_enabled" value="0">
               <input type="checkbox" name="sms_enabled" value="1" id="smsToggle"
                 {{ ($settings['sms_enabled'] ?? '1') === '1' ? 'checked' : '' }}>
               <span class="s-toggle-track">
@@ -370,6 +401,7 @@
                 <p class="s-hint s-hint-flush">Send the 6-digit code by text message using your Twilio number above.</p>
               </div>
               <label class="s-toggle">
+                <input type="hidden" name="otp_sms_enabled" value="0">
                 <input type="checkbox" name="otp_sms_enabled" value="1" id="otpSmsToggle"
                   {{ ($settings['otp_sms_enabled'] ?? '1') === '1' ? 'checked' : '' }}>
                 <span class="s-toggle-track"><span class="s-toggle-thumb"></span></span>
@@ -384,6 +416,7 @@
                 <p class="s-hint s-hint-flush">Also (or instead) deliver the code to the user's registered email address.</p>
               </div>
               <label class="s-toggle">
+                <input type="hidden" name="otp_email_enabled" value="0">
                 <input type="checkbox" name="otp_email_enabled" value="1" id="otpEmailToggle"
                   {{ ($settings['otp_email_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
                 <span class="s-toggle-track"><span class="s-toggle-thumb"></span></span>
@@ -395,30 +428,37 @@
           </div>
         </div>
 
-        {{-- SMS test --}}
-        <div class="s-card mb-4">
-          <div class="s-card-head s-card-head-row">
-            <div>
-              <p class="s-card-title">Test SMS Delivery</p>
-              <p class="s-card-sub">Verify your Twilio credentials by sending a test message.</p>
-            </div>
-            <span class="s-badge">Save settings first</span>
+        <div class="s-save-bar">
+          <button type="submit" class="s-btn-primary">💾 Save SMS settings</button>
+        </div>
+      </form>
+
+      {{-- SMS test — standalone form, not nested --}}
+      <div class="s-card mb-4">
+        <div class="s-card-head s-card-head-row">
+          <div>
+            <p class="s-card-title">Test SMS Delivery</p>
+            <p class="s-card-sub">Verify your Twilio credentials by sending a test message.</p>
           </div>
-          <div class="s-card-body">
-            <form method="POST" action="{{ route('admin.settings.sms-test') }}" class="s-form-row">
-              @csrf
-              <input type="text" name="test_phone" value="{{ auth()->user()->phone }}"
-                placeholder="08012345678" class="s-input s-flex-1">
-              <button type="submit" class="s-btn-secondary s-btn-no-shrink">
-                📱 Send test SMS
-              </button>
-            </form>
-          </div>
+          <span class="s-badge">Save settings first</span>
+        </div>
+        <div class="s-card-body">
+          <form method="POST" action="{{ route('admin.settings.sms-test') }}" class="s-form-row">
+            @csrf
+            <input type="text" name="test_phone" value="{{ auth()->user()->phone }}"
+              placeholder="08012345678" class="s-input s-flex-1">
+            <button type="submit" class="s-btn-secondary s-btn-no-shrink">
+              📱 Send test SMS
+            </button>
+          </form>
         </div>
       </div>
+    </div>
 
-      {{-- ══════════════ PAYMENTS ══════════════ --}}
-      <div class="stab-panel" id="stab-payments">
+    {{-- ══════════════ PAYMENTS ══════════════ --}}
+    <div class="stab-panel" id="stab-payments">
+      <form method="POST" action="{{ route('admin.settings.update') }}">
+        @csrf
 
         {{-- Gateway selector --}}
         <div class="s-card mb-4">
@@ -511,10 +551,18 @@
             </div>
           </div>
         </div>
-      </div>
 
-      {{-- ══════════════ LANDING PAGE ══════════════ --}}
-      <div class="stab-panel" id="stab-landing">
+        <div class="s-save-bar">
+          <button type="submit" class="s-btn-primary">💾 Save payment settings</button>
+        </div>
+      </form>
+    </div>
+
+    {{-- ══════════════ LANDING PAGE ══════════════ --}}
+    <div class="stab-panel" id="stab-landing">
+      <form method="POST" action="{{ route('admin.settings.update') }}">
+        @csrf
+
         <div class="s-card mb-4">
           <div class="s-card-head s-card-head-row">
             <div>
@@ -553,16 +601,13 @@
             </div>
           </div>
         </div>
-      </div>
 
-      {{-- Sticky save bar --}}
-      <div class="s-save-bar">
-        <p class="s-save-hint">All sections save together. Save before switching tabs.</p>
-        <button type="submit" class="s-btn-primary">
-          💾 Save all settings
-        </button>
-      </div>
-    </form>
+        <div class="s-save-bar">
+          <button type="submit" class="s-btn-primary">💾 Save landing page</button>
+        </div>
+      </form>
+    </div>
+
   </div>
 </div>
 

@@ -554,7 +554,7 @@ tbody tr:hover { background: #FAFCFF; }
 .s-save-hint { font-size: 12px; color: var(--text-3); }
 
 /* ── Sticky save bar ────────────────────────────────────── */
-.s-save-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 16px 24px; position: sticky; bottom: 0; box-shadow: 0 -4px 24px rgba(15,23,42,.07); margin-top: 4px; }
+.s-save-bar { display: flex; align-items: center; justify-content: flex-end; gap: 16px; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 16px 24px; position: sticky; bottom: 0; box-shadow: 0 -4px 24px rgba(15,23,42,.07); margin-top: 4px; }
 
 /* ═══════════════════════════════════════════════════════════ */
 /*  AUTH LAYOUT                                               */

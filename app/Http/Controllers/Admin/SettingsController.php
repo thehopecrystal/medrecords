@@ -53,16 +53,16 @@ class SettingsController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'site_name'        => 'required|string|max:80',
-            'contact_email'    => 'nullable|email',
-            'smtp_port'        => 'nullable|integer',
-            'smtp_encryption'  => 'nullable|in:tls,ssl,none',
-            'sms_enabled'       => 'nullable|in:0,1',
-            'otp_sms_enabled'  => 'nullable|in:0,1',
-            'otp_email_enabled' => 'nullable|in:0,1',
-            'payment_gateway'  => 'nullable|in:none,paystack,flutterwave',
-            'site_logo_file'   => 'nullable|file|mimes:jpeg,jpg,png,gif,svg,webp|max:2048',
-            'site_favicon_file'=> 'nullable|file|mimes:ico,png,svg,jpeg,jpg,gif,webp|max:512',
+            'site_name'         => 'sometimes|required|string|max:80',
+            'contact_email'     => 'sometimes|nullable|email',
+            'smtp_port'         => 'sometimes|nullable|integer',
+            'smtp_encryption'   => 'sometimes|nullable|in:tls,ssl,none',
+            'sms_enabled'       => 'sometimes|nullable|in:0,1',
+            'otp_sms_enabled'   => 'sometimes|nullable|in:0,1',
+            'otp_email_enabled' => 'sometimes|nullable|in:0,1',
+            'payment_gateway'   => 'sometimes|nullable|in:none,paystack,flutterwave',
+            'site_logo_file'    => 'nullable|file|mimes:jpeg,jpg,png,gif,svg,webp|max:2048',
+            'site_favicon_file' => 'nullable|file|mimes:ico,png,svg,jpeg,jpg,gif,webp|max:512',
         ]);
 
         // Logo file upload — takes priority over URL field
@@ -72,7 +72,6 @@ class SettingsController extends Controller
             $path = $request->file('site_logo_file')->store('settings', 'public');
             SiteSetting::set('site_logo_path', $path);
             SiteSetting::set('site_logo_url', asset('storage/' . $path));
-            // Remove from $keys so the loop below doesn't overwrite with the URL field value
             $keys = array_diff($this->keys, ['site_logo_url']);
         } else {
             $keys = $this->keys;
@@ -88,11 +87,13 @@ class SettingsController extends Controller
             $keys = array_diff($keys, ['site_favicon_url']);
         }
 
-        // Plain keys
+        // Plain keys — only update keys present in this request (supports per-section forms)
+        $checkboxKeys = ['sms_enabled', 'otp_sms_enabled', 'otp_email_enabled'];
         foreach ($keys as $key) {
-            // Checkbox: if not present in request treat as '0'
-            if (in_array($key, ['sms_enabled', 'otp_sms_enabled', 'otp_email_enabled'])) {
-                SiteSetting::set($key, $request->has($key) ? '1' : '0');
+            if (!$request->exists($key)) continue;
+            if (in_array($key, $checkboxKeys)) {
+                // Hidden fallback in the form ensures the key is always present when its section is submitted
+                SiteSetting::set($key, $request->input($key) === '1' ? '1' : '0');
             } else {
                 SiteSetting::set($key, $request->input($key, ''));
             }
@@ -105,7 +106,7 @@ class SettingsController extends Controller
             }
         }
 
-        return back()->with('success', 'Settings saved successfully.');
+        return back()->with('success', 'Settings saved.');
     }
 
     public function testSmtp(Request $request)
