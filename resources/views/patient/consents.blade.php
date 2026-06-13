@@ -2,7 +2,6 @@
 @section('title', 'My Consents')
 @section('topbar-title', 'Consent Management')
 
-
 @section('content')
 <div class="page-header">
   <h1>My Consents</h1>
@@ -11,25 +10,25 @@
 
 {{-- Pending requests --}}
 @if($pending->count())
-<div class="card" style="margin-bottom:20px;border-left:4px solid var(--navy);">
+<div class="card card-accent-navy mb-20">
   <div class="card-header">
     <div class="card-title">Pending consent requests <span class="pill navy">{{ $pending->count() }}</span></div>
     <div class="card-sub">These providers are asking to access your record — approve or decline each one.</div>
   </div>
   @foreach($pending as $c)
     <div class="entry">
-      <div class="entry-head" style="align-items:flex-start;">
-        <div style="flex:1;">
-          <div class="entry-title">{{ $c->grantee->name }} — <span style="color:var(--navy);">{{ $c->scopeLabel }}</span></div>
+      <div class="entry-head entry-head-top">
+        <div class="flex-1">
+          <div class="entry-title">{{ $c->grantee->name }} — <span class="text-navy-link">{{ $c->scopeLabel }}</span></div>
           <div class="entry-meta">{{ ucfirst($c->grantee->role) }} · Requested {{ $c->created_at->diffForHumans() }} · Valid for {{ $c->expires_at->diffForHumans(null, true) }}</div>
-          <div style="margin-top:10px;background:var(--grey-50);padding:10px 12px;border-radius:8px;font-size:12px;color:var(--grey-700);">
+          <div class="consent-scope-box">
             <strong>Scope:</strong> {{ $c->scopeLabel }}<br>
             <strong>Expires:</strong> {{ $c->expires_at->format('d M Y') }}<br>
             <strong>Access type:</strong> Read + write
           </div>
-          <p style="font-size:11px;color:var(--grey-500);margin-top:6px;">You can revoke this at any time. All access is logged.</p>
+          <p class="consent-note">You can revoke this at any time. All access is logged.</p>
         </div>
-        <div style="display:flex;gap:8px;flex-shrink:0;margin-left:16px;">
+        <div class="entry-actions">
           <form method="POST" action="{{ route('patient.consents.decline', $c->id) }}">
             @csrf @method('DELETE')
             <button type="submit" class="btn btn-secondary btn-sm">Decline</button>
@@ -46,7 +45,7 @@
 @endif
 
 {{-- Active --}}
-<div class="card" style="margin-bottom:20px;">
+<div class="card mb-20">
   <div class="card-header">
     <div class="card-title">Active consents <span class="pill green">{{ $active->count() }}</span></div>
   </div>
@@ -66,13 +65,13 @@
       </div>
     </div>
   @empty
-    <div style="padding:16px;color:var(--grey-500);font-size:13px;">No active consents.</div>
+    <div class="card-empty-body">No active consents.</div>
   @endforelse
 </div>
 
 {{-- Expired --}}
 @if($expired->count())
-<div class="card" style="margin-bottom:20px;">
+<div class="card mb-20">
   <div class="card-header">
     <div class="card-title">Expired consents</div>
   </div>

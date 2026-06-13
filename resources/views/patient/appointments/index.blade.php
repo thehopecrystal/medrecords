@@ -9,28 +9,28 @@
 </div>
 
 {{-- Upcoming --}}
-<div style="margin-bottom:28px;">
-  <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);margin-bottom:14px;">Upcoming</div>
+<div class="mb-28">
+  <div class="section-label">Upcoming</div>
   @forelse($upcoming as $apt)
-  <div class="card" style="margin-bottom:12px;">
-    <div class="card-pad" style="display:flex;align-items:center;gap:16px;">
-      <div style="width:56px;text-align:center;flex-shrink:0;">
-        <div style="font-size:22px;font-weight:800;color:var(--navy);line-height:1;">{{ $apt->appointment_date->format('d') }}</div>
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-2);">{{ $apt->appointment_date->format('M') }}</div>
+  <div class="card mb-12">
+    <div class="card-pad card-row">
+      <div class="apt-date-box">
+        <div class="apt-date-day">{{ $apt->appointment_date->format('d') }}</div>
+        <div class="apt-date-mon">{{ $apt->appointment_date->format('M') }}</div>
       </div>
-      <div style="width:1px;background:var(--border);align-self:stretch;flex-shrink:0;"></div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:14px;font-weight:700;color:var(--navy);">
+      <div class="vdivider"></div>
+      <div class="flex-1">
+        <div class="person-name-lg" style="color:var(--navy);">
           {{ ucfirst($apt->type) }} — Dr. {{ $apt->provider->name }}
         </div>
-        <div style="font-size:12px;color:var(--text-2);margin-top:3px;">
+        <div class="td-muted" style="margin-top:3px;">
           🕐 {{ \Carbon\Carbon::parse($apt->appointment_time)->format('g:i A') }}
           @if($apt->facility) · 🏥 {{ $apt->facility->name }} @endif
         </div>
-        <div style="font-size:12px;color:var(--text-2);margin-top:2px;">{{ $apt->reason }}</div>
+        <div class="td-muted" style="margin-top:2px;">{{ $apt->reason }}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-        @php $colors=['pending'=>'amber','confirmed'=>'green','cancelled'=>'red','completed'=>'navy','no_show'=>'grey'] @endphp
+      <div class="btn-group-row flex-shrink-0">
+        @php $colors = ['pending'=>'amber','confirmed'=>'green','cancelled'=>'red','completed'=>'navy','no_show'=>'grey'] @endphp
         <span class="pill {{ $colors[$apt->status] ?? 'grey' }}">{{ ucfirst(str_replace('_',' ',$apt->status)) }}</span>
         @if($apt->isPending() || $apt->isConfirmed())
         <form method="POST" action="{{ route('patient.appointments.cancel', $apt->id) }}"
@@ -44,14 +44,20 @@
     </div>
   </div>
   @empty
-  <div class="card"><div class="empty-state"><div class="empty-icon">📅</div><h3>No upcoming appointments</h3><p><a href="{{ route('patient.appointments.create') }}" style="color:var(--navy);">Book your first appointment</a></p></div></div>
+  <div class="card">
+    <div class="empty-state">
+      <div class="empty-icon">📅</div>
+      <h3>No upcoming appointments</h3>
+      <p><a href="{{ route('patient.appointments.create') }}" class="text-navy-link">Book your first appointment</a></p>
+    </div>
+  </div>
   @endforelse
 </div>
 
 {{-- Past --}}
 @if($past->count())
 <div>
-  <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);margin-bottom:14px;">Past Appointments</div>
+  <div class="section-label">Past Appointments</div>
   <div class="card">
     <div class="table-wrap">
       <table>
@@ -59,17 +65,17 @@
         <tbody>
           @foreach($past as $apt)
           <tr>
-            <td style="font-size:13px;">{{ $apt->appointment_date->format('d M Y') }}</td>
-            <td><span class="pill navy" style="font-size:10px;">{{ ucfirst($apt->type) }}</span></td>
-            <td>{{ $apt->provider->name }}</td>
-            <td style="color:var(--text-2);font-size:12px;max-width:200px;">{{ $apt->reason }}</td>
+            <td class="td-date">{{ $apt->appointment_date->format('d M Y') }}</td>
+            <td><span class="pill navy pill-xs">{{ ucfirst($apt->type) }}</span></td>
+            <td class="td-sm">{{ $apt->provider->name }}</td>
+            <td class="td-muted td-max-200">{{ $apt->reason }}</td>
             <td><span class="pill {{ $colors[$apt->status] ?? 'grey' }}">{{ ucfirst(str_replace('_',' ',$apt->status)) }}</span></td>
           </tr>
           @endforeach
         </tbody>
       </table>
     </div>
-    @if($past->hasPages())<div style="padding:14px 22px;border-top:1px solid var(--border);">{{ $past->links() }}</div>@endif
+    @if($past->hasPages())<div class="pager-row">{{ $past->links() }}</div>@endif
   </div>
 </div>
 @endif

@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Http\View\Composers\AppLayoutComposer;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,6 +17,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        View::composer('layouts.app', AppLayoutComposer::class);
+
         // Force HTTPS in production so all generated URLs use https://.
         if ($this->app->isProduction()) {
             URL::forceScheme('https');

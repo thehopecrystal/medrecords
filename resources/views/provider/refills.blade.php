@@ -16,19 +16,19 @@
         @forelse($requests as $req)
         <tr>
           <td>
-            <div style="font-weight:600;font-size:13px;">{{ $req->patient->user->name ?? '—' }}</div>
-            <div style="font-size:11px;color:var(--text-3);">{{ $req->patient->med_id ?? '' }}</div>
+            <div class="person-name">{{ $req->patient->user->name ?? '—' }}</div>
+            <div class="person-sub">{{ $req->patient->med_id ?? '' }}</div>
           </td>
-          <td style="font-weight:600;">{{ $req->prescription->drug_name ?? '—' }}</td>
-          <td style="font-size:12px;color:var(--text-2);">{{ $req->created_at->format('d M Y') }}</td>
-          <td style="font-size:12px;color:var(--text-2);max-width:180px;">{{ $req->reason ?: '—' }}</td>
+          <td class="td-fw">{{ $req->prescription->drug_name ?? '—' }}</td>
+          <td class="td-date">{{ $req->created_at->format('d M Y') }}</td>
+          <td class="td-muted td-max-180">{{ $req->reason ?: '—' }}</td>
           <td>
-            @php $sc=['pending'=>'amber','approved'=>'green','denied'=>'red'] @endphp
+            @php $sc = ['pending' => 'amber', 'approved' => 'green', 'denied' => 'red'] @endphp
             <span class="pill {{ $sc[$req->status] ?? 'grey' }}">{{ ucfirst($req->status) }}</span>
           </td>
           <td>
             @if($req->isPending())
-            <div style="display:flex;gap:6px;">
+            <div class="btn-group-row">
               <form method="POST" action="{{ route('provider.refills.approve', $req->id) }}">
                 @csrf
                 <button class="btn btn-green btn-sm">Approve</button>
@@ -42,7 +42,7 @@
               </form>
             </div>
             @else
-            <span style="font-size:12px;color:var(--text-3);">{{ $req->actioned_at?->format('d M Y') ?? '—' }}</span>
+            <span class="td-xs-muted">{{ $req->actioned_at?->format('d M Y') ?? '—' }}</span>
             @endif
           </td>
         </tr>
@@ -52,6 +52,6 @@
       </tbody>
     </table>
   </div>
-  @if($requests->hasPages())<div style="padding:14px 22px;border-top:1px solid var(--border);">{{ $requests->links() }}</div>@endif
+  @if($requests->hasPages())<div class="pager-row">{{ $requests->links() }}</div>@endif
 </div>
 @endsection

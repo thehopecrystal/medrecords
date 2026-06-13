@@ -9,38 +9,38 @@
 
 {{-- Latest readings --}}
 @if($latest)
-<div class="stat-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));margin-bottom:24px;">
+<div class="stat-grid stat-grid-sm mb-24">
   @if($latest->bp_systolic)
-  <div class="stat-card"><div class="stat-label">Blood Pressure</div><div class="stat-value" style="font-size:20px;">{{ $latest->bp_systolic }}/{{ $latest->bp_diastolic }}</div><div class="stat-sub">mmHg</div><div class="stat-icon">❤️</div></div>
+  <div class="stat-card"><div class="stat-label">Blood Pressure</div><div class="stat-value stat-value-sm">{{ $latest->bp_systolic }}/{{ $latest->bp_diastolic }}</div><div class="stat-sub">mmHg</div><div class="stat-icon">❤️</div></div>
   @endif
   @if($latest->heart_rate)
-  <div class="stat-card green"><div class="stat-label">Heart Rate</div><div class="stat-value" style="font-size:20px;">{{ $latest->heart_rate }}</div><div class="stat-sub">bpm</div><div class="stat-icon">💓</div></div>
+  <div class="stat-card green"><div class="stat-label">Heart Rate</div><div class="stat-value stat-value-sm">{{ $latest->heart_rate }}</div><div class="stat-sub">bpm</div><div class="stat-icon">💓</div></div>
   @endif
   @if($latest->weight_kg)
-  <div class="stat-card"><div class="stat-label">Weight</div><div class="stat-value" style="font-size:20px;">{{ $latest->weight_kg }}</div><div class="stat-sub">kg</div><div class="stat-icon">⚖️</div></div>
+  <div class="stat-card"><div class="stat-label">Weight</div><div class="stat-value stat-value-sm">{{ $latest->weight_kg }}</div><div class="stat-sub">kg</div><div class="stat-icon">⚖️</div></div>
   @endif
   @if($latest->glucose_mmol)
-  <div class="stat-card amber"><div class="stat-label">Blood Glucose</div><div class="stat-value" style="font-size:20px;">{{ $latest->glucose_mmol }}</div><div class="stat-sub">mmol/L</div><div class="stat-icon">🩸</div></div>
+  <div class="stat-card amber"><div class="stat-label">Blood Glucose</div><div class="stat-value stat-value-sm">{{ $latest->glucose_mmol }}</div><div class="stat-sub">mmol/L</div><div class="stat-icon">🩸</div></div>
   @endif
   @if($latest->oxygen_saturation)
-  <div class="stat-card"><div class="stat-label">SpO₂</div><div class="stat-value" style="font-size:20px;">{{ $latest->oxygen_saturation }}%</div><div class="stat-sub">Oxygen sat.</div><div class="stat-icon">🫁</div></div>
+  <div class="stat-card"><div class="stat-label">SpO₂</div><div class="stat-value stat-value-sm">{{ $latest->oxygen_saturation }}%</div><div class="stat-sub">Oxygen sat.</div><div class="stat-icon">🫁</div></div>
   @endif
 </div>
 @endif
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+<div class="dash-grid-1-1 mb-24">
   {{-- Log form --}}
   <div class="card">
     <div class="card-header"><div class="card-title">Log New Reading</div></div>
     <div class="card-body">
       <form method="POST" action="{{ route('patient.vitals.store') }}">
         @csrf
-        <div class="form-field" style="margin-bottom:12px;">
+        <div class="form-field mb-12">
           <label>Date &amp; Time *</label>
           <input type="datetime-local" name="logged_at" value="{{ old('logged_at', now()->format('Y-m-d\TH:i')) }}" required>
           @error('logged_at')<div class="form-error">{{ $message }}</div>@enderror
         </div>
-        <div class="form-grid" style="margin-bottom:12px;">
+        <div class="form-grid mb-12">
           <div class="form-field">
             <label>BP Systolic (mmHg)</label>
             <input type="number" name="bp_systolic" value="{{ old('bp_systolic') }}" min="50" max="300" placeholder="120">
@@ -74,7 +74,7 @@
             <input type="number" name="pain_level" value="{{ old('pain_level') }}" min="0" max="10" placeholder="0">
           </div>
         </div>
-        <div class="form-field" style="margin-bottom:16px;">
+        <div class="form-field mb-16">
           <label>Notes</label>
           <textarea name="notes" rows="2" placeholder="e.g. after exercise, fasting…">{{ old('notes') }}</textarea>
         </div>
@@ -99,8 +99,8 @@
       <tbody>
         @forelse($logs as $log)
         <tr>
-          <td style="font-size:12px;white-space:nowrap;">{{ $log->logged_at->format('d M Y, H:i') }}</td>
-          <td>{{ $log->bp ? $log->bp : '—' }}</td>
+          <td class="td-date">{{ $log->logged_at->format('d M Y, H:i') }}</td>
+          <td>{{ $log->bp ?: '—' }}</td>
           <td>{{ $log->heart_rate ? $log->heart_rate.' bpm' : '—' }}</td>
           <td>{{ $log->temperature_c ? $log->temperature_c.'°C' : '—' }}</td>
           <td>{{ $log->weight_kg ? $log->weight_kg.' kg' : '—' }}</td>
@@ -117,12 +117,12 @@
           </td>
         </tr>
         @empty
-        <tr><td colspan="9"><div class="empty-state" style="padding:32px;"><div class="empty-icon">📊</div><p>No readings logged yet.</p></div></td></tr>
+        <tr><td colspan="9"><div class="empty-state empty-state-sm"><div class="empty-icon">📊</div><p>No readings logged yet.</p></div></td></tr>
         @endforelse
       </tbody>
     </table>
   </div>
-  @if($logs->hasPages())<div style="padding:14px 22px;border-top:1px solid var(--border);">{{ $logs->links() }}</div>@endif
+  @if($logs->hasPages())<div class="pager-row">{{ $logs->links() }}</div>@endif
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -138,16 +138,16 @@ new Chart(document.getElementById('bpChart'), {
   data: {
     labels: chartData.map(d => d.label),
     datasets: [
-      { label: 'Systolic', data: chartData.map(d => d.sys), borderColor: '#B23A48', backgroundColor: 'rgba(178,58,72,0.08)', borderWidth:2, pointRadius:2, tension:0.3, fill:true },
-      { label: 'Diastolic', data: chartData.map(d => d.dia), borderColor: '#1E3A5F', backgroundColor: 'rgba(30,58,95,0.05)', borderWidth:2, pointRadius:2, tension:0.3, fill:true },
+      { label: 'Systolic',  data: chartData.map(d => d.sys), borderColor: '#B23A48', backgroundColor: 'rgba(178,58,72,0.08)',  borderWidth: 2, pointRadius: 2, tension: 0.3, fill: true },
+      { label: 'Diastolic', data: chartData.map(d => d.dia), borderColor: '#1E3A5F', backgroundColor: 'rgba(30,58,95,0.05)',   borderWidth: 2, pointRadius: 2, tension: 0.3, fill: true },
     ]
   },
   options: {
     responsive: true,
-    plugins: { legend: { position:'bottom', labels:{ boxWidth:10, font:{size:11} } } },
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
     scales: {
-      x: { grid:{display:false}, ticks:{maxTicksLimit:8,font:{size:10}} },
-      y: { beginAtZero:false, min:40, grid:{color:'#F1F5F9'}, ticks:{font:{size:11}} }
+      x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 10 } } },
+      y: { beginAtZero: false, min: 40, grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 } } }
     }
   }
 });

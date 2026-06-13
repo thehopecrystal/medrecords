@@ -4,30 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-@php
-  use App\Models\SiteSetting;
-  use Illuminate\Support\Str;
-  SiteSetting::loadAll();
-  $siteName   = SiteSetting::get('site_name', 'MedRecords');
-  $logoUrl    = SiteSetting::get('site_logo_url', '');
-  $authUser   = auth()->user();
-  $userRole   = $authUser?->role ?? 'guest';
-  $userName   = $authUser?->name ?? '';
-  $nameParts  = explode(' ', $userName);
-  $initials   = strtoupper(substr($nameParts[0] ?? '', 0, 1) . substr($nameParts[1] ?? '', 0, 1));
-  $unreadCount  = $authUser
-    ? \App\Models\Notification::where('user_id', $authUser->id)->whereNull('read_at')->count()
-    : 0;
-  $patientId    = ($userRole === 'patient') ? $authUser?->patient?->id : null;
-  $pendingConsents = $patientId
-    ? \App\Models\Consent::where('patient_id', $patientId)->where('status','pending')->exists()
-    : false;
-  $activeBreakGlass = (in_array($userRole, ['facility_admin','super_admin']))
-    ? \App\Models\BreakGlassEvent::where('status','active')->count()
-    : 0;
-@endphp
+{{-- Layout data (siteName, logoUrl, faviconUrl, authUser, userRole, userName, initials, unreadCount, pendingConsents, activeBreakGlass) --}}
+{{-- provided by App\Http\View\Composers\AppLayoutComposer --}}
 <title>@yield('title', $siteName) — {{ $siteName }}</title>
-@php $faviconUrl = \App\Models\SiteSetting::get('site_favicon_url', ''); @endphp
 @if($faviconUrl)<link rel="icon" href="{{ $faviconUrl }}">@endif
 
 {{-- Apply saved theme before first paint to prevent flash --}}
@@ -43,14 +22,14 @@
 
   {{-- ── Sidebar ───────────────────────────────── --}}
   <aside class="sb" id="sidebar">
-    {{-- Logo --}}
+    {{-- Logo + collapse --}}
     <div class="sb-logo">
       @if($logoUrl)
         <img src="{{ $logoUrl }}" alt="{{ $siteName }}" class="sb-logo-img">
       @else
         <div class="sb-logo-mark">M</div>
       @endif
-      <div>
+      <div class="sb-brand">
         <div class="sb-brand-name">{{ $siteName }}</div>
         <div class="sb-brand-role">
           @if($userRole === 'patient') Patient Portal
@@ -58,22 +37,6 @@
           @elseif($userRole === 'pharmacist') Pharmacy
           @elseif(in_array($userRole, ['facility_admin','super_admin'])) Administration
           @else MedRecords @endif
-        </div>
-      </div>
-    </div>
-
-    {{-- User info --}}
-    <div class="sb-user">
-      @if($authUser?->avatar)
-        <img src="{{ asset('storage/' . $authUser->avatar) }}" alt="" class="sb-avatar" style="object-fit:cover;">
-      @else
-        <div class="sb-avatar">{{ $initials ?: '?' }}</div>
-      @endif
-      <div>
-        <div class="sb-uname">{{ Str::limit($userName, 22) }}</div>
-        <div class="sb-urole">
-          @if($userRole === 'facility_admin' || $userRole === 'super_admin') Administrator
-          @else {{ $userRole }} @endif
         </div>
       </div>
     </div>
@@ -201,6 +164,22 @@
       @endif
     </nav>
 
+    {{-- User card --}}
+    <div class="sb-user">
+      @if($authUser?->avatar)
+        <div class="sb-avatar"><img src="{{ asset('storage/' . $authUser->avatar) }}" alt=""></div>
+      @else
+        <div class="sb-avatar">{{ $initials ?: '?' }}</div>
+      @endif
+      <div>
+        <div class="sb-uname">{{ Str::limit($userName, 20) }}</div>
+        <div class="sb-urole">
+          @if($userRole === 'facility_admin' || $userRole === 'super_admin') Administrator
+          @else {{ $userRole }} @endif
+        </div>
+      </div>
+    </div>
+
     {{-- Sign out --}}
     <div class="sb-footer">
       <form method="POST" action="{{ route('logout') }}">
@@ -219,7 +198,7 @@
   <div class="main">
     {{-- Topbar --}}
     <div class="topbar">
-      <button class="topbar-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+      <button class="topbar-sb-btn" id="sbBtn" onclick="handleSbBtn()" aria-label="Toggle sidebar">☰</button>
       <div class="topbar-title">@yield('topbar-title', $siteName)</div>
       <div class="topbar-right">
         {{-- Dark mode toggle --}}
@@ -236,7 +215,7 @@
           <button class="user-btn" onclick="toggleUserMenu()">
             <div class="user-btn-avatar">
               @if($authUser?->avatar)
-                <img src="{{ asset('storage/' . $authUser->avatar) }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                <img src="{{ asset('storage/' . $authUser->avatar) }}" alt="">
               @else
                 {{ $initials ?: '?' }}
               @endif
@@ -248,6 +227,12 @@
             <div class="ud-head">
               <div class="ud-name">{{ $userName }}</div>
               <div class="ud-email">{{ $authUser?->email }}</div>
+              <span class="ud-role">
+                @if($userRole === 'super_admin') Super Admin
+                @elseif($userRole === 'facility_admin') Facility Admin
+                @else {{ ucfirst($userRole) }}
+                @endif
+              </span>
             </div>
             @if($userRole === 'patient')
               <a href="{{ route('patient.profile') }}" class="ud-item">👤 Edit profile</a>
@@ -258,7 +243,7 @@
             <hr class="ud-divider">
             <form method="POST" action="{{ route('logout') }}">
               @csrf
-              <button type="submit" class="ud-item ud-logout" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;">🚪 Sign out</button>
+              <button type="submit" class="ud-item ud-logout">🚪 Sign out</button>
             </form>
           </div>
         </div>

@@ -13,28 +13,26 @@
   </div>
 </div>
 
-<div style="display:grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start;">
+<div class="profile-layout">
 
   {{-- ── Sidebar nav ─────────────────────────────── --}}
   <div>
     <div class="card">
-      <div style="padding: 20px;">
+      <div class="profile-sidebar-body">
+
         {{-- Avatar --}}
-        <div style="text-align: center; margin-bottom: 18px;">
+        <div class="profile-avatar-wrap">
           @php
             $parts    = explode(' ', $user->name);
-            $initials = strtoupper(substr($parts[0],0,1) . substr($parts[1] ?? '',0,1));
+            $initials = strtoupper(substr($parts[0], 0, 1) . substr($parts[1] ?? '', 0, 1));
           @endphp
           @if($user->avatar)
-            <img src="{{ asset('storage/' . $user->avatar) }}" alt="Profile photo"
-                 style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin:0 auto 10px;display:block;border:3px solid var(--border);">
+            <img src="{{ asset('storage/' . $user->avatar) }}" alt="Profile photo" class="profile-avatar-photo">
           @else
-            <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#2C5F2D,#1E3A5F);color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
-              {{ $initials }}
-            </div>
+            <div class="profile-avatar-initials">{{ $initials }}</div>
           @endif
-          <div style="font-size:15px;font-weight:700;color:var(--navy);">{{ $user->name }}</div>
-          <div style="font-size:12px;color:var(--text-2);margin-top:2px;">{{ $user->email }}</div>
+          <div class="profile-name">{{ $user->name }}</div>
+          <div class="profile-email">{{ $user->email }}</div>
           <div style="margin-top:8px;">
             @if($patient->nin_verified)
               <span class="pill green">✓ NIN Verified</span>
@@ -42,50 +40,51 @@
               <span class="pill grey">NIN unverified</span>
             @endif
           </div>
-          <form method="POST" action="{{ route('profile.avatar') }}" enctype="multipart/form-data" style="margin-top:12px;">
+          <form method="POST" action="{{ route('profile.avatar') }}" enctype="multipart/form-data">
             @csrf
-            <label style="cursor:pointer;display:inline-block;font-size:12px;color:var(--navy);font-weight:600;background:var(--navy-lt);padding:6px 14px;border-radius:20px;border:1.5px solid var(--navy);">
+            <label class="profile-photo-btn">
               📷 Change photo
               <input type="file" name="avatar" accept="image/*" style="display:none;" onchange="this.form.submit()">
             </label>
           </form>
-          @error('avatar')<div class="form-error" style="font-size:11px;margin-top:6px;">{{ $message }}</div>@enderror
+          @error('avatar')<div class="form-error mt-12">{{ $message }}</div>@enderror
         </div>
 
         {{-- Profile completeness --}}
         @php
           $fields = [
-            'Date of birth' => $patient->dob,
-            'Gender'        => $patient->gender,
-            'Blood type'    => $patient->blood_type,
-            'State'         => $patient->state,
+            'Date of birth'     => $patient->dob,
+            'Gender'            => $patient->gender,
+            'Blood type'        => $patient->blood_type,
+            'State'             => $patient->state,
             'Emergency contact' => $patient->emergency_contact_name,
           ];
           $filled = collect($fields)->filter()->count();
           $pct    = (int)(($filled / count($fields)) * 100);
+          $pctClass = $pct >= 80 ? 'green' : ($pct >= 50 ? 'amber' : 'red');
         @endphp
-        <div style="background: #F8FAFC; border-radius: 10px; padding: 14px; margin-bottom: 14px;">
-          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:7px;">
-            <span style="color:var(--text-2);">Profile completeness</span>
-            <span style="color:var(--navy);">{{ $pct }}%</span>
+        <div class="profile-completeness">
+          <div class="profile-completeness-header">
+            <span class="profile-completeness-label">Profile completeness</span>
+            <span class="profile-completeness-pct">{{ $pct }}%</span>
           </div>
-          <div style="height:6px;background:var(--border);border-radius:6px;overflow:hidden;">
-            <div style="height:100%;width:{{ $pct }}%;background:{{ $pct >= 80 ? 'var(--green)' : ($pct >= 50 ? 'var(--amber)' : 'var(--red)') }};border-radius:6px;transition:width 0.5s;"></div>
+          <div class="profile-progress-track">
+            <div class="profile-progress-fill {{ $pctClass }}" style="width:{{ $pct }}%;"></div>
           </div>
-          <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px;">
+          <div class="profile-field-list">
             @foreach($fields as $label => $val)
-              <div style="font-size:11px;color:{{ $val ? 'var(--green)' : 'var(--text-3)' }};">
+              <div class="profile-field-item {{ $val ? 'profile-field-done' : 'profile-field-empty' }}">
                 {{ $val ? '✓' : '○' }} {{ $label }}
               </div>
             @endforeach
           </div>
         </div>
 
-        <nav style="display:flex;flex-direction:column;gap:2px;">
-          <a href="#personal" class="profile-nav-item active">👤 Personal Info</a>
-          <a href="#medical"  class="profile-nav-item">🩺 Medical Profile</a>
-          <a href="#emergency" class="profile-nav-item">🚨 Emergency Contact</a>
-          <a href="#security" class="profile-nav-item">🔒 Password & Security</a>
+        <nav class="profile-nav">
+          <a href="#personal"   class="profile-nav-item active">👤 Personal Info</a>
+          <a href="#medical"    class="profile-nav-item">🩺 Medical Profile</a>
+          <a href="#emergency"  class="profile-nav-item">🚨 Emergency Contact</a>
+          <a href="#security"   class="profile-nav-item">🔒 Password &amp; Security</a>
           <a href="#two-factor" class="profile-nav-item">🛡 Two-Factor Auth</a>
         </nav>
       </div>
@@ -93,7 +92,7 @@
   </div>
 
   {{-- ── Forms ───────────────────────────────────── --}}
-  <div style="display:flex;flex-direction:column;gap:20px;">
+  <div class="profile-forms">
 
     {{-- Personal Info --}}
     <div class="card" id="personal">
@@ -157,7 +156,7 @@
               <input type="text" name="address" value="{{ old('address', $patient->address) }}" placeholder="14 Broad Street, Lagos Island">
             </div>
           </div>
-          <div class="form-actions" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+          <div class="form-actions form-actions-bordered">
             <button type="submit" class="btn btn-primary">Save personal info</button>
           </div>
         </form>
@@ -208,7 +207,7 @@
               </select>
             </div>
           </div>
-          <div class="alert navy" style="margin-top: 16px;">
+          <div class="alert navy mt-16">
             <span>ℹ</span>
             <span>Blood type and genotype are displayed to providers and pharmacists when they access your record with your consent.</span>
           </div>
@@ -252,7 +251,7 @@
               <input type="text" name="emergency_contact_phone" value="{{ old('emergency_contact_phone', $patient->emergency_contact_phone) }}" placeholder="08012345678">
             </div>
           </div>
-          <div class="form-actions" style="margin-top: 16px;">
+          <div class="form-actions mt-16">
             <button type="submit" class="btn btn-primary">Save emergency contact</button>
           </div>
         </form>
@@ -263,7 +262,7 @@
     <div class="card" id="security">
       <div class="card-header">
         <div>
-          <div class="card-title">Password & Security</div>
+          <div class="card-title">Password &amp; Security</div>
           <div class="card-sub">Change your account password</div>
         </div>
       </div>
@@ -287,7 +286,7 @@
               <input type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat new password">
             </div>
           </div>
-          <div class="alert amber" style="margin-top: 16px;">
+          <div class="alert amber mt-16">
             <span>⚠</span>
             <span>Use at least 8 characters. Choose a mix of letters, numbers, and symbols for a strong password.</span>
           </div>
@@ -311,7 +310,7 @@
       </div>
       <div class="card-body">
         @if($user->two_factor_enabled)
-          <div class="alert green" style="margin-bottom:16px;">
+          <div class="alert green mb-16">
             <span>✓</span>
             <span>Two-factor authentication is active. You will receive a 6-digit OTP via SMS each time you log in.</span>
           </div>
@@ -323,14 +322,14 @@
             <button type="submit" class="btn btn-danger">Disable 2FA</button>
           </form>
         @else
-          <div class="alert amber" style="margin-bottom:16px;">
+          <div class="alert amber mb-16">
             <span>⚠</span>
             <span>2FA is currently disabled. Enable it to receive an OTP on your phone number each time you sign in.</span>
           </div>
           @if($user->phone)
-            <p style="font-size:13px;color:var(--text-2);margin-bottom:16px;">
+            <p class="td-sm td-muted mb-16">
               OTPs will be sent to <strong>{{ $user->phone }}</strong>.
-              <a href="#personal" style="color:var(--navy);">Change phone number</a>
+              <a href="#personal" class="text-navy-link">Change phone number</a>
             </p>
             <form method="POST" action="{{ route('patient.profile.2fa') }}">
               @csrf
@@ -349,24 +348,4 @@
 
   </div>
 </div>
-
-<style nonce="{{ $cspNonce }}">
-.profile-nav-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 9px 12px; border-radius: 8px;
-  font-size: 13px; font-weight: 500; color: var(--text-2);
-  transition: all 0.12s;
-}
-.profile-nav-item:hover { background: var(--navy-lt); color: var(--navy); }
-.profile-nav-item.active { background: var(--navy-lt); color: var(--navy); font-weight: 700; }
-
-@media (max-width: 768px) {
-  div[style*="grid-template-columns: 260px"] {
-    display: block !important;
-  }
-  div[style*="grid-template-columns: 260px"] > div:first-child {
-    margin-bottom: 20px;
-  }
-}
-</style>
 @endsection

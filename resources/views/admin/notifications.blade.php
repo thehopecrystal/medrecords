@@ -174,10 +174,10 @@ document.getElementById('notifForm').addEventListener('submit', function(e) {
   if (aud === 'all') {
     e.preventDefault();
     window._showConfirm({
-      title: 'Send to All Users?',
-      body: 'Send this notification to ALL active users? This will also email each one.',
-      ok: 'Send',
-      okBtn: 'btn-danger',
+      title:    'Send to All Users?',
+      message:  'Send this notification to ALL active users? This will also email each one.',
+      okLabel:  'Send',
+      btnClass: 'btn-danger',
       onConfirm: function() { _notifSubmitting = true; document.getElementById('notifForm').submit(); }
     });
   }
