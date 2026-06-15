@@ -51,50 +51,45 @@ $countries = [
 ];
 
 // Parse existing value back to country + local part.
-// Supports both E.164 (+2348012345678) and legacy Nigerian (08012345678).
 $selectedCode = '+234';
-$selectedFlag = '🇳🇬';
 $selectedName = 'Nigeria';
 $selectedPh   = '08012345678';
 $localValue   = $value;
 
 if ($value && str_starts_with($value, '+')) {
-    // Sort longest code first so +234 matches before +23
     $sorted = collect($countries)->sortByDesc(fn($c) => strlen($c['code']))->values();
     foreach ($sorted as $c) {
         if (str_starts_with($value, $c['code'])) {
             $selectedCode = $c['code'];
-            $selectedFlag = $c['flag'];
             $selectedName = $c['name'];
             $selectedPh   = $c['ph'];
             $localValue   = substr($value, strlen($c['code']));
             break;
         }
     }
-} elseif ($value && !str_starts_with($value, '+')) {
-    // Legacy stored value (e.g. 08012345678) — keep it in the local field,
-    // default country stays Nigeria; JS will normalise on next submit.
-    $localValue = $value;
 }
 @endphp
 
-{{-- Hidden field that holds the normalised E.164 value submitted to the server --}}
+{{-- Hidden field — holds the normalised E.164 value submitted to the server --}}
 <input type="hidden" name="{{ $name }}" id="{{ $id }}_hidden" value="{{ old($name, $value) }}">
 
 <div class="pi-wrap" id="{{ $id }}_wrap">
   <div class="pi-row">
 
-    {{-- Country selector button --}}
-    <button type="button" class="pi-trigger" id="{{ $id }}_trigger"
-            aria-haspopup="listbox" aria-expanded="false" title="Select country code">
-      <span class="pi-flag" id="{{ $id }}_flag">{{ $selectedFlag }}</span>
-      <span class="pi-code" id="{{ $id }}_code">{{ $selectedCode }}</span>
-      <svg class="pi-chevron" viewBox="0 0 10 6" width="9" height="6" aria-hidden="true">
-        <path d="M0 0l5 6 5-6z" fill="currentColor"/>
-      </svg>
-    </button>
+    {{-- Native country select --}}
+    <select class="pi-country" id="{{ $id }}_country" aria-label="Country dial code">
+      @foreach($countries as $c)
+        <option
+          value="{{ $c['code'] }}"
+          data-ph="{{ $c['ph'] }}"
+          data-name="{{ $c['name'] }}"
+          {{ ($c['code'] === $selectedCode && $c['name'] === $selectedName) ? 'selected' : '' }}>
+          {{ $c['flag'] }} {{ $c['name'] }} ({{ $c['code'] }})
+        </option>
+      @endforeach
+    </select>
 
-    {{-- Visible local number input --}}
+    {{-- Local number input --}}
     <input type="tel"
            id="{{ $id }}_local"
            class="pi-local"
@@ -104,186 +99,34 @@ if ($value && str_starts_with($value, '+')) {
            inputmode="tel"
            {{ $required ? 'required' : '' }}>
   </div>
-
-  {{-- Dropdown --}}
-  <div class="pi-dropdown" id="{{ $id }}_dropdown" style="display:none;" role="listbox" aria-label="Country dial code">
-    <div class="pi-search-wrap">
-      <input type="text" class="pi-search" id="{{ $id }}_search"
-             placeholder="Search country…" autocomplete="off" spellcheck="false">
-    </div>
-    <div class="pi-list" id="{{ $id }}_list">
-      @foreach($countries as $c)
-      <div class="pi-item {{ ($c['code'] === $selectedCode && $c['name'] === $selectedName) ? 'pi-selected' : '' }}"
-           data-code="{{ $c['code'] }}"
-           data-flag="{{ $c['flag'] }}"
-           data-name="{{ $c['name'] }}"
-           data-ph="{{ $c['ph'] }}"
-           role="option"
-           tabindex="-1"
-           aria-selected="{{ ($c['code'] === $selectedCode && $c['name'] === $selectedName) ? 'true' : 'false' }}">
-        <span class="pi-item-flag">{{ $c['flag'] }}</span>
-        <span class="pi-item-name">{{ $c['name'] }}</span>
-        <span class="pi-item-code">{{ $c['code'] }}</span>
-      </div>
-      @endforeach
-    </div>
-  </div>
 </div>
 
 <script nonce="{{ $cspNonce }}">
 (function () {
-  var uid      = {{ json_encode($id) }};
-  var wrap     = document.getElementById(uid + '_wrap');
-  var trigger  = document.getElementById(uid + '_trigger');
-  var dropdown = document.getElementById(uid + '_dropdown');
-  var search   = document.getElementById(uid + '_search');
-  var list     = document.getElementById(uid + '_list');
-  var hidden   = document.getElementById(uid + '_hidden');
-  var local    = document.getElementById(uid + '_local');
-  var flagEl   = document.getElementById(uid + '_flag');
-  var codeEl   = document.getElementById(uid + '_code');
-  var currentCode = codeEl.textContent.trim();
+  var uid     = {{ json_encode($id) }};
+  var country = document.getElementById(uid + '_country');
+  var local   = document.getElementById(uid + '_local');
+  var hidden  = document.getElementById(uid + '_hidden');
 
   function buildE164(localVal, code) {
     var n = localVal.replace(/\D/g, '');
     if (!n) return '';
-    // Strip a single leading zero (used as trunk prefix in many countries)
     if (n.charAt(0) === '0') n = n.substring(1);
     return code + n;
   }
 
   function syncHidden() {
-    hidden.value = buildE164(local.value, currentCode);
+    hidden.value = buildE164(local.value, country.value);
   }
 
-  // Position dropdown using fixed coordinates so it escapes any ancestor overflow/stacking context
-  function positionDropdown() {
-    var r = wrap.getBoundingClientRect();
-    var dropW = Math.max(280, r.width);
-    dropdown.style.position = 'fixed';
-    dropdown.style.top      = (r.bottom + 5) + 'px';
-    dropdown.style.bottom   = 'auto';
-    dropdown.style.left     = r.left + 'px';
-    dropdown.style.right    = 'auto';
-    dropdown.style.width    = dropW + 'px';
-    // Flip right-edge overflow
-    if (r.left + dropW > window.innerWidth - 8) {
-      dropdown.style.left  = 'auto';
-      dropdown.style.right = (window.innerWidth - r.right) + 'px';
-    }
-    // Flip upward if it would go below the viewport
-    var approxH = 280;
-    if (r.bottom + 5 + approxH > window.innerHeight - 8) {
-      dropdown.style.top    = 'auto';
-      dropdown.style.bottom = (window.innerHeight - r.top + 5) + 'px';
-    }
-  }
-
-  function visibleItems() {
-    return Array.from(list.querySelectorAll('.pi-item')).filter(function (el) {
-      return el.style.display !== 'none';
-    });
-  }
-
-  // Toggle dropdown
-  trigger.addEventListener('click', function (e) {
-    e.preventDefault(); e.stopPropagation();
-    if (dropdown.style.display !== 'none') {
-      closeDropdown();
-    } else {
-      positionDropdown();
-      dropdown.style.display = '';
-      trigger.setAttribute('aria-expanded', 'true');
-      search.value = '';
-      filterList('');
-      // Scroll selected item into view
-      var sel = list.querySelector('.pi-selected');
-      if (sel) sel.scrollIntoView({ block: 'nearest' });
-      search.focus();
-    }
-  });
-
-  function closeDropdown() {
-    dropdown.style.display = 'none';
-    trigger.setAttribute('aria-expanded', 'false');
-  }
-
-  // Close on outside click
-  document.addEventListener('click', function (e) {
-    if (!wrap.contains(e.target)) closeDropdown();
-  });
-  // Close on page scroll only — ignore scrolling inside the dropdown list
-  document.addEventListener('scroll', function (e) {
-    if (!dropdown.contains(e.target)) closeDropdown();
-  }, { passive: true, capture: true });
-
-  // Keyboard: Escape closes; ArrowDown from search moves to first list item
-  dropdown.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { closeDropdown(); trigger.focus(); return; }
-    if (e.key === 'ArrowDown' && e.target === search) {
-      e.preventDefault();
-      var first = visibleItems()[0];
-      if (first) first.focus();
-    }
-  });
-
-  // Arrow-key navigation within the country list
-  list.addEventListener('keydown', function (e) {
-    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Enter' && e.key !== ' ') return;
-    e.preventDefault();
-    var items = visibleItems();
-    var cur   = document.activeElement;
-    var idx   = items.indexOf(cur);
-    if (e.key === 'ArrowDown') {
-      var next = items[idx + 1] || items[0];
-      if (next) next.focus();
-    } else if (e.key === 'ArrowUp') {
-      if (idx <= 0) { search.focus(); return; }
-      items[idx - 1].focus();
-    } else if ((e.key === 'Enter' || e.key === ' ') && cur && cur.classList.contains('pi-item')) {
-      selectCountry(cur);
-    }
-  });
-
-  // Select a country
-  list.addEventListener('click', function (e) {
-    var item = e.target.closest('.pi-item');
-    if (!item) return;
-    selectCountry(item);
-  });
-
-  function selectCountry(item) {
-    currentCode = item.dataset.code;
-    flagEl.textContent  = item.dataset.flag;
-    codeEl.textContent  = item.dataset.code;
-    local.placeholder   = item.dataset.ph;
-    list.querySelectorAll('.pi-item').forEach(function (el) {
-      el.classList.remove('pi-selected');
-      el.setAttribute('aria-selected', 'false');
-    });
-    item.classList.add('pi-selected');
-    item.setAttribute('aria-selected', 'true');
-    closeDropdown();
+  country.addEventListener('change', function () {
+    var opt = country.options[country.selectedIndex];
+    local.placeholder = opt.dataset.ph || '';
     syncHidden();
-    local.focus();
-  }
+  });
 
-  // Live search
-  search.addEventListener('input', function () { filterList(this.value); });
-  function filterList(q) {
-    var lq = q.toLowerCase().trim();
-    list.querySelectorAll('.pi-item').forEach(function (item) {
-      var match = !lq
-        || item.dataset.name.toLowerCase().includes(lq)
-        || item.dataset.code.includes(lq);
-      item.style.display = match ? '' : 'none';
-    });
-  }
-
-  // Sync hidden whenever local input changes
   local.addEventListener('input', syncHidden);
 
-  // Initialise hidden value immediately
   syncHidden();
 })();
 </script>

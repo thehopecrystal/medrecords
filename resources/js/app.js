@@ -62,6 +62,19 @@ document.addEventListener('click', function(e) {
 
 // ── DOMContentLoaded ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
+  // Wire up shell controls (replaces inline onclick= attributes)
+  document.getElementById('sbOverlay')?.addEventListener('click', window.closeSidebar);
+  document.getElementById('sbBtn')?.addEventListener('click', window.handleSbBtn);
+  document.getElementById('darkToggle')?.addEventListener('click', window.toggleDark);
+  document.getElementById('userMenuBtn')?.addEventListener('click', window.toggleUserMenu);
+
+  // Flash close buttons (replaces onclick="this.parentElement.remove()")
+  document.addEventListener('click', function(e) {
+    if (e.target.matches('[data-close-flash]')) {
+      e.target.closest('.flash')?.remove();
+    }
+  });
+
   // Auto-dismiss success flash after 5 s
   const flash = document.getElementById('flashMsg');
   if (flash) {

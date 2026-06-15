@@ -192,17 +192,17 @@
   </aside>
 
   {{-- Mobile overlay --}}
-  <div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+  <div class="sb-overlay" id="sbOverlay"></div>
 
   {{-- ── Main content ─────────────────────────── --}}
   <div class="main">
     {{-- Topbar --}}
     <div class="topbar">
-      <button class="topbar-sb-btn" id="sbBtn" onclick="handleSbBtn()" aria-label="Toggle sidebar">☰</button>
+      <button class="topbar-sb-btn" id="sbBtn" aria-label="Toggle sidebar">☰</button>
       <div class="topbar-title">@yield('topbar-title', $siteName)</div>
       <div class="topbar-right">
         {{-- Dark mode toggle --}}
-        <button class="notif-btn" id="darkToggle" title="Toggle dark mode" onclick="toggleDark()">☀️</button>
+        <button class="notif-btn" id="darkToggle" title="Toggle dark mode">☀️</button>
 
         {{-- Notifications --}}
         <a href="{{ $userRole === 'patient' ? route('patient.notifications') : '#' }}" class="notif-btn" title="Notifications">
@@ -212,7 +212,7 @@
 
         {{-- User menu --}}
         <div class="user-menu" id="userMenu">
-          <button class="user-btn" onclick="toggleUserMenu()">
+          <button class="user-btn" id="userMenuBtn">
             <div class="user-btn-avatar">
               @if($authUser?->avatar)
                 <img src="{{ asset('storage/' . $authUser->avatar) }}" alt="">
@@ -256,21 +256,21 @@
         <div class="flash success" id="flashMsg">
           <span class="flash-icon">✓</span>
           <span>{{ session('success') }}</span>
-          <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+          <button class="flash-close" data-close-flash>×</button>
         </div>
       @endif
       @if(session('error'))
         <div class="flash error">
           <span class="flash-icon">✗</span>
           <span>{{ session('error') }}</span>
-          <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+          <button class="flash-close" data-close-flash>×</button>
         </div>
       @endif
       @if(session('warning'))
         <div class="flash warning">
           <span class="flash-icon">⚠</span>
           <span>{{ session('warning') }}</span>
-          <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+          <button class="flash-close" data-close-flash>×</button>
         </div>
       @endif
       @if($errors->any() && !$errors->has('login') && !$errors->has('current_password'))
@@ -279,7 +279,7 @@
           <div>
             @foreach($errors->all() as $e)<div>{{ $e }}</div>@endforeach
           </div>
-          <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+          <button class="flash-close" data-close-flash>×</button>
         </div>
       @endif
 
