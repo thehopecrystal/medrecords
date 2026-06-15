@@ -119,6 +119,7 @@ if ($value && str_starts_with($value, '+')) {
            data-name="{{ $c['name'] }}"
            data-ph="{{ $c['ph'] }}"
            role="option"
+           tabindex="-1"
            aria-selected="{{ ($c['code'] === $selectedCode && $c['name'] === $selectedName) ? 'true' : 'false' }}">
         <span class="pi-item-flag">{{ $c['flag'] }}</span>
         <span class="pi-item-name">{{ $c['name'] }}</span>
@@ -178,6 +179,12 @@ if ($value && str_starts_with($value, '+')) {
     }
   }
 
+  function visibleItems() {
+    return Array.from(list.querySelectorAll('.pi-item')).filter(function (el) {
+      return el.style.display !== 'none';
+    });
+  }
+
   // Toggle dropdown
   trigger.addEventListener('click', function (e) {
     e.preventDefault(); e.stopPropagation();
@@ -189,6 +196,9 @@ if ($value && str_starts_with($value, '+')) {
       trigger.setAttribute('aria-expanded', 'true');
       search.value = '';
       filterList('');
+      // Scroll selected item into view
+      var sel = list.querySelector('.pi-selected');
+      if (sel) sel.scrollIntoView({ block: 'nearest' });
       search.focus();
     }
   });
@@ -198,15 +208,41 @@ if ($value && str_starts_with($value, '+')) {
     trigger.setAttribute('aria-expanded', 'false');
   }
 
-  // Close on outside click or scroll (fixed dropdown doesn't follow scroll)
+  // Close on outside click
   document.addEventListener('click', function (e) {
     if (!wrap.contains(e.target)) closeDropdown();
   });
-  document.addEventListener('scroll', closeDropdown, { passive: true, capture: true });
+  // Close on page scroll only — ignore scrolling inside the dropdown list
+  document.addEventListener('scroll', function (e) {
+    if (!dropdown.contains(e.target)) closeDropdown();
+  }, { passive: true, capture: true });
 
-  // Keyboard: Escape closes
+  // Keyboard: Escape closes; ArrowDown from search moves to first list item
   dropdown.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { closeDropdown(); trigger.focus(); }
+    if (e.key === 'Escape') { closeDropdown(); trigger.focus(); return; }
+    if (e.key === 'ArrowDown' && e.target === search) {
+      e.preventDefault();
+      var first = visibleItems()[0];
+      if (first) first.focus();
+    }
+  });
+
+  // Arrow-key navigation within the country list
+  list.addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    var items = visibleItems();
+    var cur   = document.activeElement;
+    var idx   = items.indexOf(cur);
+    if (e.key === 'ArrowDown') {
+      var next = items[idx + 1] || items[0];
+      if (next) next.focus();
+    } else if (e.key === 'ArrowUp') {
+      if (idx <= 0) { search.focus(); return; }
+      items[idx - 1].focus();
+    } else if ((e.key === 'Enter' || e.key === ' ') && cur && cur.classList.contains('pi-item')) {
+      selectCountry(cur);
+    }
   });
 
   // Select a country
