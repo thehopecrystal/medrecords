@@ -22,62 +22,60 @@
 <div class="profile-layout">
 
   {{-- ── Sticky sidebar ──────────────────────────────── --}}
-  <div class="profile-sidebar-sticky">
-    <div class="card" style="overflow:hidden;">
+  <aside class="profile-sidebar-sticky">
+    <div class="card profile-sidebar-card">
 
       {{-- Hero --}}
       <div class="profile-hero">
-        <div class="profile-hero-avatar">
+        <figure class="profile-hero-avatar">
           @if($user->avatar)
-            <img src="{{ asset('storage/'.$user->avatar) }}" alt="Profile photo">
+            <img src="{{ asset('storage/'.$user->avatar) }}" alt="{{ $user->name }}'s profile photo">
           @else
             {{ $initials }}
           @endif
-        </div>
-        <div class="profile-hero-name">{{ $user->name }}</div>
-        <div class="profile-hero-email">{{ $user->email }}</div>
-        <div>
-          @if($patient->nin_verified)
-            <span class="profile-hero-badge verified">✓ NIN Verified</span>
-          @else
-            <span class="profile-hero-badge">NIN unverified</span>
-          @endif
-        </div>
+        </figure>
+        <p class="profile-hero-name">{{ $user->name }}</p>
+        <p class="profile-hero-email">{{ $user->email }}</p>
+        @if($patient->nin_verified)
+          <span class="profile-hero-badge verified">✓ NIN Verified</span>
+        @else
+          <span class="profile-hero-badge">NIN unverified</span>
+        @endif
         <form method="POST" action="{{ route('profile.avatar') }}" enctype="multipart/form-data">
           @csrf
           <label class="profile-hero-photo">
             📷 Change photo
-            <input type="file" name="avatar" accept="image/*" style="display:none;" data-auto-submit>
+            <input type="file" name="avatar" accept="image/*" class="profile-avatar-input" data-auto-submit>
           </label>
         </form>
         @error('avatar')
-          <div style="color:#FFB0B0;font-size:12px;margin-top:8px;">{{ $message }}</div>
+          <p class="profile-hero-error">{{ $message }}</p>
         @enderror
       </div>
 
       {{-- Quick info strip --}}
-      <div class="profile-info-strip">
+      <dl class="profile-info-strip">
         <div class="profile-info-item">
-          <div class="profile-info-label">MedID</div>
-          <div class="profile-info-value" style="font-family:'Courier New',monospace;letter-spacing:0.04em;">{{ $patient->med_id }}</div>
+          <dt class="profile-info-label">MedID</dt>
+          <dd class="profile-info-value profile-medid">{{ $patient->med_id }}</dd>
         </div>
         <div class="profile-info-item">
-          <div class="profile-info-label">Blood / Genotype</div>
-          <div class="profile-info-value">{{ $patient->blood_type ?: '—' }} · {{ $patient->genotype ?: '—' }}</div>
+          <dt class="profile-info-label">Blood / Genotype</dt>
+          <dd class="profile-info-value">{{ $patient->blood_type ?: '—' }} · {{ $patient->genotype ?: '—' }}</dd>
         </div>
         @if($patient->dob)
         <div class="profile-info-item">
-          <div class="profile-info-label">Date of birth</div>
-          <div class="profile-info-value">{{ $patient->dob->format('d M Y') }}</div>
+          <dt class="profile-info-label">Date of birth</dt>
+          <dd class="profile-info-value">{{ $patient->dob->format('d M Y') }}</dd>
         </div>
         @endif
         @if($patient->gender)
         <div class="profile-info-item">
-          <div class="profile-info-label">Gender</div>
-          <div class="profile-info-value">{{ ucfirst($patient->gender) }}</div>
+          <dt class="profile-info-label">Gender</dt>
+          <dd class="profile-info-value">{{ ucfirst($patient->gender) }}</dd>
         </div>
         @endif
-      </div>
+      </dl>
 
       {{-- Completeness --}}
       <div class="profile-pct-section">
@@ -85,27 +83,27 @@
           <span class="profile-pct-label">Profile completeness</span>
           <span class="profile-pct-pct">{{ $pct }}%</span>
         </div>
-        <div class="profile-pct-track">
-          <div class="profile-pct-fill {{ $pctClass }}" style="width:{{ $pct }}%;"></div>
+        <div class="profile-pct-track" style="--pct: {{ $pct }}%">
+          <div class="profile-pct-fill {{ $pctClass }}"></div>
         </div>
-        <div class="profile-pct-checklist">
+        <ul class="profile-pct-checklist">
           @foreach($fields as $label => $val)
-            <div class="profile-pct-check {{ $val ? 'done' : '' }}">
-              <div class="profile-pct-dot"></div>
+            <li class="profile-pct-check {{ $val ? 'done' : '' }}">
+              <span class="profile-pct-dot"></span>
               {{ $label }}
-            </div>
+            </li>
           @endforeach
-        </div>
+        </ul>
       </div>
 
     </div>
-  </div>
+  </aside>
 
   {{-- ── Forms column ────────────────────────────────── --}}
   <div class="profile-forms">
 
     {{-- Tab bar --}}
-    <div class="profile-tabs" role="tablist" aria-label="Profile settings">
+    <nav class="profile-tabs" role="tablist" aria-label="Profile settings">
       <button class="profile-tab active" data-tab="personal" role="tab" aria-controls="tab-personal" aria-selected="true">
         <span class="profile-tab-icon">👤</span><span class="profile-tab-label">Personal</span>
       </button>
@@ -121,20 +119,20 @@
       <button class="profile-tab" data-tab="two-factor" role="tab" aria-controls="tab-two-factor">
         <span class="profile-tab-icon">🛡</span><span class="profile-tab-label">2FA</span>
       </button>
-    </div>
+    </nav>
 
     {{-- Personal Info --}}
-    <div class="profile-tab-panel active" id="tab-personal" role="tabpanel">
-      <div class="card">
-        <div class="card-header">
+    <section class="profile-tab-panel active" id="tab-personal" role="tabpanel">
+      <article class="card">
+        <header class="card-header">
           <div class="card-header-group">
             <div class="card-icon navy">👤</div>
             <div>
-              <div class="card-title">Personal Information</div>
-              <div class="card-sub">Your account details and contact information</div>
+              <h3 class="card-title">Personal Information</h3>
+              <p class="card-sub">Your account details and contact information</p>
             </div>
           </div>
-        </div>
+        </header>
         <div class="card-body">
           <form method="POST" action="{{ route('patient.profile.update') }}">
             @csrf @method('PUT')
@@ -142,22 +140,22 @@
               <div class="form-field span-2">
                 <label>Full name *</label>
                 <input type="text" name="name" value="{{ old('name', $user->name) }}" required placeholder="Adaeze Okonkwo">
-                @error('name')<div class="form-error">{{ $message }}</div>@enderror
+                @error('name')<p class="form-error">{{ $message }}</p>@enderror
               </div>
               <div class="form-field">
                 <label>Email address *</label>
                 <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
-                @error('email')<div class="form-error">{{ $message }}</div>@enderror
+                @error('email')<p class="form-error">{{ $message }}</p>@enderror
               </div>
               <div class="form-field">
                 <label>Date of birth</label>
                 <input type="date" name="dob" value="{{ old('dob', $patient->dob?->format('Y-m-d')) }}" max="{{ date('Y-m-d', strtotime('-1 day')) }}">
-                @error('dob')<div class="form-error">{{ $message }}</div>@enderror
+                @error('dob')<p class="form-error">{{ $message }}</p>@enderror
               </div>
               <div class="form-field span-2">
                 <label>Phone number *</label>
                 <x-phone-input name="phone" id="profilePhone" :value="old('phone', $user->phone)" :required="true" />
-                @error('phone')<div class="form-error">{{ $message }}</div>@enderror
+                @error('phone')<p class="form-error">{{ $message }}</p>@enderror
               </div>
               <div class="form-field">
                 <label>Gender</label>
@@ -191,32 +189,32 @@
             </div>
           </form>
         </div>
-      </div>
-    </div>
+      </article>
+    </section>
 
     {{-- Medical Profile --}}
-    <div class="profile-tab-panel" id="tab-medical" role="tabpanel">
-      <div class="card">
-        <div class="card-header">
+    <section class="profile-tab-panel" id="tab-medical" role="tabpanel">
+      <article class="card">
+        <header class="card-header">
           <div class="card-header-group">
             <div class="card-icon red">🩺</div>
             <div>
-              <div class="card-title">Medical Profile</div>
-              <div class="card-sub">Clinical information shown to providers during consultations</div>
+              <h3 class="card-title">Medical Profile</h3>
+              <p class="card-sub">Clinical information shown to providers during consultations</p>
             </div>
           </div>
-        </div>
+        </header>
         <div class="card-body">
           <form method="POST" action="{{ route('patient.profile.update') }}">
             @csrf @method('PUT')
-            <input type="hidden" name="name"  value="{{ $user->name }}">
-            <input type="hidden" name="email" value="{{ $user->email }}">
-            <input type="hidden" name="phone" value="{{ $user->phone }}">
-            <input type="hidden" name="dob"                    value="{{ $patient->dob?->format('Y-m-d') }}">
-            <input type="hidden" name="gender"                 value="{{ $patient->gender }}">
-            <input type="hidden" name="state"                  value="{{ $patient->state }}">
-            <input type="hidden" name="city"                   value="{{ $patient->city }}">
-            <input type="hidden" name="address"                value="{{ $patient->address }}">
+            <input type="hidden" name="name"                    value="{{ $user->name }}">
+            <input type="hidden" name="email"                   value="{{ $user->email }}">
+            <input type="hidden" name="phone"                   value="{{ $user->phone }}">
+            <input type="hidden" name="dob"                     value="{{ $patient->dob?->format('Y-m-d') }}">
+            <input type="hidden" name="gender"                  value="{{ $patient->gender }}">
+            <input type="hidden" name="state"                   value="{{ $patient->state }}">
+            <input type="hidden" name="city"                    value="{{ $patient->city }}">
+            <input type="hidden" name="address"                 value="{{ $patient->address }}">
             <input type="hidden" name="emergency_contact_name"  value="{{ $patient->emergency_contact_name }}">
             <input type="hidden" name="emergency_contact_phone" value="{{ $patient->emergency_contact_phone }}">
             <div class="form-grid">
@@ -228,7 +226,7 @@
                     <option value="{{ $bt }}" {{ old('blood_type', $patient->blood_type) === $bt ? 'selected' : '' }}>{{ $bt }}</option>
                   @endforeach
                 </select>
-                @error('blood_type')<div class="form-error">{{ $message }}</div>@enderror
+                @error('blood_type')<p class="form-error">{{ $message }}</p>@enderror
               </div>
               <div class="form-field">
                 <label>Genotype</label>
@@ -238,7 +236,7 @@
                     <option value="{{ $g }}" {{ old('genotype', $patient->genotype) === $g ? 'selected' : '' }}>{{ $g }}</option>
                   @endforeach
                 </select>
-                @error('genotype')<div class="form-error">{{ $message }}</div>@enderror
+                @error('genotype')<p class="form-error">{{ $message }}</p>@enderror
               </div>
             </div>
             <div class="alert navy mt-16">
@@ -250,21 +248,21 @@
             </div>
           </form>
         </div>
-      </div>
-    </div>
+      </article>
+    </section>
 
     {{-- Emergency Contact --}}
-    <div class="profile-tab-panel" id="tab-emergency" role="tabpanel">
-      <div class="card">
-        <div class="card-header">
+    <section class="profile-tab-panel" id="tab-emergency" role="tabpanel">
+      <article class="card">
+        <header class="card-header">
           <div class="card-header-group">
             <div class="card-icon amber">🚨</div>
             <div>
-              <div class="card-title">Emergency Contact</div>
-              <div class="card-sub">Person to notify in a medical emergency</div>
+              <h3 class="card-title">Emergency Contact</h3>
+              <p class="card-sub">Person to notify in a medical emergency</p>
             </div>
           </div>
-        </div>
+        </header>
         <div class="card-body">
           <form method="POST" action="{{ route('patient.profile.update') }}">
             @csrf @method('PUT')
@@ -284,14 +282,14 @@
                 <input type="text" name="emergency_contact_name"
                        value="{{ old('emergency_contact_name', $patient->emergency_contact_name) }}"
                        placeholder="Chidi Okonkwo">
-                @error('emergency_contact_name')<div class="form-error">{{ $message }}</div>@enderror
+                @error('emergency_contact_name')<p class="form-error">{{ $message }}</p>@enderror
               </div>
               <div class="form-field">
                 <label>Contact phone</label>
                 <input type="text" name="emergency_contact_phone"
                        value="{{ old('emergency_contact_phone', $patient->emergency_contact_phone) }}"
                        placeholder="+2348012345678">
-                @error('emergency_contact_phone')<div class="form-error">{{ $message }}</div>@enderror
+                @error('emergency_contact_phone')<p class="form-error">{{ $message }}</p>@enderror
               </div>
             </div>
             <div class="form-actions mt-16">
@@ -299,21 +297,21 @@
             </div>
           </form>
         </div>
-      </div>
-    </div>
+      </article>
+    </section>
 
     {{-- Password & Security --}}
-    <div class="profile-tab-panel" id="tab-security" role="tabpanel">
-      <div class="card">
-        <div class="card-header">
+    <section class="profile-tab-panel" id="tab-security" role="tabpanel">
+      <article class="card">
+        <header class="card-header">
           <div class="card-header-group">
             <div class="card-icon navy">🔒</div>
             <div>
-              <div class="card-title">Password &amp; Security</div>
-              <div class="card-sub">Change your account password</div>
+              <h3 class="card-title">Password &amp; Security</h3>
+              <p class="card-sub">Change your account password</p>
             </div>
           </div>
-        </div>
+        </header>
         <div class="card-body">
           <form method="POST" action="{{ route('patient.profile.password') }}">
             @csrf @method('PUT')
@@ -324,7 +322,7 @@
                   <input type="password" name="current_password" required autocomplete="current-password">
                   <button type="button" class="pw-toggle" tabindex="-1" aria-label="Toggle visibility">👁</button>
                 </div>
-                @error('current_password')<div class="form-error">{{ $message }}</div>@enderror
+                @error('current_password')<p class="form-error">{{ $message }}</p>@enderror
               </div>
               <div class="form-field">
                 <label>New password *</label>
@@ -332,7 +330,7 @@
                   <input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="Min 8 characters">
                   <button type="button" class="pw-toggle" tabindex="-1" aria-label="Toggle visibility">👁</button>
                 </div>
-                @error('password')<div class="form-error">{{ $message }}</div>@enderror
+                @error('password')<p class="form-error">{{ $message }}</p>@enderror
               </div>
               <div class="form-field">
                 <label>Confirm new password *</label>
@@ -351,31 +349,31 @@
             </div>
           </form>
         </div>
-      </div>
-    </div>
+      </article>
+    </section>
 
     {{-- Two-Factor Auth --}}
-    <div class="profile-tab-panel" id="tab-two-factor" role="tabpanel">
-      <div class="card">
-        <div class="card-header">
+    <section class="profile-tab-panel" id="tab-two-factor" role="tabpanel">
+      <article class="card">
+        <header class="card-header">
           <div class="card-header-group">
             <div class="card-icon {{ $user->two_factor_enabled ? 'green' : 'amber' }}">🛡</div>
             <div>
-              <div class="card-title">Two-Factor Authentication</div>
-              <div class="card-sub">Add an extra layer of security with SMS OTP</div>
+              <h3 class="card-title">Two-Factor Authentication</h3>
+              <p class="card-sub">Add an extra layer of security with SMS OTP</p>
             </div>
           </div>
           <span class="pill {{ $user->two_factor_enabled ? 'green' : 'grey' }}">
             {{ $user->two_factor_enabled ? '✓ Enabled' : 'Disabled' }}
           </span>
-        </div>
+        </header>
         <div class="card-body">
           @if($user->two_factor_enabled)
             <div class="tfa-panel enabled">
-              <div class="tfa-panel-icon">🛡️</div>
+              <span class="tfa-panel-icon">🛡️</span>
               <div>
-                <div class="tfa-panel-title">Two-factor authentication is active</div>
-                <div class="tfa-panel-sub">A 6-digit OTP is sent to your phone via SMS each time you sign in.</div>
+                <p class="tfa-panel-title">Two-factor authentication is active</p>
+                <p class="tfa-panel-sub">A 6-digit OTP is sent to your phone via SMS each time you sign in.</p>
               </div>
             </div>
             <form method="POST" action="{{ route('patient.profile.2fa') }}"
@@ -387,10 +385,10 @@
             </form>
           @else
             <div class="tfa-panel">
-              <div class="tfa-panel-icon">🔓</div>
+              <span class="tfa-panel-icon">🔓</span>
               <div>
-                <div class="tfa-panel-title">2FA is not enabled</div>
-                <div class="tfa-panel-sub">Your account is protected by password only. Enable 2FA for a second verification step at each login.</div>
+                <p class="tfa-panel-title">2FA is not enabled</p>
+                <p class="tfa-panel-sub">Your account is protected by password only. Enable 2FA for a second verification step at each login.</p>
               </div>
             </div>
             @if($user->phone)
@@ -411,8 +409,8 @@
             @endif
           @endif
         </div>
-      </div>
-    </div>
+      </article>
+    </section>
 
   </div>
 </div>
