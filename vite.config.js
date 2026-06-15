@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/js/pages/vitals.js',
                 'resources/js/pages/welcome.js',
                 'resources/js/pages/access-code.js',
+                'resources/js/pages/profile.js',
             ],
             refresh: true,
         }),

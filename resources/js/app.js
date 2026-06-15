@@ -93,4 +93,15 @@ document.addEventListener('DOMContentLoaded', function() {
       e.target.closest('form')?.requestSubmit();
     }
   });
+
+  // Password show/hide toggle
+  document.addEventListener('click', function(e) {
+    const toggle = e.target.closest('.pw-toggle');
+    if (!toggle) return;
+    const input = toggle.closest('.pw-wrap')?.querySelector('input');
+    if (!input) return;
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    toggle.textContent = isPassword ? '🙈' : '👁';
+  });
 });
