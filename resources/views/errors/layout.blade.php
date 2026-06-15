@@ -27,9 +27,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-s
   <div class="title">@yield('title')</div>
   <div class="desc">@yield('message')</div>
   <div>
-    <a href="javascript:history.back()" class="btn btn-ghost">← Go back</a>
+    <button type="button" class="btn btn-ghost" id="errGoBack">← Go back</button>
     <a href="/" class="btn">🏠 Home</a>
   </div>
 </div>
+<script>document.getElementById('errGoBack').addEventListener('click', function () { history.back(); });</script>
 </body>
 </html>

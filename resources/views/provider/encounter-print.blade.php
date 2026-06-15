@@ -44,8 +44,8 @@ body { font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; color: #1A1F
 <body>
 
 <div class="no-print" style="margin-bottom:20px;display:flex;gap:10px;">
-  <button onclick="window.print()" style="background:#1E3A5F;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">🖨 Print / Save as PDF</button>
-  <button onclick="history.back()" style="background:#F3F4F6;color:#3D4754;border:1px solid #D1D5DB;padding:9px 18px;border-radius:8px;font-size:13px;cursor:pointer;">← Back</button>
+  <button id="ep-print" style="background:#1E3A5F;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">🖨 Print / Save as PDF</button>
+  <button id="ep-back"  style="background:#F3F4F6;color:#3D4754;border:1px solid #D1D5DB;padding:9px 18px;border-radius:8px;font-size:13px;cursor:pointer;">← Back</button>
 </div>
 
 <div class="header">
@@ -158,5 +158,9 @@ body { font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; color: #1A1F
   </div>
 </div>
 
+<script>
+document.getElementById('ep-print').addEventListener('click', function () { window.print(); });
+document.getElementById('ep-back').addEventListener('click', function () { history.back(); });
+</script>
 </body>
 </html>

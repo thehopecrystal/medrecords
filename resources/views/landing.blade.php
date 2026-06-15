@@ -414,12 +414,7 @@ a { text-decoration: none; color: inherit; }
 <section class="hero">
   <div class="hero-inner">
     <div class="hero-badge">🇳🇬 Built for Nigeria's healthcare system</div>
-    @php
-      $hasBreak   = str_contains($heroHead, '<br>');
-      $heroParts  = array_map('e', explode('<br>', $heroHead));
-      $heroHeadSafe = implode('<br><span>', $heroParts) . ($hasBreak ? '</span>' : '');
-    @endphp
-    <h1>{!! $heroHeadSafe !!}</h1>
+    <h1>{!! collect(explode('<br>', $heroHead))->map('e')->implode('<br>') !!}</h1>
     <p class="hero-sub">{{ $heroSub }}</p>
     <div class="hero-actions">
       @if($authUser)

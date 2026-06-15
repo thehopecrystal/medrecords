@@ -30,7 +30,7 @@
              placeholder="••••••••"
              autocomplete="current-password"
              required>
-      <button type="button" class="input-action" onclick="togglePassword()" title="Show/hide password">
+      <button type="button" class="input-action" id="pwToggleBtn" title="Show/hide password">
         <span id="eyeIcon">👁</span>
       </button>
     </div>
@@ -97,6 +97,8 @@ function togglePassword() {
     icon.textContent = '👁';
   }
 }
+
+document.getElementById('pwToggleBtn').addEventListener('click', togglePassword);
 
 document.getElementById('loginForm').addEventListener('submit', function () {
   const btn = document.getElementById('submitBtn');

@@ -43,6 +43,9 @@ class RecordExportController extends Controller
 
         $filename = 'MedRecord-' . $patient->med_id . '-' . now()->format('Y-m-d') . '.pdf';
 
-        return $pdf->download($filename);
+        return $pdf->download($filename)->withHeaders([
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma'        => 'no-cache',
+        ]);
     }
 }

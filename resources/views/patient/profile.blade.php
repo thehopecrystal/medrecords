@@ -136,6 +136,7 @@
         <div class="card-body">
           <form method="POST" action="{{ route('patient.profile.update') }}">
             @csrf @method('PUT')
+            <input type="hidden" name="tab" value="personal">
             <div class="form-grid">
               <div class="form-field span-2">
                 <label>Full name *</label>
@@ -207,16 +208,7 @@
         <div class="card-body">
           <form method="POST" action="{{ route('patient.profile.update') }}">
             @csrf @method('PUT')
-            <input type="hidden" name="name"                    value="{{ $user->name }}">
-            <input type="hidden" name="email"                   value="{{ $user->email }}">
-            <input type="hidden" name="phone"                   value="{{ $user->phone }}">
-            <input type="hidden" name="dob"                     value="{{ $patient->dob?->format('Y-m-d') }}">
-            <input type="hidden" name="gender"                  value="{{ $patient->gender }}">
-            <input type="hidden" name="state"                   value="{{ $patient->state }}">
-            <input type="hidden" name="city"                    value="{{ $patient->city }}">
-            <input type="hidden" name="address"                 value="{{ $patient->address }}">
-            <input type="hidden" name="emergency_contact_name"  value="{{ $patient->emergency_contact_name }}">
-            <input type="hidden" name="emergency_contact_phone" value="{{ $patient->emergency_contact_phone }}">
+            <input type="hidden" name="tab" value="medical">
             <div class="form-grid">
               <div class="form-field">
                 <label>Blood type</label>
@@ -266,16 +258,7 @@
         <div class="card-body">
           <form method="POST" action="{{ route('patient.profile.update') }}">
             @csrf @method('PUT')
-            <input type="hidden" name="name"       value="{{ $user->name }}">
-            <input type="hidden" name="email"      value="{{ $user->email }}">
-            <input type="hidden" name="phone"      value="{{ $user->phone }}">
-            <input type="hidden" name="dob"        value="{{ $patient->dob?->format('Y-m-d') }}">
-            <input type="hidden" name="gender"     value="{{ $patient->gender }}">
-            <input type="hidden" name="blood_type" value="{{ $patient->blood_type }}">
-            <input type="hidden" name="genotype"   value="{{ $patient->genotype }}">
-            <input type="hidden" name="state"      value="{{ $patient->state }}">
-            <input type="hidden" name="city"       value="{{ $patient->city }}">
-            <input type="hidden" name="address"    value="{{ $patient->address }}">
+            <input type="hidden" name="tab" value="emergency">
             <div class="form-grid">
               <div class="form-field">
                 <label>Contact name</label>

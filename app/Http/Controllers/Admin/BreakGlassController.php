@@ -25,13 +25,12 @@ class BreakGlassController extends Controller
 
     public function approve(Request $request, int $id)
     {
-        $request->validate(['review_notes' => 'nullable|string|max:1000']);
         $event = BreakGlassEvent::with('patient.user', 'patient')->findOrFail($id);
         $this->authorizeEvent($event);
         $event->status       = 'approved';
         $event->reviewed_at  = now();
         $event->reviewed_by  = (int) auth()->id();
-        $event->review_notes = $request->review_notes;
+        $event->review_notes = 'Reviewed and approved by compliance.';
         $event->save();
 
         Notification::create([
@@ -47,13 +46,12 @@ class BreakGlassController extends Controller
 
     public function dispute(Request $request, int $id)
     {
-        $request->validate(['review_notes' => 'nullable|string|max:1000']);
         $event = BreakGlassEvent::with('patient.user', 'patient')->findOrFail($id);
         $this->authorizeEvent($event);
         $event->status       = 'disputed';
         $event->reviewed_at  = now();
         $event->reviewed_by  = (int) auth()->id();
-        $event->review_notes = $request->review_notes;
+        $event->review_notes = 'Under investigation by compliance team.';
         $event->save();
 
         // Notify patient that their dispute is being investigated

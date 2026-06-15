@@ -122,12 +122,12 @@
           @csrf
           <div class="form-field mb-12">
             <label>New Password</label>
-            <input type="password" name="new_password" required placeholder="Min. 8 characters">
+            <input type="password" name="new_password" required placeholder="Min. 8 characters" autocomplete="new-password">
             @error('new_password')<div class="form-error">{{ $message }}</div>@enderror
           </div>
           <div class="form-field mb-16">
             <label>Confirm New Password</label>
-            <input type="password" name="new_password_confirmation" required>
+            <input type="password" name="new_password_confirmation" required autocomplete="new-password">
           </div>
           <button type="submit" class="btn btn-secondary">🔑 Reset Password</button>
         </form>

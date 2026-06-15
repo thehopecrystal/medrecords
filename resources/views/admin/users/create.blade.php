@@ -40,7 +40,7 @@
           </div>
           <div class="form-field">
             <label>Role *</label>
-            <select name="role" id="roleSelect" required onchange="toggleProviderFields()">
+            <select name="role" id="roleSelect" required>
               <option value="">— Select role —</option>
               <option value="patient"    {{ old('role')=='patient'    ? 'selected' : '' }}>Patient</option>
               <option value="provider"   {{ old('role')=='provider'   ? 'selected' : '' }}>Provider (Doctor / Nurse)</option>
@@ -50,12 +50,12 @@
           </div>
           <div class="form-field">
             <label>Password *</label>
-            <input type="password" name="password" required placeholder="Min. 8 characters">
+            <input type="password" name="password" required placeholder="Min. 8 characters" autocomplete="new-password">
             @error('password')<div class="form-error">{{ $message }}</div>@enderror
           </div>
           <div class="form-field span-2">
             <label>Confirm Password *</label>
-            <input type="password" name="password_confirmation" required placeholder="Repeat password">
+            <input type="password" name="password_confirmation" required placeholder="Repeat password" autocomplete="new-password">
           </div>
         </div>
 
@@ -104,5 +104,6 @@ function toggleProviderFields() {
   document.getElementById('providerFields').classList.toggle('js-hidden', !show);
 }
 document.addEventListener('DOMContentLoaded', toggleProviderFields);
+document.getElementById('roleSelect').addEventListener('change', toggleProviderFields);
 </script>
 @endsection

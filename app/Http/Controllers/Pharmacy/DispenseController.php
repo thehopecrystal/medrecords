@@ -25,11 +25,13 @@ class DispenseController extends Controller
 
     public function lookup(Request $request)
     {
-        $rxId = $request->input('rx_id', '');
+        $rxId       = $request->input('rx_id', '');
+        $facilityId = $this->currentUser()->provider?->facility_id;
         $prescription = null;
 
-        if ($rxId) {
+        if ($rxId && $facilityId !== null) {
             $prescription = Prescription::where('rx_id', $rxId)
+                ->where('facility_id', $facilityId)
                 ->with([
                     'patient.user',
                     'patient.allergies',

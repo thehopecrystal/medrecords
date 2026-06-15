@@ -20,20 +20,29 @@ class ProfileController extends Controller
     {
         $user    = $this->currentUser();
         $patient = $this->currentPatient();
+        $tab     = $request->input('tab', 'personal');
 
+        match ($tab) {
+            'personal'  => $this->updatePersonal($request, $user, $patient),
+            'medical'   => $this->updateMedical($request, $patient),
+            'emergency' => $this->updateEmergency($request, $patient),
+            default     => abort(422, 'Unknown profile tab.'),
+        };
+
+        return back()->with('success', 'Profile updated successfully.');
+    }
+
+    private function updatePersonal($request, $user, $patient): void
+    {
         $request->validate([
-            'name'                    => 'required|string|max:120',
-            'email'                   => 'required|email|unique:users,email,' . $user->id,
-            'phone'                   => ['required', 'regex:/^\+[1-9]\d{7,14}$/', 'unique:users,phone,' . $user->id],
-            'dob'                     => 'nullable|date|before:today',
-            'gender'                  => 'nullable|in:male,female,other',
-            'blood_type'              => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
-            'genotype'                => 'nullable|in:AA,AS,SS,AC,SC',
-            'state'                   => 'nullable|string|max:60',
-            'city'                    => 'nullable|string|max:60',
-            'address'                 => 'nullable|string|max:255',
-            'emergency_contact_name'  => 'nullable|string|max:120',
-            'emergency_contact_phone' => ['nullable', 'regex:/^\+[1-9]\d{7,14}$/'],
+            'name'    => 'required|string|max:120',
+            'email'   => 'required|email|unique:users,email,' . $user->id,
+            'phone'   => ['required', 'regex:/^\+[1-9]\d{7,14}$/', 'unique:users,phone,' . $user->id],
+            'dob'     => 'nullable|date|before:today',
+            'gender'  => 'nullable|in:male,female,other',
+            'state'   => 'nullable|string|max:60',
+            'city'    => 'nullable|string|max:60',
+            'address' => 'nullable|string|max:255',
         ], [
             'phone.regex' => 'Phone number must include a country code (e.g. +2348012345678).',
         ]);
@@ -45,18 +54,38 @@ class ProfileController extends Controller
         ]);
 
         $patient->update([
-            'dob'                     => $request->dob ?: null,
-            'gender'                  => $request->gender ?: null,
-            'blood_type'              => $request->blood_type ?: null,
-            'genotype'                => $request->genotype ?: null,
-            'state'                   => $request->state ?: null,
-            'city'                    => $request->city ?: null,
-            'address'                 => $request->address ?: null,
+            'dob'     => $request->dob ?: null,
+            'gender'  => $request->gender ?: null,
+            'state'   => $request->state ?: null,
+            'city'    => $request->city ?: null,
+            'address' => $request->address ?: null,
+        ]);
+    }
+
+    private function updateMedical($request, $patient): void
+    {
+        $request->validate([
+            'blood_type' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'genotype'   => 'nullable|in:AA,AS,SS,AC,SC',
+        ]);
+
+        $patient->update([
+            'blood_type' => $request->blood_type ?: null,
+            'genotype'   => $request->genotype ?: null,
+        ]);
+    }
+
+    private function updateEmergency($request, $patient): void
+    {
+        $request->validate([
+            'emergency_contact_name'  => 'nullable|string|max:120',
+            'emergency_contact_phone' => ['nullable', 'regex:/^\+[1-9]\d{7,14}$/'],
+        ]);
+
+        $patient->update([
             'emergency_contact_name'  => $request->emergency_contact_name ?: null,
             'emergency_contact_phone' => $request->emergency_contact_phone ?: null,
         ]);
-
-        return back()->with('success', 'Profile updated successfully.');
     }
 
     public function changePassword(Request $request)

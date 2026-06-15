@@ -40,6 +40,11 @@ class TeamController extends Controller
         $request->validate(['provider_id' => 'required|exists:providers,id']);
 
         $provider = Provider::findOrFail($request->provider_id);
+
+        if ($provider->facility_id !== null && $provider->facility_id !== $facility->id) {
+            return back()->with('error', 'This provider is already assigned to another facility.');
+        }
+
         $provider->update(['facility_id' => $facility->id]);
 
         return back()->with('success', $provider->user->name . ' has been added to ' . $facility->name . '.');

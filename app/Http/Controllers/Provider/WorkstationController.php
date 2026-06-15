@@ -73,7 +73,7 @@ class WorkstationController extends Controller
             ->where('expires_at', '>', now())
             ->exists();
 
-        // Load base patient record (name/MED-ID only) for the consent-request flow.
+        // Load base patient record for the consent-request flow.
         $patient = Patient::with('user')->findOrFail($id);
 
         if ($consent || $hasBreakGlass) {
@@ -85,6 +85,9 @@ class WorkstationController extends Controller
                 'vaccinations',
             ]);
             AuditLog::record($id, auth()->id(), 'record_viewed', 'Provider viewed patient record', 'Patient', $id);
+        } else {
+            // No consent — hide all sensitive user fields; only name is needed for the consent-request UI.
+            $patient->user->makeHidden(['email', 'phone', 'avatar', 'two_factor_enabled', 'last_login_at', 'email_verified_at']);
         }
 
         return view('provider.patient', compact('patient', 'consent', 'tab'));

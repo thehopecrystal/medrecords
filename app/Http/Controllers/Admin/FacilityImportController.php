@@ -44,15 +44,20 @@ class FacilityImportController extends Controller
 
             if (empty($data['name'])) { $skipped++; continue; }
 
+            $allowedTypes = ['hospital', 'clinic', 'pharmacy', 'lab', 'dental', 'optical', 'other'];
+            $type  = in_array($data['type'] ?? '', $allowedTypes, true) ? $data['type'] : 'hospital';
+            $email = isset($data['email']) && filter_var(trim($data['email']), FILTER_VALIDATE_EMAIL)
+                     ? trim($data['email']) : null;
+
             Facility::firstOrCreate(
                 ['name' => $data['name']],
                 [
-                    'type'    => $data['type']    ?? 'hospital',
+                    'type'    => $type,
                     'state'   => $data['state']   ?? null,
                     'city'    => $data['city']    ?? null,
                     'address' => $data['address'] ?? null,
                     'phone'   => $data['phone']   ?? null,
-                    'email'   => $data['email']   ?? null,
+                    'email'   => $email,
                 ]
             ) ? $imported++ : $skipped++;
         }

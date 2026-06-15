@@ -82,14 +82,12 @@
       <div class="bge-actions">
         <form method="POST" action="{{ route('admin.break-glass.approve', $e->id) }}">
           @csrf
-          <input type="hidden" name="review_notes" value="Reviewed and approved by compliance.">
           <button type="submit" class="btn btn-green btn-sm btn-full">✓ Approve</button>
         </form>
         <form method="POST" action="{{ route('admin.break-glass.dispute', $e->id) }}"
               data-confirm="Mark as disputed? The patient will be notified."
               data-confirm-ok="Dispute">
           @csrf
-          <input type="hidden" name="review_notes" value="Under investigation by compliance team.">
           <button type="submit" class="btn btn-danger btn-sm btn-full">⚠ Dispute</button>
         </form>
         <form method="POST" action="{{ route('admin.break-glass.close', $e->id) }}">

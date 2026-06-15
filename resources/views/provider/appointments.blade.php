@@ -16,7 +16,7 @@
     <form method="GET" style="display:flex;align-items:flex-end;gap:12px;">
       <div class="form-field" style="flex:0 0 200px;">
         <label>View Schedule For</label>
-        <input type="date" name="date" value="{{ $date }}" onchange="this.form.submit()">
+        <input type="date" name="date" value="{{ $date }}" id="apptDateFilter">
       </div>
       <a href="{{ route('provider.appointments') }}" class="btn btn-secondary btn-sm" style="align-self:flex-end;">Today</a>
     </form>
@@ -96,3 +96,9 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script nonce="{{ $cspNonce }}">
+document.getElementById('apptDateFilter').addEventListener('change', function () { this.form.submit(); });
+</script>
+@endpush
