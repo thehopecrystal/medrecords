@@ -35,7 +35,6 @@ class DispenseController extends Controller
                 ->with([
                     'patient.user',
                     'patient.allergies',
-                    'patient.activePrescriptions',
                     'patient.labResults',
                     'prescribedBy',
                     'dispenses',

@@ -20,14 +20,6 @@ class NotificationController extends Controller
         return view('patient.notifications', compact('notifications'));
     }
 
-    public function markRead(int $id)
-    {
-        $user = $this->currentUser();
-        Notification::where('user_id', $user->id)->where('id', $id)
-            ->update(['read_at' => now()]);
-        return back();
-    }
-
     public function destroy(int $id)
     {
         $user = $this->currentUser();
