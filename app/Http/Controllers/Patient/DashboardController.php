@@ -17,10 +17,25 @@ class DashboardController extends Controller
 
     public function index()
     {
-        $patient        = $this->currentPatient();
-        $recentActivity = $patient->auditLogs()->with('actor')->latest()->take(10)->get();
+        $patient = $this->currentPatient();
 
-        return view('patient.dashboard', compact('patient', 'recentActivity'));
+        $patient->load(['conditions', 'allergies', 'prescriptions']);
+
+        $recentActivity       = $patient->auditLogs()->with('actor')->latest()->take(5)->get();
+        $upcomingAppointments = $patient->appointments()->upcoming()->with('provider', 'facility')->take(4)->get();
+        $latestVitals         = $patient->vitalsLogs()->latest('logged_at')->first();
+        $activeConsentCount   = $patient->consents()
+            ->where('status', 'active')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->count();
+
+        return view('patient.dashboard', compact(
+            'patient', 'recentActivity',
+            'upcomingAppointments', 'latestVitals',
+            'activeConsentCount'
+        ));
     }
 
     public function showAccessCode()
