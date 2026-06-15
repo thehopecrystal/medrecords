@@ -20,14 +20,14 @@
       </div>
       <div class="vdivider"></div>
       <div class="flex-1">
-        <div class="person-name-lg" style="color:var(--navy);">
+        <div class="person-name-lg text-navy">
           {{ ucfirst($apt->type) }} — Dr. {{ $apt->provider->name }}
         </div>
-        <div class="td-muted" style="margin-top:3px;">
+        <div class="td-muted">
           🕐 {{ \Carbon\Carbon::parse($apt->appointment_time)->format('g:i A') }}
           @if($apt->facility) · 🏥 {{ $apt->facility->name }} @endif
         </div>
-        <div class="td-muted" style="margin-top:2px;">{{ $apt->reason }}</div>
+        <div class="td-muted">{{ $apt->reason }}</div>
       </div>
       <div class="btn-group-row flex-shrink-0">
         @php $colors = ['pending'=>'amber','confirmed'=>'green','cancelled'=>'red','completed'=>'navy','no_show'=>'grey'] @endphp

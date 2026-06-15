@@ -44,7 +44,7 @@
             @csrf
             <label class="profile-photo-btn">
               📷 Change photo
-              <input type="file" name="avatar" accept="image/*" style="display:none;" onchange="this.form.submit()">
+              <input type="file" name="avatar" accept="image/*" style="display:none;" data-auto-submit>
             </label>
           </form>
           @error('avatar')<div class="form-error mt-12">{{ $message }}</div>@enderror

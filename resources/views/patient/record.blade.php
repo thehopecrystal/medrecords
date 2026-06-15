@@ -2,12 +2,11 @@
 @section('title', 'My Medical Record')
 @section('topbar-title', 'My Medical Record')
 
-
 @section('content')
 <div class="page-header-row">
   <div>
-    <h1 class="page-header" style="margin-bottom:0;">My Medical Record</h1>
-    <p style="color:var(--grey-500);font-size:12px;margin-top:4px;">All categories · MedID {{ $patient->med_id }}</p>
+    <h1>My Medical Record</h1>
+    <p class="td-muted">All categories · MedID {{ $patient->med_id }}</p>
   </div>
 </div>
 
@@ -18,20 +17,19 @@
   @endforeach
 </div>
 
-{{-- Alerts strip --}}
 @if($patient->activeAllergies->count())
-  <div class="alert red" style="margin-bottom:16px;">
+  <div class="alert red mb-16">
     <span>⚠</span>
     <span><strong>Allergy alert:</strong> {{ $patient->activeAllergies->pluck('allergen')->join(', ') }}</span>
   </div>
 @endif
 
-<div style="display:grid;grid-template-columns:1fr 300px;gap:20px;">
+<div class="record-layout">
   <div>
 
   {{-- ENCOUNTERS --}}
   @if(in_array($tab, ['all', 'encounters']))
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card mb-20">
       <div class="card-header">
         <div class="card-title">Encounters & Visits <span class="pill navy">{{ $patient->encounters->count() }}</span></div>
       </div>
@@ -42,7 +40,7 @@
               <div class="entry-title">{{ $enc->chief_complaint ?: ucfirst($enc->type) }}</div>
               <div class="entry-meta">{{ $enc->provider->name }} · {{ $enc->facility->name }}</div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
+            <div class="btn-group-row">
               <div class="entry-date">{{ $enc->created_at->format('d M Y') }}</div>
               <a href="{{ route('patient.encounter.print', $enc->id) }}" target="_blank" class="btn btn-ghost btn-sm" title="Print / Export PDF">🖨</a>
             </div>
@@ -50,17 +48,19 @@
           @if($enc->assessment_plan)
             <div class="entry-body">{{ Str::limit($enc->assessment_plan, 200) }}</div>
           @endif
-          <div class="entry-foot">{{ $enc->diagnosis }}</div>
+          @if($enc->diagnosis)
+            <div class="entry-foot">{{ $enc->diagnosis }}</div>
+          @endif
         </div>
       @empty
-        <div style="padding:16px;color:var(--grey-500);font-size:13px;">No encounters on record.</div>
+        <div class="card-empty-body">No encounters on record.</div>
       @endforelse
     </div>
   @endif
 
   {{-- PRESCRIPTIONS --}}
   @if(in_array($tab, ['all', 'prescriptions']))
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card mb-20">
       <div class="card-header">
         <div class="card-title">Prescriptions <span class="pill green">{{ $patient->activePrescriptions->count() }} active</span></div>
       </div>
@@ -77,16 +77,17 @@
           </div>
         </div>
       @empty
-        <div style="padding:16px;color:var(--grey-500);font-size:13px;">No prescriptions on record.</div>
+        <div class="card-empty-body">No prescriptions on record.</div>
       @endforelse
     </div>
   @endif
 
   {{-- LAB RESULTS --}}
   @if(in_array($tab, ['all', 'labs']))
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card mb-20">
       <div class="card-header">
         <div class="card-title">Lab Results <span class="pill navy">{{ $patient->labResults->count() }}</span></div>
+        <a href="{{ route('patient.lab-upload.create') }}" class="btn btn-secondary btn-sm">+ Upload result</a>
       </div>
       @forelse($patient->labResults->sortByDesc('collected_at') as $lab)
         <div class="entry">
@@ -95,21 +96,21 @@
               <div class="entry-title">{{ $lab->test_name }}</div>
               <div class="entry-meta">{{ $lab->collected_at->format('d M Y') }}</div>
             </div>
-            <span class="pill {{ $lab->flagColor }}">{{ $lab->result }} {{ $lab->unit }} <span class="pill {{ $lab->flagColor }}">{{ $lab->flag }}</span></span>
+            <span class="pill {{ $lab->flagColor }}">{{ $lab->result }} {{ $lab->unit }}</span>
           </div>
           @if($lab->reference_range)
-            <div class="entry-body" style="font-size:11px;">Ref: {{ $lab->reference_range }}</div>
+            <div class="entry-body entry-foot">Ref: {{ $lab->reference_range }}</div>
           @endif
         </div>
       @empty
-        <div style="padding:16px;color:var(--grey-500);font-size:13px;">No lab results on record.</div>
+        <div class="card-empty-body">No lab results on record.</div>
       @endforelse
     </div>
   @endif
 
   {{-- VACCINATIONS --}}
   @if(in_array($tab, ['all', 'vaccines']))
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card mb-20">
       <div class="card-header">
         <div class="card-title">Vaccinations <span class="pill navy">{{ $patient->vaccinations->count() }}</span></div>
       </div>
@@ -128,14 +129,14 @@
           </div>
         </div>
       @empty
-        <div style="padding:16px;color:var(--grey-500);font-size:13px;">No vaccination records.</div>
+        <div class="card-empty-body">No vaccination records.</div>
       @endforelse
     </div>
   @endif
 
   {{-- DENTAL --}}
   @if(in_array($tab, ['all', 'dental']))
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card mb-20">
       <div class="card-header">
         <div class="card-title">Dental Records <span class="pill navy">{{ $patient->dentalRecords->count() }}</span></div>
       </div>
@@ -147,17 +148,17 @@
               <div class="entry-meta">{{ $dr->visit_date->format('d M Y') }} · {{ $dr->provider->name }}</div>
             </div>
           </div>
-          @if($dr->notes) <div class="entry-body">{{ Str::limit($dr->notes, 150) }}</div> @endif
+          @if($dr->notes)<div class="entry-body">{{ Str::limit($dr->notes, 150) }}</div>@endif
         </div>
       @empty
-        <div style="padding:16px;color:var(--grey-500);font-size:13px;">No dental records.</div>
+        <div class="card-empty-body">No dental records.</div>
       @endforelse
     </div>
   @endif
 
   {{-- EYE CARE --}}
   @if(in_array($tab, ['all', 'eye']))
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card mb-20">
       <div class="card-header">
         <div class="card-title">Eye Care <span class="pill navy">{{ $patient->eyeCareRecords->count() }}</span></div>
       </div>
@@ -169,20 +170,20 @@
               <div class="entry-meta">{{ $ec->exam_date->format('d M Y') }} · {{ $ec->provider->name }}</div>
             </div>
           </div>
-          <div class="entry-body" style="font-size:12px;">
+          <div class="entry-body entry-foot">
             OD: {{ $ec->od_prescription }} · OS: {{ $ec->os_prescription }}<br>
             VA: {{ $ec->visual_acuity_od }} / {{ $ec->visual_acuity_os }} · IOP: {{ $ec->iop_od }} / {{ $ec->iop_os }} mmHg
           </div>
         </div>
       @empty
-        <div style="padding:16px;color:var(--grey-500);font-size:13px;">No eye care records.</div>
+        <div class="card-empty-body">No eye care records.</div>
       @endforelse
     </div>
   @endif
 
   {{-- ALLERGIES & CONDITIONS --}}
   @if(in_array($tab, ['all', 'allergies']))
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card mb-20">
       <div class="card-header">
         <div class="card-title">Allergies & Conditions</div>
       </div>
@@ -209,7 +210,7 @@
         </div>
       @endforeach
       @if(!$patient->allergies->count() && !$patient->conditions->count())
-        <div style="padding:16px;color:var(--grey-500);font-size:13px;">No allergies or conditions recorded.</div>
+        <div class="card-empty-body">No allergies or conditions recorded.</div>
       @endif
     </div>
   @endif
@@ -218,24 +219,28 @@
 
   {{-- ASIDE --}}
   <aside>
-    <div class="card" style="margin-bottom:16px;">
-      <div style="font-size:11px;color:var(--grey-500);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Active medications</div>
-      @forelse($patient->activePrescriptions as $rx)
-        <div style="padding:8px 0;border-bottom:1px solid var(--grey-100);">
-          <strong style="font-size:13px;">{{ $rx->drug_name }} {{ $rx->dose }}</strong><br>
-          <span style="font-size:11px;color:var(--grey-500);">{{ $rx->frequency }}</span>
-        </div>
-      @empty
-        <div style="font-size:12px;color:var(--grey-500);">None</div>
-      @endforelse
+    <div class="card mb-16">
+      <div class="aside-card">
+        <div class="aside-label">Active medications</div>
+        @forelse($patient->activePrescriptions as $rx)
+          <div class="aside-med-item">
+            <div class="aside-med-name">{{ $rx->drug_name }} {{ $rx->dose }}</div>
+            <div class="aside-med-freq">{{ $rx->frequency }}</div>
+          </div>
+        @empty
+          <div class="td-muted">None</div>
+        @endforelse
+      </div>
     </div>
 
     <div class="card">
-      <div style="font-size:11px;color:var(--grey-500);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Profile</div>
-      <div class="detail-row"><span class="k">Blood type</span><span class="v">{{ $patient->blood_type ?: '—' }}</span></div>
-      <div class="detail-row"><span class="k">Genotype</span><span class="v">{{ $patient->genotype ?: '—' }}</span></div>
-      <div class="detail-row"><span class="k">DOB</span><span class="v">{{ $patient->dob?->format('d M Y') ?: '—' }}</span></div>
-      <div class="detail-row"><span class="k">Gender</span><span class="v">{{ ucfirst($patient->gender ?: '—') }}</span></div>
+      <div class="aside-card">
+        <div class="aside-label">Profile</div>
+        <div class="detail-row"><span class="k">Blood type</span><span class="v">{{ $patient->blood_type ?: '—' }}</span></div>
+        <div class="detail-row"><span class="k">Genotype</span><span class="v">{{ $patient->genotype ?: '—' }}</span></div>
+        <div class="detail-row"><span class="k">DOB</span><span class="v">{{ $patient->dob?->format('d M Y') ?: '—' }}</span></div>
+        <div class="detail-row"><span class="k">Gender</span><span class="v">{{ ucfirst($patient->gender ?: '—') }}</span></div>
+      </div>
     </div>
   </aside>
 </div>

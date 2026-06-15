@@ -1,4 +1,8 @@
 import './bootstrap';
+import { Modal } from 'bootstrap';
+
+// Expose Bootstrap Modal for the global confirm dialog in app.blade.php
+window.bootstrap = { Modal };
 
 const STORAGE_KEYS = {
   theme:       'medrecords_theme',
@@ -82,4 +86,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const sbBtn = document.getElementById('sbBtn');
     if (sbBtn) sbBtn.textContent = '›';
   }
+
+  // Auto-submit form when a [data-auto-submit] input changes (e.g. avatar file picker)
+  document.addEventListener('change', function(e) {
+    if (e.target.matches('[data-auto-submit]')) {
+      e.target.closest('form')?.requestSubmit();
+    }
+  });
 });

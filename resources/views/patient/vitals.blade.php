@@ -125,31 +125,16 @@
   @if($logs->hasPages())<div class="pager-row">{{ $logs->links() }}</div>@endif
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script nonce="{{ $cspNonce }}">
-const chartData = {!! json_encode($chartData->map(fn($l) => [
+{{-- Chart data for vitals.js (not executed — CSP-safe) --}}
+<script type="application/json" id="bp-chart-data">
+{!! json_encode($chartData->map(fn($l) => [
   'label' => $l->logged_at->format('d M H:i'),
   'sys'   => $l->bp_systolic,
   'dia'   => $l->bp_diastolic,
-])->values()) !!};
-
-new Chart(document.getElementById('bpChart'), {
-  type: 'line',
-  data: {
-    labels: chartData.map(d => d.label),
-    datasets: [
-      { label: 'Systolic',  data: chartData.map(d => d.sys), borderColor: '#B23A48', backgroundColor: 'rgba(178,58,72,0.08)',  borderWidth: 2, pointRadius: 2, tension: 0.3, fill: true },
-      { label: 'Diastolic', data: chartData.map(d => d.dia), borderColor: '#1E3A5F', backgroundColor: 'rgba(30,58,95,0.05)',   borderWidth: 2, pointRadius: 2, tension: 0.3, fill: true },
-    ]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
-    scales: {
-      x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 10 } } },
-      y: { beginAtZero: false, min: 40, grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 } } }
-    }
-  }
-});
+])->values()) !!}
 </script>
 @endsection
+
+@push('scripts')
+@vite('resources/js/pages/vitals.js')
+@endpush

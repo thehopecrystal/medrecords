@@ -2,7 +2,6 @@
 @section('title', 'Access History')
 @section('topbar-title', 'Who Saw My Record')
 
-
 @section('content')
 <div class="page-header">
   <h1>Access History</h1>
@@ -10,9 +9,9 @@
 </div>
 
 {{-- Filter bar --}}
-<div class="card" style="margin-bottom:20px;">
-  <form method="GET" action="{{ route('patient.audit-log') }}" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:flex-end;">
-    <div class="form-field" style="margin:0;">
+<div class="card mb-20">
+  <form method="GET" action="{{ route('patient.audit-log') }}" class="audit-filter-form">
+    <div class="form-field">
       <label>Action type</label>
       <select name="action">
         <option value="">All actions</option>
@@ -21,19 +20,19 @@
         @endforeach
       </select>
     </div>
-    <div class="form-field" style="margin:0;">
+    <div class="form-field">
       <label>Person</label>
       <input type="text" name="actor" value="{{ request('actor') }}" placeholder="Name…">
     </div>
-    <div class="form-field" style="margin:0;">
+    <div class="form-field">
       <label>From date</label>
       <input type="date" name="from" value="{{ request('from') }}">
     </div>
-    <div class="form-field" style="margin:0;">
+    <div class="form-field">
       <label>To date</label>
       <input type="date" name="to" value="{{ request('to') }}">
     </div>
-    <div style="display:flex;gap:8px;">
+    <div class="btn-group-row">
       <button type="submit" class="btn btn-primary btn-sm">Filter</button>
       <a href="{{ route('patient.audit-log') }}" class="btn btn-secondary btn-sm">Clear</a>
     </div>
@@ -61,19 +60,22 @@
               default => 'grey'
             } }}">{{ $log->action }}</span></td>
             <td>{{ $log->actor->name }}</td>
-            <td style="max-width:380px;">{{ $log->description }}</td>
-            <td style="white-space:nowrap;font-size:12px;color:var(--grey-500);">{{ $log->created_at->format('d M Y H:i') }}</td>
+            <td class="td-max-200">{{ $log->description }}</td>
+            <td class="td-date">{{ $log->created_at->format('d M Y H:i') }}</td>
           </tr>
         @empty
           <tr>
-            <td colspan="4" style="text-align:center;color:var(--grey-500);padding:24px;">
-              No access history {{ request()->hasAny(['action','actor','from','to']) ? 'matching your filters.' : '.' }}
+            <td colspan="4">
+              <div class="empty-state empty-state-sm">
+                <div class="empty-icon">🔍</div>
+                <p>No access history {{ request()->hasAny(['action','actor','from','to']) ? 'matching your filters.' : 'yet.' }}</p>
+              </div>
             </td>
           </tr>
         @endforelse
       </tbody>
     </table>
   </div>
-  <div style="margin-top:16px;">{{ $logs->links() }}</div>
+  @if($logs->hasPages())<div class="pager-row">{{ $logs->links() }}</div>@endif
 </div>
 @endsection

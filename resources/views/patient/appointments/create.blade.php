@@ -8,13 +8,13 @@
   <a href="{{ route('patient.appointments') }}" class="btn btn-secondary">← Back</a>
 </div>
 
-<div style="max-width:640px;">
+<div class="max-640">
   <div class="card">
     <div class="card-header"><div class="card-title">Appointment Details</div></div>
     <div class="card-body">
       <form method="POST" action="{{ route('patient.appointments.store') }}">
         @csrf
-        <div class="form-grid" style="margin-bottom:16px;">
+        <div class="form-grid mb-16">
           <div class="form-field span-2">
             <label>Provider *</label>
             <select name="provider_id" required>
@@ -60,7 +60,7 @@
             <textarea name="notes" rows="3" maxlength="500" placeholder="Symptoms, questions, anything else the provider should know…">{{ old('notes') }}</textarea>
           </div>
         </div>
-        <div class="alert navy" style="font-size:12px;margin-bottom:16px;">ℹ️ Appointments are requests — the provider will confirm or suggest a different time. You will be notified in-app.</div>
+        <div class="alert navy mb-16">ℹ️ Appointments are requests — the provider will confirm or suggest a different time. You will be notified in-app.</div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Request Appointment</button>
           <a href="{{ route('patient.appointments') }}" class="btn btn-secondary">Cancel</a>

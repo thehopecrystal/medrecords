@@ -8,13 +8,16 @@
   <a href="{{ route('patient.record','labs') }}" class="btn btn-secondary">← Back to Records</a>
 </div>
 
-<div style="max-width:640px;">
+<div class="max-640">
   <div class="card">
-    <div class="card-header"><div class="card-title">Lab Result Details</div><div class="card-sub">Patient-uploaded results are marked separately from provider-ordered tests.</div></div>
+    <div class="card-header">
+      <div class="card-title">Lab Result Details</div>
+      <div class="card-sub">Patient-uploaded results are marked separately from provider-ordered tests.</div>
+    </div>
     <div class="card-body">
       <form method="POST" action="{{ route('patient.lab-upload.store') }}" enctype="multipart/form-data">
         @csrf
-        <div class="form-grid" style="margin-bottom:16px;">
+        <div class="form-grid mb-16">
           <div class="form-field span-2">
             <label>Test Name *</label>
             <input type="text" name="test_name" value="{{ old('test_name') }}" required placeholder="e.g. Full Blood Count, HbA1c, Lipid Panel">
@@ -44,13 +47,12 @@
             <textarea name="notes" rows="3" placeholder="Lab name, doctor's comments, reference range…">{{ old('notes') }}</textarea>
           </div>
           <div class="form-field span-2">
-            <label>Attach File <span style="color:var(--text-3);font-weight:400;">(PDF, JPG, PNG — max 5 MB)</span></label>
-            <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png"
-              style="background:#fff;padding:8px;border:1.5px dashed var(--border);border-radius:8px;cursor:pointer;">
+            <label>Attach File <span class="td-muted" style="font-weight:400;">(PDF, JPG, PNG — max 5 MB)</span></label>
+            <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" class="file-input-zone">
             @error('file')<div class="form-error">{{ $message }}</div>@enderror
           </div>
         </div>
-        <div class="alert amber" style="font-size:12px;margin-bottom:16px;">
+        <div class="alert amber mb-16">
           ⚠️ Only upload genuine lab results. Patient-uploaded results are flagged as self-reported and do not replace clinician-ordered tests.
         </div>
         <div class="form-actions">

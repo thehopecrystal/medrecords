@@ -16,15 +16,15 @@
       <tbody>
         @forelse($requests as $req)
         <tr>
-          <td style="font-weight:600;">{{ $req->prescription->drug_name ?? '—' }}</td>
-          <td style="font-size:12px;color:var(--text-2);">{{ $req->provider->name ?? '—' }}</td>
-          <td style="font-size:12px;color:var(--text-3);">{{ $req->created_at->format('d M Y') }}</td>
-          <td style="font-size:12px;color:var(--text-2);max-width:180px;">{{ $req->reason ?: '—' }}</td>
+          <td class="td-fw">{{ $req->prescription->drug_name ?? '—' }}</td>
+          <td class="td-muted">{{ $req->provider->name ?? '—' }}</td>
+          <td class="td-date">{{ $req->created_at->format('d M Y') }}</td>
+          <td class="td-muted td-max-180">{{ $req->reason ?: '—' }}</td>
           <td>
             @php $sc=['pending'=>'amber','approved'=>'green','denied'=>'red'] @endphp
             <span class="pill {{ $sc[$req->status] ?? 'grey' }}">{{ ucfirst($req->status) }}</span>
           </td>
-          <td style="font-size:12px;color:var(--text-2);">{{ $req->provider_notes ?: '—' }}</td>
+          <td class="td-muted">{{ $req->provider_notes ?: '—' }}</td>
         </tr>
         @empty
         <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💊</div><h3>No refill requests</h3><p>Request refills from your health records page.</p></div></td></tr>
@@ -32,10 +32,10 @@
       </tbody>
     </table>
   </div>
-  @if($requests->hasPages())<div style="padding:14px 22px;border-top:1px solid var(--border);">{{ $requests->links() }}</div>@endif
+  @if($requests->hasPages())<div class="pager-row">{{ $requests->links() }}</div>@endif
 </div>
 
-<div class="alert navy" style="margin-top:16px;font-size:13px;">
-  💡 To request a refill, go to <a href="{{ route('patient.record','prescriptions') }}" style="color:var(--navy);font-weight:700;">My Health Records → Prescriptions</a> and click "Request Refill" on an active prescription.
+<div class="alert navy mt-16">
+  💡 To request a refill, go to <a href="{{ route('patient.record','prescriptions') }}" class="text-navy-link">My Health Records → Prescriptions</a> and click "Request Refill" on an active prescription.
 </div>
 @endsection
