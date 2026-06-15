@@ -1200,7 +1200,7 @@ tbody tr:hover { background: #FAFCFF; }
 }
 .pi-local::placeholder { color: var(--text-3); }
 .pi-dropdown {
-  position: absolute; top: calc(100% + 5px); left: 0; width: 300px;
+  position: fixed; width: 300px;
   background: var(--card); border: 1.5px solid var(--border); border-radius: 10px;
   box-shadow: var(--shadow-lg); z-index: 9999; overflow: hidden;
 }

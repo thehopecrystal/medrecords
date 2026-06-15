@@ -155,27 +155,41 @@ if ($value && str_starts_with($value, '+')) {
     hidden.value = buildE164(local.value, currentCode);
   }
 
+  // Position dropdown using fixed coordinates so it escapes any ancestor overflow/stacking context
+  function positionDropdown() {
+    var r = wrap.getBoundingClientRect();
+    var dropW = Math.max(280, r.width);
+    dropdown.style.position = 'fixed';
+    dropdown.style.top      = (r.bottom + 5) + 'px';
+    dropdown.style.bottom   = 'auto';
+    dropdown.style.left     = r.left + 'px';
+    dropdown.style.right    = 'auto';
+    dropdown.style.width    = dropW + 'px';
+    // Flip right-edge overflow
+    if (r.left + dropW > window.innerWidth - 8) {
+      dropdown.style.left  = 'auto';
+      dropdown.style.right = (window.innerWidth - r.right) + 'px';
+    }
+    // Flip upward if it would go below the viewport
+    var approxH = 280;
+    if (r.bottom + 5 + approxH > window.innerHeight - 8) {
+      dropdown.style.top    = 'auto';
+      dropdown.style.bottom = (window.innerHeight - r.top + 5) + 'px';
+    }
+  }
+
   // Toggle dropdown
   trigger.addEventListener('click', function (e) {
     e.preventDefault(); e.stopPropagation();
-    var open = dropdown.style.display !== 'none';
-    if (open) {
+    if (dropdown.style.display !== 'none') {
       closeDropdown();
     } else {
-      // Reset to left-aligned before measuring
-      dropdown.style.left  = '0';
-      dropdown.style.right = 'auto';
+      positionDropdown();
       dropdown.style.display = '';
       trigger.setAttribute('aria-expanded', 'true');
       search.value = '';
       filterList('');
       search.focus();
-      // Flip to right-aligned if dropdown overflows the viewport right edge
-      var rect = dropdown.getBoundingClientRect();
-      if (rect.right > window.innerWidth - 8) {
-        dropdown.style.left  = 'auto';
-        dropdown.style.right = '0';
-      }
     }
   });
 
@@ -184,10 +198,11 @@ if ($value && str_starts_with($value, '+')) {
     trigger.setAttribute('aria-expanded', 'false');
   }
 
-  // Close on outside click
+  // Close on outside click or scroll (fixed dropdown doesn't follow scroll)
   document.addEventListener('click', function (e) {
     if (!wrap.contains(e.target)) closeDropdown();
   });
+  document.addEventListener('scroll', closeDropdown, { passive: true, capture: true });
 
   // Keyboard: Escape closes
   dropdown.addEventListener('keydown', function (e) {
