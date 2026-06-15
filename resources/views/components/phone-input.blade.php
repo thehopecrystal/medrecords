@@ -162,11 +162,20 @@ if ($value && str_starts_with($value, '+')) {
     if (open) {
       closeDropdown();
     } else {
+      // Reset to left-aligned before measuring
+      dropdown.style.left  = '0';
+      dropdown.style.right = 'auto';
       dropdown.style.display = '';
       trigger.setAttribute('aria-expanded', 'true');
       search.value = '';
       filterList('');
       search.focus();
+      // Flip to right-aligned if dropdown overflows the viewport right edge
+      var rect = dropdown.getBoundingClientRect();
+      if (rect.right > window.innerWidth - 8) {
+        dropdown.style.left  = 'auto';
+        dropdown.style.right = '0';
+      }
     }
   });
 

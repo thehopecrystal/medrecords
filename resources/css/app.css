@@ -983,12 +983,26 @@ tbody tr:hover { background: #FAFCFF; }
 .profile-pct-dot       { width: 7px; height: 7px; border-radius: 50%; background: var(--grey-200); flex-shrink: 0; }
 .profile-pct-check.done .profile-pct-dot { background: var(--green); }
 
-/* Sidebar nav */
-.profile-nav           { padding: 10px 8px 14px; }
-.profile-nav-section   { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); padding: 6px 10px 4px; }
-.profile-nav-item      { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-2); text-decoration: none; transition: background 0.12s, color 0.12s; margin-bottom: 1px; }
-.profile-nav-item:hover  { background: var(--grey-50); color: var(--text); }
-.profile-nav-item.active { background: var(--navy-lt); color: var(--navy); font-weight: 600; border-left: 3px solid var(--navy); padding-left: 9px; }
+/* Tab navigation */
+.profile-tabs          { display: flex; gap: 2px; background: var(--grey-50); border: 1px solid var(--border); border-radius: 11px; padding: 4px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+.profile-tabs::-webkit-scrollbar { display: none; }
+.profile-tab           { display: flex; align-items: center; gap: 6px; flex: 1; min-width: max-content; padding: 9px 16px; border: none; background: transparent; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+.profile-tab:hover     { background: var(--card); color: var(--text); }
+.profile-tab.active    { background: var(--card); color: var(--navy); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.profile-tab-icon      { font-size: 15px; flex-shrink: 0; }
+.profile-tab-label     { }
+.profile-tab-panel     { display: none; }
+.profile-tab-panel.active { display: block; }
+
+@media (max-width: 900px) {
+  .profile-layout { grid-template-columns: 1fr; }
+  .profile-sidebar-sticky { position: static; }
+  .profile-tab { padding: 8px 12px; font-size: 12px; }
+  .profile-tab-label { display: none; }
+}
+@media (max-width: 600px) {
+  .profile-tab-label { display: none; }
+}
 
 /* Card header icon badge */
 .card-header-group  { display: flex; align-items: center; gap: 12px; }

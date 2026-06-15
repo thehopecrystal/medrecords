@@ -98,291 +98,319 @@
         </div>
       </div>
 
-      {{-- Nav --}}
-      <nav class="profile-nav">
-        <div class="profile-nav-section">Settings</div>
-        <a href="#personal"   class="profile-nav-item active"><span>👤</span> Personal Info</a>
-        <a href="#medical"    class="profile-nav-item"><span>🩺</span> Medical Profile</a>
-        <a href="#emergency"  class="profile-nav-item"><span>🚨</span> Emergency Contact</a>
-        <a href="#security"   class="profile-nav-item"><span>🔒</span> Password</a>
-        <a href="#two-factor" class="profile-nav-item"><span>🛡</span> Two-Factor Auth</a>
-      </nav>
     </div>
   </div>
 
   {{-- ── Forms column ────────────────────────────────── --}}
   <div class="profile-forms">
 
+    {{-- Tab bar --}}
+    <div class="profile-tabs" role="tablist" aria-label="Profile settings">
+      <button class="profile-tab active" data-tab="personal" role="tab" aria-controls="tab-personal" aria-selected="true">
+        <span class="profile-tab-icon">👤</span><span class="profile-tab-label">Personal</span>
+      </button>
+      <button class="profile-tab" data-tab="medical" role="tab" aria-controls="tab-medical">
+        <span class="profile-tab-icon">🩺</span><span class="profile-tab-label">Medical</span>
+      </button>
+      <button class="profile-tab" data-tab="emergency" role="tab" aria-controls="tab-emergency">
+        <span class="profile-tab-icon">🚨</span><span class="profile-tab-label">Emergency</span>
+      </button>
+      <button class="profile-tab" data-tab="security" role="tab" aria-controls="tab-security">
+        <span class="profile-tab-icon">🔒</span><span class="profile-tab-label">Security</span>
+      </button>
+      <button class="profile-tab" data-tab="two-factor" role="tab" aria-controls="tab-two-factor">
+        <span class="profile-tab-icon">🛡</span><span class="profile-tab-label">2FA</span>
+      </button>
+    </div>
+
     {{-- Personal Info --}}
-    <div class="card" id="personal">
-      <div class="card-header">
-        <div class="card-header-group">
-          <div class="card-icon navy">👤</div>
-          <div>
-            <div class="card-title">Personal Information</div>
-            <div class="card-sub">Your account details and contact information</div>
+    <div class="profile-tab-panel active" id="tab-personal" role="tabpanel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-group">
+            <div class="card-icon navy">👤</div>
+            <div>
+              <div class="card-title">Personal Information</div>
+              <div class="card-sub">Your account details and contact information</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="card-body">
-        <form method="POST" action="{{ route('patient.profile.update') }}">
-          @csrf @method('PUT')
-          <div class="form-grid">
-            <div class="form-field span-2">
-              <label>Full name *</label>
-              <input type="text" name="name" value="{{ old('name', $user->name) }}" required placeholder="Adaeze Okonkwo">
-              @error('name')<div class="form-error">{{ $message }}</div>@enderror
+        <div class="card-body">
+          <form method="POST" action="{{ route('patient.profile.update') }}">
+            @csrf @method('PUT')
+            <div class="form-grid">
+              <div class="form-field span-2">
+                <label>Full name *</label>
+                <input type="text" name="name" value="{{ old('name', $user->name) }}" required placeholder="Adaeze Okonkwo">
+                @error('name')<div class="form-error">{{ $message }}</div>@enderror
+              </div>
+              <div class="form-field">
+                <label>Email address *</label>
+                <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
+                @error('email')<div class="form-error">{{ $message }}</div>@enderror
+              </div>
+              <div class="form-field">
+                <label>Date of birth</label>
+                <input type="date" name="dob" value="{{ old('dob', $patient->dob?->format('Y-m-d')) }}" max="{{ date('Y-m-d', strtotime('-1 day')) }}">
+                @error('dob')<div class="form-error">{{ $message }}</div>@enderror
+              </div>
+              <div class="form-field span-2">
+                <label>Phone number *</label>
+                <x-phone-input name="phone" id="profilePhone" :value="old('phone', $user->phone)" :required="true" />
+                @error('phone')<div class="form-error">{{ $message }}</div>@enderror
+              </div>
+              <div class="form-field">
+                <label>Gender</label>
+                <select name="gender">
+                  <option value="">Select…</option>
+                  <option value="male"   {{ old('gender', $patient->gender) === 'male'   ? 'selected' : '' }}>Male</option>
+                  <option value="female" {{ old('gender', $patient->gender) === 'female' ? 'selected' : '' }}>Female</option>
+                  <option value="other"  {{ old('gender', $patient->gender) === 'other'  ? 'selected' : '' }}>Other / prefer not to say</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>State of residence</label>
+                <select name="state">
+                  <option value="">Select state…</option>
+                  @foreach(['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','FCT','Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara'] as $st)
+                    <option value="{{ $st }}" {{ old('state', $patient->state) === $st ? 'selected' : '' }}>{{ $st }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="form-field">
+                <label>City</label>
+                <input type="text" name="city" value="{{ old('city', $patient->city) }}" placeholder="Lagos Island">
+              </div>
+              <div class="form-field span-2">
+                <label>Address</label>
+                <input type="text" name="address" value="{{ old('address', $patient->address) }}" placeholder="14 Broad Street, Lagos Island">
+              </div>
             </div>
-            <div class="form-field">
-              <label>Email address *</label>
-              <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
-              @error('email')<div class="form-error">{{ $message }}</div>@enderror
+            <div class="form-actions form-actions-bordered">
+              <button type="submit" class="btn btn-primary">Save personal info</button>
             </div>
-            <div class="form-field">
-              <label>Phone number *</label>
-              <x-phone-input name="phone" id="profilePhone" :value="old('phone', $user->phone)" :required="true" />
-              @error('phone')<div class="form-error">{{ $message }}</div>@enderror
-            </div>
-            <div class="form-field">
-              <label>Date of birth</label>
-              <input type="date" name="dob" value="{{ old('dob', $patient->dob?->format('Y-m-d')) }}" max="{{ date('Y-m-d', strtotime('-1 day')) }}">
-              @error('dob')<div class="form-error">{{ $message }}</div>@enderror
-            </div>
-            <div class="form-field">
-              <label>Gender</label>
-              <select name="gender">
-                <option value="">Select…</option>
-                <option value="male"   {{ old('gender', $patient->gender) === 'male'   ? 'selected' : '' }}>Male</option>
-                <option value="female" {{ old('gender', $patient->gender) === 'female' ? 'selected' : '' }}>Female</option>
-                <option value="other"  {{ old('gender', $patient->gender) === 'other'  ? 'selected' : '' }}>Other / prefer not to say</option>
-              </select>
-            </div>
-            <div class="form-field">
-              <label>State of residence</label>
-              <select name="state">
-                <option value="">Select state…</option>
-                @foreach(['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','FCT','Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara'] as $st)
-                  <option value="{{ $st }}" {{ old('state', $patient->state) === $st ? 'selected' : '' }}>{{ $st }}</option>
-                @endforeach
-              </select>
-            </div>
-            <div class="form-field">
-              <label>City</label>
-              <input type="text" name="city" value="{{ old('city', $patient->city) }}" placeholder="Lagos Island">
-            </div>
-            <div class="form-field span-2">
-              <label>Address</label>
-              <input type="text" name="address" value="{{ old('address', $patient->address) }}" placeholder="14 Broad Street, Lagos Island">
-            </div>
-          </div>
-          <div class="form-actions form-actions-bordered">
-            <button type="submit" class="btn btn-primary">Save personal info</button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
 
     {{-- Medical Profile --}}
-    <div class="card" id="medical">
-      <div class="card-header">
-        <div class="card-header-group">
-          <div class="card-icon red">🩺</div>
-          <div>
-            <div class="card-title">Medical Profile</div>
-            <div class="card-sub">Clinical information shown to providers during consultations</div>
+    <div class="profile-tab-panel" id="tab-medical" role="tabpanel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-group">
+            <div class="card-icon red">🩺</div>
+            <div>
+              <div class="card-title">Medical Profile</div>
+              <div class="card-sub">Clinical information shown to providers during consultations</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="card-body">
-        <form method="POST" action="{{ route('patient.profile.update') }}">
-          @csrf @method('PUT')
-          <input type="hidden" name="name"  value="{{ $user->name }}">
-          <input type="hidden" name="email" value="{{ $user->email }}">
-          <input type="hidden" name="phone" value="{{ $user->phone }}">
-          <input type="hidden" name="dob"                   value="{{ $patient->dob?->format('Y-m-d') }}">
-          <input type="hidden" name="gender"                value="{{ $patient->gender }}">
-          <input type="hidden" name="state"                 value="{{ $patient->state }}">
-          <input type="hidden" name="city"                  value="{{ $patient->city }}">
-          <input type="hidden" name="address"               value="{{ $patient->address }}">
-          <input type="hidden" name="emergency_contact_name"  value="{{ $patient->emergency_contact_name }}">
-          <input type="hidden" name="emergency_contact_phone" value="{{ $patient->emergency_contact_phone }}">
-          <div class="form-grid">
-            <div class="form-field">
-              <label>Blood type</label>
-              <select name="blood_type">
-                <option value="">Unknown</option>
-                @foreach(['A+','A-','B+','B-','AB+','AB-','O+','O-'] as $bt)
-                  <option value="{{ $bt }}" {{ old('blood_type', $patient->blood_type) === $bt ? 'selected' : '' }}>{{ $bt }}</option>
-                @endforeach
-              </select>
+        <div class="card-body">
+          <form method="POST" action="{{ route('patient.profile.update') }}">
+            @csrf @method('PUT')
+            <input type="hidden" name="name"  value="{{ $user->name }}">
+            <input type="hidden" name="email" value="{{ $user->email }}">
+            <input type="hidden" name="phone" value="{{ $user->phone }}">
+            <input type="hidden" name="dob"                    value="{{ $patient->dob?->format('Y-m-d') }}">
+            <input type="hidden" name="gender"                 value="{{ $patient->gender }}">
+            <input type="hidden" name="state"                  value="{{ $patient->state }}">
+            <input type="hidden" name="city"                   value="{{ $patient->city }}">
+            <input type="hidden" name="address"                value="{{ $patient->address }}">
+            <input type="hidden" name="emergency_contact_name"  value="{{ $patient->emergency_contact_name }}">
+            <input type="hidden" name="emergency_contact_phone" value="{{ $patient->emergency_contact_phone }}">
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Blood type</label>
+                <select name="blood_type">
+                  <option value="">Unknown</option>
+                  @foreach(['A+','A-','B+','B-','AB+','AB-','O+','O-'] as $bt)
+                    <option value="{{ $bt }}" {{ old('blood_type', $patient->blood_type) === $bt ? 'selected' : '' }}>{{ $bt }}</option>
+                  @endforeach
+                </select>
+                @error('blood_type')<div class="form-error">{{ $message }}</div>@enderror
+              </div>
+              <div class="form-field">
+                <label>Genotype</label>
+                <select name="genotype">
+                  <option value="">Unknown</option>
+                  @foreach(['AA','AS','SS','AC','SC'] as $g)
+                    <option value="{{ $g }}" {{ old('genotype', $patient->genotype) === $g ? 'selected' : '' }}>{{ $g }}</option>
+                  @endforeach
+                </select>
+                @error('genotype')<div class="form-error">{{ $message }}</div>@enderror
+              </div>
             </div>
-            <div class="form-field">
-              <label>Genotype</label>
-              <select name="genotype">
-                <option value="">Unknown</option>
-                @foreach(['AA','AS','SS','AC','SC'] as $g)
-                  <option value="{{ $g }}" {{ old('genotype', $patient->genotype) === $g ? 'selected' : '' }}>{{ $g }}</option>
-                @endforeach
-              </select>
+            <div class="alert navy mt-16">
+              <span>ℹ</span>
+              <span>Blood type and genotype are displayed to providers and pharmacists when they access your record with your consent.</span>
             </div>
-          </div>
-          <div class="alert navy mt-16">
-            <span>ℹ</span>
-            <span>Blood type and genotype are displayed to providers and pharmacists when they access your record with your consent.</span>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save medical profile</button>
-          </div>
-        </form>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save medical profile</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
     {{-- Emergency Contact --}}
-    <div class="card" id="emergency">
-      <div class="card-header">
-        <div class="card-header-group">
-          <div class="card-icon amber">🚨</div>
-          <div>
-            <div class="card-title">Emergency Contact</div>
-            <div class="card-sub">Person to notify in a medical emergency</div>
+    <div class="profile-tab-panel" id="tab-emergency" role="tabpanel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-group">
+            <div class="card-icon amber">🚨</div>
+            <div>
+              <div class="card-title">Emergency Contact</div>
+              <div class="card-sub">Person to notify in a medical emergency</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="card-body">
-        <form method="POST" action="{{ route('patient.profile.update') }}">
-          @csrf @method('PUT')
-          <input type="hidden" name="name"       value="{{ $user->name }}">
-          <input type="hidden" name="email"      value="{{ $user->email }}">
-          <input type="hidden" name="phone"      value="{{ $user->phone }}">
-          <input type="hidden" name="dob"        value="{{ $patient->dob?->format('Y-m-d') }}">
-          <input type="hidden" name="gender"     value="{{ $patient->gender }}">
-          <input type="hidden" name="blood_type" value="{{ $patient->blood_type }}">
-          <input type="hidden" name="genotype"   value="{{ $patient->genotype }}">
-          <input type="hidden" name="state"      value="{{ $patient->state }}">
-          <input type="hidden" name="city"       value="{{ $patient->city }}">
-          <input type="hidden" name="address"    value="{{ $patient->address }}">
-          <div class="form-grid">
-            <div class="form-field">
-              <label>Contact name</label>
-              <input type="text" name="emergency_contact_name" value="{{ old('emergency_contact_name', $patient->emergency_contact_name) }}" placeholder="Chidi Okonkwo">
+        <div class="card-body">
+          <form method="POST" action="{{ route('patient.profile.update') }}">
+            @csrf @method('PUT')
+            <input type="hidden" name="name"       value="{{ $user->name }}">
+            <input type="hidden" name="email"      value="{{ $user->email }}">
+            <input type="hidden" name="phone"      value="{{ $user->phone }}">
+            <input type="hidden" name="dob"        value="{{ $patient->dob?->format('Y-m-d') }}">
+            <input type="hidden" name="gender"     value="{{ $patient->gender }}">
+            <input type="hidden" name="blood_type" value="{{ $patient->blood_type }}">
+            <input type="hidden" name="genotype"   value="{{ $patient->genotype }}">
+            <input type="hidden" name="state"      value="{{ $patient->state }}">
+            <input type="hidden" name="city"       value="{{ $patient->city }}">
+            <input type="hidden" name="address"    value="{{ $patient->address }}">
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Contact name</label>
+                <input type="text" name="emergency_contact_name"
+                       value="{{ old('emergency_contact_name', $patient->emergency_contact_name) }}"
+                       placeholder="Chidi Okonkwo">
+                @error('emergency_contact_name')<div class="form-error">{{ $message }}</div>@enderror
+              </div>
+              <div class="form-field">
+                <label>Contact phone</label>
+                <input type="text" name="emergency_contact_phone"
+                       value="{{ old('emergency_contact_phone', $patient->emergency_contact_phone) }}"
+                       placeholder="+2348012345678">
+                @error('emergency_contact_phone')<div class="form-error">{{ $message }}</div>@enderror
+              </div>
             </div>
-            <div class="form-field">
-              <label>Contact phone</label>
-              <input type="text" name="emergency_contact_phone" value="{{ old('emergency_contact_phone', $patient->emergency_contact_phone) }}" placeholder="08012345678">
+            <div class="form-actions mt-16">
+              <button type="submit" class="btn btn-primary">Save emergency contact</button>
             </div>
-          </div>
-          <div class="form-actions mt-16">
-            <button type="submit" class="btn btn-primary">Save emergency contact</button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
 
     {{-- Password & Security --}}
-    <div class="card" id="security">
-      <div class="card-header">
-        <div class="card-header-group">
-          <div class="card-icon navy">🔒</div>
-          <div>
-            <div class="card-title">Password &amp; Security</div>
-            <div class="card-sub">Change your account password</div>
+    <div class="profile-tab-panel" id="tab-security" role="tabpanel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-group">
+            <div class="card-icon navy">🔒</div>
+            <div>
+              <div class="card-title">Password &amp; Security</div>
+              <div class="card-sub">Change your account password</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="card-body">
-        <form method="POST" action="{{ route('patient.profile.password') }}">
-          @csrf @method('PUT')
-          <div class="form-grid">
-            <div class="form-field span-2">
-              <label>Current password *</label>
-              <div class="pw-wrap">
-                <input type="password" name="current_password" required autocomplete="current-password">
-                <button type="button" class="pw-toggle" tabindex="-1" aria-label="Toggle visibility">👁</button>
+        <div class="card-body">
+          <form method="POST" action="{{ route('patient.profile.password') }}">
+            @csrf @method('PUT')
+            <div class="form-grid">
+              <div class="form-field span-2">
+                <label>Current password *</label>
+                <div class="pw-wrap">
+                  <input type="password" name="current_password" required autocomplete="current-password">
+                  <button type="button" class="pw-toggle" tabindex="-1" aria-label="Toggle visibility">👁</button>
+                </div>
+                @error('current_password')<div class="form-error">{{ $message }}</div>@enderror
               </div>
-              @error('current_password')<div class="form-error">{{ $message }}</div>@enderror
-            </div>
-            <div class="form-field">
-              <label>New password *</label>
-              <div class="pw-wrap">
-                <input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="Min 8 characters">
-                <button type="button" class="pw-toggle" tabindex="-1" aria-label="Toggle visibility">👁</button>
+              <div class="form-field">
+                <label>New password *</label>
+                <div class="pw-wrap">
+                  <input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="Min 8 characters">
+                  <button type="button" class="pw-toggle" tabindex="-1" aria-label="Toggle visibility">👁</button>
+                </div>
+                @error('password')<div class="form-error">{{ $message }}</div>@enderror
               </div>
-              @error('password')<div class="form-error">{{ $message }}</div>@enderror
-            </div>
-            <div class="form-field">
-              <label>Confirm new password *</label>
-              <div class="pw-wrap">
-                <input type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat new password">
-                <button type="button" class="pw-toggle" tabindex="-1" aria-label="Toggle visibility">👁</button>
+              <div class="form-field">
+                <label>Confirm new password *</label>
+                <div class="pw-wrap">
+                  <input type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat new password">
+                  <button type="button" class="pw-toggle" tabindex="-1" aria-label="Toggle visibility">👁</button>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="alert amber mt-16">
-            <span>⚠</span>
-            <span>Use at least 8 characters. Include letters, numbers, and symbols for stronger security.</span>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Change password</button>
-          </div>
-        </form>
+            <div class="alert amber mt-16">
+              <span>⚠</span>
+              <span>Use at least 8 characters. Include letters, numbers, and symbols for stronger security.</span>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Change password</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
     {{-- Two-Factor Auth --}}
-    <div class="card" id="two-factor">
-      <div class="card-header">
-        <div class="card-header-group">
-          <div class="card-icon {{ $user->two_factor_enabled ? 'green' : 'amber' }}">🛡</div>
-          <div>
-            <div class="card-title">Two-Factor Authentication</div>
-            <div class="card-sub">Add an extra layer of security with SMS OTP</div>
+    <div class="profile-tab-panel" id="tab-two-factor" role="tabpanel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-group">
+            <div class="card-icon {{ $user->two_factor_enabled ? 'green' : 'amber' }}">🛡</div>
+            <div>
+              <div class="card-title">Two-Factor Authentication</div>
+              <div class="card-sub">Add an extra layer of security with SMS OTP</div>
+            </div>
           </div>
+          <span class="pill {{ $user->two_factor_enabled ? 'green' : 'grey' }}">
+            {{ $user->two_factor_enabled ? '✓ Enabled' : 'Disabled' }}
+          </span>
         </div>
-        <span class="pill {{ $user->two_factor_enabled ? 'green' : 'grey' }}">
-          {{ $user->two_factor_enabled ? '✓ Enabled' : 'Disabled' }}
-        </span>
-      </div>
-      <div class="card-body">
-        @if($user->two_factor_enabled)
-          <div class="tfa-panel enabled">
-            <div class="tfa-panel-icon">🛡️</div>
-            <div>
-              <div class="tfa-panel-title">Two-factor authentication is active</div>
-              <div class="tfa-panel-sub">A 6-digit OTP is sent to your phone via SMS each time you sign in.</div>
+        <div class="card-body">
+          @if($user->two_factor_enabled)
+            <div class="tfa-panel enabled">
+              <div class="tfa-panel-icon">🛡️</div>
+              <div>
+                <div class="tfa-panel-title">Two-factor authentication is active</div>
+                <div class="tfa-panel-sub">A 6-digit OTP is sent to your phone via SMS each time you sign in.</div>
+              </div>
             </div>
-          </div>
-          <form method="POST" action="{{ route('patient.profile.2fa') }}"
-                data-confirm="Disable two-factor authentication? Your account will rely on password only."
-                data-confirm-ok="Disable 2FA">
-            @csrf
-            <input type="hidden" name="action" value="disable">
-            <button type="submit" class="btn btn-danger">Disable 2FA</button>
-          </form>
-        @else
-          <div class="tfa-panel">
-            <div class="tfa-panel-icon">🔓</div>
-            <div>
-              <div class="tfa-panel-title">2FA is not enabled</div>
-              <div class="tfa-panel-sub">Your account is protected by password only. Enable 2FA for a second verification step at each login.</div>
-            </div>
-          </div>
-          @if($user->phone)
-            <p class="td-muted mb-16">
-              OTPs will be sent to <strong>{{ $user->phone }}</strong>.
-              <a href="#personal" class="text-navy-link">Change number</a>
-            </p>
-            <form method="POST" action="{{ route('patient.profile.2fa') }}">
+            <form method="POST" action="{{ route('patient.profile.2fa') }}"
+                  data-confirm="Disable two-factor authentication? Your account will rely on password only."
+                  data-confirm-ok="Disable 2FA">
               @csrf
-              <input type="hidden" name="action" value="enable">
-              <button type="submit" class="btn btn-primary">Enable 2FA</button>
+              <input type="hidden" name="action" value="disable">
+              <button type="submit" class="btn btn-danger">Disable 2FA</button>
             </form>
           @else
-            <div class="alert red mt-16">
-              <span>✗</span>
-              <span>Add a phone number in <a href="#personal" class="text-navy-link">Personal Info</a> before enabling 2FA.</span>
+            <div class="tfa-panel">
+              <div class="tfa-panel-icon">🔓</div>
+              <div>
+                <div class="tfa-panel-title">2FA is not enabled</div>
+                <div class="tfa-panel-sub">Your account is protected by password only. Enable 2FA for a second verification step at each login.</div>
+              </div>
             </div>
+            @if($user->phone)
+              <p class="td-muted mb-16">
+                OTPs will be sent to <strong>{{ $user->phone }}</strong>.
+                <a href="#" data-go-tab="personal" class="text-navy-link">Change number</a>
+              </p>
+              <form method="POST" action="{{ route('patient.profile.2fa') }}">
+                @csrf
+                <input type="hidden" name="action" value="enable">
+                <button type="submit" class="btn btn-primary">Enable 2FA</button>
+              </form>
+            @else
+              <div class="alert red mt-16">
+                <span>✗</span>
+                <span>Add a phone number in <a href="#" data-go-tab="personal" class="text-navy-link">Personal Info</a> before enabling 2FA.</span>
+              </div>
+            @endif
           @endif
-        @endif
+        </div>
       </div>
     </div>
 
