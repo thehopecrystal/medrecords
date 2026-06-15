@@ -3,16 +3,31 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\BreakGlassEvent;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class BreakGlassController extends Controller
 {
+    private function authorizeEvent(BreakGlassEvent $event): void
+    {
+        /** @var Admin $admin */
+        $admin = auth()->user();
+        if ($admin->role === 'facility_admin') {
+            abort_unless(
+                $event->patient->facility_id === $admin->facility_id,
+                403,
+                'You may only review break-glass events for patients at your facility.'
+            );
+        }
+    }
+
     public function approve(Request $request, int $id)
     {
         $request->validate(['review_notes' => 'nullable|string|max:1000']);
-        $event = BreakGlassEvent::with('patient.user')->findOrFail($id);
+        $event = BreakGlassEvent::with('patient.user', 'patient')->findOrFail($id);
+        $this->authorizeEvent($event);
         $event->status       = 'approved';
         $event->reviewed_at  = now();
         $event->reviewed_by  = (int) auth()->id();
@@ -33,7 +48,8 @@ class BreakGlassController extends Controller
     public function dispute(Request $request, int $id)
     {
         $request->validate(['review_notes' => 'nullable|string|max:1000']);
-        $event = BreakGlassEvent::with('patient.user')->findOrFail($id);
+        $event = BreakGlassEvent::with('patient.user', 'patient')->findOrFail($id);
+        $this->authorizeEvent($event);
         $event->status       = 'disputed';
         $event->reviewed_at  = now();
         $event->reviewed_by  = (int) auth()->id();
@@ -54,7 +70,8 @@ class BreakGlassController extends Controller
 
     public function close(int $id)
     {
-        $event = BreakGlassEvent::findOrFail($id);
+        $event = BreakGlassEvent::with('patient')->findOrFail($id);
+        $this->authorizeEvent($event);
         $event->status      = 'closed';
         $event->reviewed_at = now();
         $event->reviewed_by = (int) auth()->id();

@@ -54,8 +54,8 @@ class SettingsController extends Controller
     {
         $request->validate([
             'site_name'         => 'sometimes|required|string|max:80',
-            'contact_email'     => 'sometimes|nullable|email',
-            'smtp_port'         => 'sometimes|nullable|integer',
+            'contact_email'     => 'sometimes|nullable|email|max:200',
+            'smtp_port'         => 'sometimes|nullable|integer|min:1|max:65535',
             'smtp_encryption'   => 'sometimes|nullable|in:tls,ssl,none',
             'sms_enabled'       => 'sometimes|nullable|in:0,1',
             'otp_sms_enabled'   => 'sometimes|nullable|in:0,1',
@@ -63,6 +63,15 @@ class SettingsController extends Controller
             'payment_gateway'   => 'sometimes|nullable|in:none,paystack,flutterwave',
             'site_logo_file'    => 'nullable|file|mimes:jpeg,jpg,png,gif,svg,webp|max:2048',
             'site_favicon_file' => 'nullable|file|mimes:ico,png,svg,jpeg,jpg,gif,webp|max:512',
+            // Social URLs must use http(s) — blocks javascript: and data: URI injection.
+            'social_facebook'   => 'sometimes|nullable|string|max:500|regex:/^https?:\/\//i',
+            'social_twitter'    => 'sometimes|nullable|string|max:500|regex:/^https?:\/\//i',
+            'social_instagram'  => 'sometimes|nullable|string|max:500|regex:/^https?:\/\//i',
+            'social_linkedin'   => 'sometimes|nullable|string|max:500|regex:/^https?:\/\//i',
+            'social_youtube'    => 'sometimes|nullable|string|max:500|regex:/^https?:\/\//i',
+            // Logo/favicon URLs (when set via URL field rather than file upload) must also be http(s).
+            'site_logo_url'     => 'sometimes|nullable|string|max:500|regex:/^https?:\/\//i',
+            'site_favicon_url'  => 'sometimes|nullable|string|max:500|regex:/^https?:\/\//i',
         ]);
 
         // Logo file upload — takes priority over URL field

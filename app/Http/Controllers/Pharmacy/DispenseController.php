@@ -54,7 +54,11 @@ class DispenseController extends Controller
     public function dispense(Request $request, int $prescriptionId)
     {
         $request->validate([
-            'quantity' => 'required|integer|min:1',
+            'quantity'         => 'required|integer|min:1|max:9999',
+            'batch_lot'        => 'nullable|string|max:100',
+            'price'            => 'nullable|numeric|min:0|max:9999999',
+            'payment_method'   => 'nullable|in:cash,card,insurance,transfer,waived',
+            'counseling_notes' => 'nullable|string|max:1000',
         ]);
 
         $pharmacist = $this->currentUser();

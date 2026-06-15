@@ -24,9 +24,14 @@ class AvatarController extends Controller
             Storage::disk('public')->delete($user->avatar);
         }
 
-        // Use a non-guessable name — never expose the original filename.
-        $ext  = $request->file('avatar')->getClientOriginalExtension();
-        $name = 'avatars/' . $user->id . '_' . Str::uuid() . '.' . strtolower($ext);
+        // Derive extension from the validated MIME type — never trust the client filename.
+        $ext = match($request->file('avatar')->getMimeType()) {
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/webp' => 'webp',
+            default      => 'jpg',
+        };
+        $name = 'avatars/' . $user->id . '_' . Str::uuid() . '.' . $ext;
         $path = $request->file('avatar')->storeAs('', $name, 'public');
 
         $user->update(['avatar' => $path]);

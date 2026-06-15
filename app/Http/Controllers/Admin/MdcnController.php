@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\Provider;
 use App\Services\MdcnService;
 
@@ -40,6 +41,18 @@ class MdcnController extends Controller
     public function verify(int $id)
     {
         $provider = Provider::with('user')->findOrFail($id);
+
+        // Facility admins may only trigger MDCN verification for providers at their own facility.
+        /** @var Admin $admin */
+        $admin = auth()->user();
+        if ($admin->role === 'facility_admin') {
+            abort_unless(
+                $provider->facility_id === $admin->facility_id,
+                403,
+                'You may only verify providers at your facility.'
+            );
+        }
+
         $result   = (new MdcnService())->verify($provider->mdcn_folio ?? '');
 
         $provider->update([

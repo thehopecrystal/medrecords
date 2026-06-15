@@ -33,7 +33,7 @@ class ProfileController extends Controller
             'city'                    => 'nullable|string|max:60',
             'address'                 => 'nullable|string|max:255',
             'emergency_contact_name'  => 'nullable|string|max:120',
-            'emergency_contact_phone' => 'nullable|string|max:20',
+            'emergency_contact_phone' => ['nullable', 'regex:/^\+[1-9]\d{7,14}$/'],
         ], [
             'phone.regex' => 'Phone number must include a country code (e.g. +2348012345678).',
         ]);

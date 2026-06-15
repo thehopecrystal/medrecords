@@ -9,6 +9,8 @@ class EncounterPrintController extends Controller
 {
     public function show(int $patientId, int $encounterId)
     {
+        $this->requireConsent($patientId);
+
         $encounter = Encounter::with([
             'patient.user', 'patient.allergies',
             'provider', 'facility',
