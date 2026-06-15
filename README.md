@@ -71,11 +71,13 @@ MedRecords gives patients full custody of their medical history. Providers acces
 
 | Layer | Technology |
 |---|---|
-| Framework | Laravel 12 (PHP 8.2) |
+| Framework | Laravel 12 (PHP 8.2+) |
 | Database | MySQL / MariaDB 10.4+ |
-| Auth | Laravel session auth + SMS-based 2FA |
-| Frontend | Blade templates, vanilla JS, custom CSS design system |
-| CSS | CSS custom properties — no Tailwind, no npm build step |
+| Auth | Laravel session auth + OTP 2FA |
+| Frontend | Blade templates, Tailwind CSS v4, vanilla JS |
+| Build tool | Vite 7 (`npm run dev` / `npm run build`) |
+| UI components | Bootstrap 5.3, Chart.js 4 |
+| PDF generation | barryvdh/laravel-dompdf |
 | SMS | Twilio REST API via Laravel HTTP client |
 | Email | SMTP (admin-configurable, any provider) |
 | Payments | Paystack / Flutterwave (keys encrypted at rest) |
@@ -92,6 +94,7 @@ MedRecords gives patients full custody of their medical history. Providers acces
 - MySQL 8 / MariaDB 10.4+
 - Apache 2.4+ with `mod_rewrite` enabled — XAMPP works out of the box
 - Composer 2
+- Node.js 20+ and npm
 
 ---
 
@@ -111,14 +114,20 @@ cd medrecords
 composer install
 ```
 
-### 3. Set up the environment file
+### 3. Install JS dependencies
+
+```bash
+npm install
+```
+
+### 4. Set up the environment file
 
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-### 4. Create the database
+### 5. Create the database
 
 Create a MySQL database named `medrecords`, then set credentials in `.env`:
 
@@ -131,19 +140,25 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-### 5. Run migrations and seed demo data
+### 6. Run migrations and seed demo data
 
 ```bash
 php artisan migrate --seed
 ```
 
-### 6. Create the private storage symlink
+### 7. Build frontend assets
+
+```bash
+npm run build
+```
+
+### 8. Create the private storage symlink
 
 ```bash
 php artisan storage:link
 ```
 
-### 7. Cache everything
+### 9. Cache everything
 
 ```bash
 php artisan optimize
@@ -209,10 +224,20 @@ A root `.htaccess` transparently forwards all requests into `public/` so `/publi
 
 > MySQL **must** be running before loading any page. Sessions, cache, and queues all use the database driver — if MySQL is down, every request fails.
 
-### Option B — Artisan dev server
+### Option B — Artisan + Vite dev server
+
+Run everything in one command (PHP server, queue worker, log streamer, Vite HMR):
+
+```bash
+composer run dev
+```
+
+Or start them separately:
 
 ```bash
 php artisan serve --host=127.0.0.1 --port=8085
+npm run dev
+php artisan queue:listen --timeout=60
 ```
 
 Then visit `http://127.0.0.1:8085`
