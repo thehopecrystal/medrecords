@@ -87,7 +87,7 @@
     <div class="card mb-20">
       <div class="card-header">
         <div class="card-title">Lab Results <span class="pill navy">{{ $patient->labResults->count() }}</span></div>
-        <a href="{{ route('patient.lab-upload.create') }}" class="btn btn-secondary btn-sm">+ Upload result</a>
+        <a href="{{ route('patient.lab-upload') }}" class="btn btn-secondary btn-sm">+ Upload result</a>
       </div>
       @forelse($patient->labResults->sortByDesc('collected_at') as $lab)
         <div class="entry">
