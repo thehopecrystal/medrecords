@@ -170,9 +170,9 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
         $user->update(['last_login_at' => now()]);
-        try { $user->sendEmailVerificationNotification(); } catch (\Throwable $e) { Log::warning("Verification email failed for user {$user->id}: " . $e->getMessage()); }
+        try { $user->sendEmailVerificationOtpNotification(); } catch (\Throwable $e) { Log::warning("Verification email failed for user {$user->id}: " . $e->getMessage()); }
 
-        return redirect()->route('patient.welcome');
+        return redirect()->route('verification.notice');
     }
 
     // ── Provider / Doctor ─────────────────────────────────────────────────────
@@ -215,9 +215,9 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
         $user->update(['last_login_at' => now()]);
-        try { $user->sendEmailVerificationNotification(); } catch (\Throwable $e) { Log::warning("Verification email failed for user {$user->id}: " . $e->getMessage()); }
+        try { $user->sendEmailVerificationOtpNotification(); } catch (\Throwable $e) { Log::warning("Verification email failed for user {$user->id}: " . $e->getMessage()); }
 
-        return redirect()->route('provider.dashboard')->with('onboarding', true);
+        return redirect()->route('verification.notice');
     }
 
     // ── Organisation (hospital / clinic / pharmacy) ───────────────────────────
@@ -272,9 +272,9 @@ class AuthController extends Controller
         Auth::guard('admin')->login($admin);
         $request->session()->regenerate();
         $admin->update(['last_login_at' => now()]);
-        try { $admin->sendEmailVerificationNotification(); } catch (\Throwable $e) { Log::warning("Verification email failed for admin {$admin->id}: " . $e->getMessage()); }
+        try { $admin->sendEmailVerificationOtpNotification(); } catch (\Throwable $e) { Log::warning("Verification email failed for admin {$admin->id}: " . $e->getMessage()); }
 
-        return redirect()->route('admin.dashboard')->with('onboarding', true);
+        return redirect()->route('verification.notice');
     }
 
     // ── OTP ───────────────────────────────────────────────────────────────────

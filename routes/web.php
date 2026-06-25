@@ -60,10 +60,10 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth:admin,web');
 
-// ─── Email Verification ───────────────────────────────────────────────────────
+// ─── Email Verification (OTP-based) ──────────────────────────────────────────
 Route::middleware('auth:admin,web')->group(function () {
     Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
-    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+    Route::post('/email/verify', [EmailVerificationController::class, 'submit'])->middleware('throttle:6,1')->name('email.verify.otp');
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])->middleware('throttle:3,1')->name('verification.send');
 });
 

@@ -336,6 +336,7 @@ site_settings ── (key/value, per-request cached)
 |---|---|
 | Session fixation | Session ID regenerated after login, 2FA verify, logout, and password change |
 | 2FA OTP | 6-digit code via SMS, `hash_equals()` comparison, 10-minute expiry, cleared after use |
+| Email verification OTP | 6-digit code emailed at registration, bcrypt-stored, 10-minute expiry, 5-attempt lockout, throttled to 6 submits / min and 3 resends / min |
 | Consent gate | `requireConsent()` on all provider PHI endpoints — aborts 403 if no consent or break-glass |
 | IDOR prevention | All queries scoped to authenticated user's `patient_id` or `user_id` before `findOrFail()` |
 | Double-dispense | Prescription `status` + existing `Dispense` row checked before processing |
