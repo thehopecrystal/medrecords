@@ -19,8 +19,32 @@ MedRecords gives patients full custody of their medical history. Providers acces
 - [Architecture](#architecture)
 - [Security](#security)
 - [Admin Panel](#admin-panel)
+- [REST API (JWT)](#rest-api-jwt)
 - [Project Structure](#project-structure)
 - [Deployment](#deployment)
+
+---
+
+## REST API (JWT)
+
+A stateless REST API is exposed under `/api` using JWT authentication
+(`tymon/jwt-auth`). Every web endpoint has an API equivalent, with the same
+role, verification, 2FA, MDCN and consent gates enforced as JSON responses.
+
+```bash
+# Get a token
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Accept: application/json" \
+  -d '{"login":"patient@example.com","password":"secret"}'
+
+# Use it
+curl http://localhost:8000/api/patient/dashboard \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer <access_token>"
+```
+
+Full endpoint map, 2FA login flow and error semantics: see [API.md](API.md).
+
 
 ---
 

@@ -6,8 +6,10 @@
     RewriteEngine On
 
     # Force HTTPS — redirect all plain-HTTP requests to HTTPS.
+    # Local development (localhost / 127.0.0.1) is exempt so XAMPP can serve plain HTTP.
     RewriteCond %{HTTPS} off
     RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:[0-9]+)?$
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     # Handle Authorization Header

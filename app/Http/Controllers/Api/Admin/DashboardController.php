@@ -1,0 +1,140 @@
+<?php
+
+namespace App\Http\Controllers\Api\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Admin;
+use App\Models\AuditLog;
+use App\Models\BreakGlassEvent;
+use App\Models\Facility;
+use App\Models\Patient;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+
+class DashboardController extends Controller
+{
+    public function index(): JsonResponse
+    {
+        $stats = [
+            'patients'    => Patient::count(),
+            'providers'   => User::where('role', 'provider')->count(),
+            'facilities'  => Facility::count(),
+            'break_glass' => BreakGlassEvent::where('status', 'active')->count(),
+            'pharmacists' => User::where('role', 'pharmacist')->count(),
+            'total_users' => User::count() + Admin::count(),
+        ];
+
+        $recentLogs = AuditLog::with(['patient.user', 'actor', 'adminActor'])->latest()->take(10)->get();
+        $breakGlass = BreakGlassEvent::with(['patient.user', 'provider'])->where('status', 'active')->latest()->take(5)->get();
+
+        // Chart: new registrations per day for the last 30 days
+        // (substr is portable across MySQL and SQLite).
+        $regData = DB::table('users')
+            ->selectRaw('substr(created_at, 1, 10) as day, COUNT(*) as cnt')
+            ->where('created_at', '>=', now()->subDays(29)->startOfDay())
+            ->groupBy('day')
+            ->orderBy('day')
+            ->pluck('cnt', 'day');
+
+        $regLabels = [];
+        $regCounts = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $d = now()->subDays($i)->format('Y-m-d');
+            $regLabels[] = now()->subDays($i)->format('M d');
+            $regCounts[] = $regData[$d] ?? 0;
+        }
+
+        // Chart: encounters per week for last 8 weeks. Bucketed by day (portable
+        // SQL) and aggregated per ISO week in PHP — YEARWEEK() is MySQL-only.
+        $encRows = DB::table('encounters')
+            ->selectRaw('substr(created_at, 1, 10) as day, COUNT(*) as cnt')
+            ->where('created_at', '>=', now()->subWeeks(7)->startOfWeek())
+            ->groupBy('day')
+            ->pluck('cnt', 'day');
+
+        $encLabels = [];
+        $encCounts = [];
+        for ($i = 7; $i >= 0; $i--) {
+            $weekStart = now()->subWeeks($i)->startOfWeek(); // Monday
+            $encLabels[] = 'W' . $weekStart->format('W');
+            $count = 0;
+            for ($d = 0; $d < 7; $d++) {
+                $count += $encRows[$weekStart->copy()->addDays($d)->toDateString()] ?? 0;
+            }
+            $encCounts[] = $count;
+        }
+
+        // Chart: user role distribution (admins are now in the admins table)
+        $roleRows   = User::selectRaw('role, COUNT(*) as cnt')->groupBy('role')->pluck('cnt', 'role');
+        $adminRows  = Admin::selectRaw('role, COUNT(*) as cnt')->groupBy('role')->pluck('cnt', 'role');
+        $roleLabels = ['Patient', 'Provider', 'Pharmacist', 'Facility Admin', 'Super Admin'];
+        $roleValues = [
+            $roleRows['patient']          ?? 0,
+            $roleRows['provider']         ?? 0,
+            $roleRows['pharmacist']       ?? 0,
+            $adminRows['facility_admin']  ?? 0,
+            $adminRows['super_admin']     ?? 0,
+        ];
+
+        // Chart: dispenses per month for last 6 months (substr is portable).
+        $dispData = DB::table('dispenses')
+            ->selectRaw('substr(created_at, 1, 7) as mo, COUNT(*) as cnt')
+            ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
+            ->groupBy('mo')
+            ->orderBy('mo')
+            ->pluck('cnt', 'mo');
+
+        $dispLabels = [];
+        $dispCounts = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $mo = now()->subMonths($i)->format('Y-m');
+            $dispLabels[] = now()->subMonths($i)->format('M Y');
+            $dispCounts[] = $dispData[$mo] ?? 0;
+        }
+
+        $charts = compact('regLabels', 'regCounts', 'encLabels', 'encCounts',
+                          'roleLabels', 'roleValues', 'dispLabels', 'dispCounts');
+
+        return response()->json(['stats' => $stats, 'recent_logs' => $recentLogs, 'break_glass' => $breakGlass, 'charts' => $charts]);
+    }
+
+    public function facilities(): JsonResponse
+    {
+        $query = Facility::with('owner')->withCount('providers')->orderBy('name');
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%")
+                  ->orWhere('state', 'like', "%{$search}%")
+                  ->orWhere('license_no', 'like', "%{$search}%");
+            });
+        }
+        if ($type = request('type')) {
+            $query->where('type', $type);
+        }
+        if (request('status') === 'active') {
+            $query->where('is_active', true);
+        } elseif (request('status') === 'inactive') {
+            $query->where('is_active', false);
+        }
+        $facilities = $query->paginate(30)->withQueryString();
+        return response()->json(['facilities' => $facilities]);
+    }
+
+    public function breakGlass(): JsonResponse
+    {
+        $query = BreakGlassEvent::with(['patient.user', 'provider'])->latest();
+        if ($status = request('status')) {
+            $query->where('status', $status);
+        }
+        $events = $query->paginate(30)->withQueryString();
+        $counts = [
+            'active'   => BreakGlassEvent::where('status', 'active')->count(),
+            'approved' => BreakGlassEvent::where('status', 'approved')->count(),
+            'disputed' => BreakGlassEvent::where('status', 'disputed')->count(),
+            'closed'   => BreakGlassEvent::where('status', 'closed')->count(),
+        ];
+        return response()->json(['events' => $events, 'counts' => $counts]);
+    }
+}

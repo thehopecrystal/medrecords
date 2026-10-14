@@ -24,6 +24,15 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+        // Subdirectory installs (e.g. XAMPP http://localhost/medrecords/): the front
+        // controller (public/index.php) strips the install folder from the request
+        // path, so generated URLs must carry the folder again. Detected via the
+        // executed script path — a no-op for domain-root deploys, `php artisan
+        // serve` (/index.php) and CLI runs.
+        if (str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/medrecords/public/')) {
+            URL::forceRootUrl(config('app.url'));
+        }
+
         // Log slow queries (>500 ms) during local development.
         if ($this->app->isLocal()) {
             DB::listen(function ($query): void {
@@ -60,6 +69,14 @@ class AppServiceProvider extends ServiceProvider
             return $user
                 ? Limit::perMinute(20)->by('user:' . $user->id)
                 : Limit::perMinute(5)->by($request->ip());
+        });
+
+        // Global API limiter for the JWT REST API.
+        RateLimiter::for('api', function (Request $request) {
+            $user = $request->user();
+            return $user
+                ? Limit::perMinute(120)->by('api-user:' . $user->id)
+                : Limit::perMinute(30)->by('api-ip:' . $request->ip());
         });
     }
 }

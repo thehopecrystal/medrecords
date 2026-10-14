@@ -7,10 +7,22 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, JWTSubject
 {
     use HasFactory, Notifiable, SendsEmailVerificationOtp;
+
+    // ── JWT (tymon/jwt-auth) ─────────────────────────────────────────────────
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims(): array
+    {
+        return ['guard' => 'users'];
+    }
 
     protected $fillable = ['name', 'email', 'phone', 'nin', 'password', 'avatar', 'last_login_at', 'two_factor_enabled',
                            'email_verification_code', 'email_verification_expires_at', 'email_verification_attempts'];

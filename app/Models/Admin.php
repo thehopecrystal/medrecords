@@ -7,10 +7,22 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class Admin extends Authenticatable implements MustVerifyEmail
+class Admin extends Authenticatable implements MustVerifyEmail, JWTSubject
 {
     use HasFactory, Notifiable, SendsEmailVerificationOtp;
+
+    // ── JWT (tymon/jwt-auth) ─────────────────────────────────────────────────
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims(): array
+    {
+        return ['guard' => 'admins'];
+    }
 
     protected $table = 'admins';
 

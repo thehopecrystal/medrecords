@@ -20,8 +20,15 @@ class Require2FA
 
         if (!$user->two_factor_enabled) {
             // Allow the shared 2FA setup page and logout — nothing else.
-            if ($request->routeIs('account.2fa', 'account.2fa.toggle', 'logout')) {
+            if ($request->routeIs('account.2fa', 'account.2fa.toggle', 'logout', 'api.account.2fa', 'api.account.2fa.toggle', 'api.auth.logout')) {
                 return $next($request);
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Two-factor authentication is required for your account. Please enable it to continue.',
+                    'code'    => 'two_factor_required',
+                ], 403);
             }
 
             return redirect()->route('account.2fa')

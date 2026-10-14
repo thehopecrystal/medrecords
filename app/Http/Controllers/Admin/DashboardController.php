@@ -28,8 +28,9 @@ class DashboardController extends Controller
         $breakGlass = BreakGlassEvent::with(['patient.user', 'provider'])->where('status', 'active')->latest()->take(5)->get();
 
         // Chart: new registrations per day for the last 30 days
+        // (substr is portable across MySQL and SQLite).
         $regData = DB::table('users')
-            ->selectRaw('DATE(created_at) as day, COUNT(*) as cnt')
+            ->selectRaw('substr(created_at, 1, 10) as day, COUNT(*) as cnt')
             ->where('created_at', '>=', now()->subDays(29)->startOfDay())
             ->groupBy('day')
             ->orderBy('day')
@@ -43,21 +44,24 @@ class DashboardController extends Controller
             $regCounts[] = $regData[$d] ?? 0;
         }
 
-        // Chart: encounters per week for last 8 weeks
-        $encData = DB::table('encounters')
-            ->selectRaw('YEARWEEK(created_at, 1) as yw, COUNT(*) as cnt')
+        // Chart: encounters per week for last 8 weeks. Bucketed by day (portable
+        // SQL) and aggregated per ISO week in PHP — YEARWEEK() is MySQL-only.
+        $encRows = DB::table('encounters')
+            ->selectRaw('substr(created_at, 1, 10) as day, COUNT(*) as cnt')
             ->where('created_at', '>=', now()->subWeeks(7)->startOfWeek())
-            ->groupBy('yw')
-            ->orderBy('yw')
-            ->pluck('cnt', 'yw');
+            ->groupBy('day')
+            ->pluck('cnt', 'day');
 
         $encLabels = [];
         $encCounts = [];
         for ($i = 7; $i >= 0; $i--) {
-            $week = now()->subWeeks($i);
-            $yw   = $week->format('oW');
-            $encLabels[] = 'W' . $week->format('W');
-            $encCounts[] = $encData[$yw] ?? 0;
+            $weekStart = now()->subWeeks($i)->startOfWeek(); // Monday
+            $encLabels[] = 'W' . $weekStart->format('W');
+            $count = 0;
+            for ($d = 0; $d < 7; $d++) {
+                $count += $encRows[$weekStart->copy()->addDays($d)->toDateString()] ?? 0;
+            }
+            $encCounts[] = $count;
         }
 
         // Chart: user role distribution (admins are now in the admins table)
@@ -72,9 +76,9 @@ class DashboardController extends Controller
             $adminRows['super_admin']     ?? 0,
         ];
 
-        // Chart: dispenses per month for last 6 months
+        // Chart: dispenses per month for last 6 months (substr is portable).
         $dispData = DB::table('dispenses')
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as mo, COUNT(*) as cnt')
+            ->selectRaw('substr(created_at, 1, 7) as mo, COUNT(*) as cnt')
             ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
             ->groupBy('mo')
             ->orderBy('mo')

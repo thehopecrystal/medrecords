@@ -24,6 +24,8 @@ class EmailVerificationOtpMail extends Mailable
 
     public function content(): Content
     {
-        return new Content(view: 'emails.email-verification-otp');
+        // Deliberately not the auth.otp web view — emails render without a
+        // session/auth context, so they need a standalone template.
+        return new Content(view: 'emails.email-verification-otp-mail');
     }
 }

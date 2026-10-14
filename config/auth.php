@@ -47,6 +47,15 @@ return [
             'driver'   => 'session',
             'provider' => 'admins',
         ],
+        // JWT stateless guards for the REST API (tymon/jwt-auth).
+        'api' => [
+            'driver'   => 'jwt',
+            'provider' => 'users',
+        ],
+        'admin-api' => [
+            'driver'   => 'jwt',
+            'provider' => 'admins',
+        ],
     ],
 
     /*

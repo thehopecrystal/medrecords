@@ -19,6 +19,12 @@ class RequireMdcnVerified
         $provider = $user->provider;
 
         if (!$provider || !$provider->mdcn_verified) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Your MDCN credentials have not been verified yet. Access to patient data is blocked until verification completes.',
+                    'code'    => 'provider_pending_verification',
+                ], 403);
+            }
             return redirect()->route('provider.pending-verification');
         }
 

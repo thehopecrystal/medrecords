@@ -14,10 +14,16 @@ class RoleMiddleware
         $user = $request->user();
 
         if (!$user) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthenticated.'], 401);
+            }
             return redirect()->route('login');
         }
 
         if (!$user->is_active) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Your account has been deactivated. Please contact support.'], 401);
+            }
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
