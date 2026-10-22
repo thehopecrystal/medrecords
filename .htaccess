@@ -1,6 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /medrecords/
+    RewriteBase /
 
     # Exclude phpMyAdmin, webmail and other server tools from Laravel routing.
     RewriteRule ^phpmyadmin(/.*)?$ - [L]
