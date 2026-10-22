@@ -18,6 +18,21 @@ Upload everything **except** `.env`, `node_modules/`, `vendor/`, `storage/logs/*
 composer install --no-dev --optimize-autoloader
 ```
 
+> **Keep `vendor/` small.** Always install from **dist** (the default), never from
+> source. If Composer's GitHub credentials are invalid or its API rate limit is
+> exhausted, `composer install` silently falls back to a `git clone` per package.
+> Each clone carries that package's full `.git` history inside `vendor/`, which
+> can inflate the directory by several hundred megabytes.
+>
+> If `vendor/` ever balloons, run:
+>
+> ```bash
+> composer config --global --unset github-oauth.github.com   # clear a stale token
+> composer reinstall --prefer-dist --no-interaction
+> ```
+>
+> Verify with `composer check-vendor-size` (see `tools/check-vendor-size.sh`).
+
 ### 3. Create `.env` on the server
 Copy `.env.example` and fill in real values:
 ```

@@ -1,24 +1,148 @@
-*.log
-.DS_Store
-.env
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
+# ==============================================================
+#  MedRecords — .gitignore
+#  Laravel 12 + Vite + Tailwind CSS 4
+#
+#  Sections:
+#    1. Dependencies
+#    2. Compiled assets (Vite)
+#    3. Environment & secrets
+#    4. Laravel runtime & generated files
+#    5. Database
+#    6. Tests & coverage
+#    7. PHP tooling
+#    8. Editors & IDEs
+#    9. OS / filesystem noise
+#   10. Logs & process output
+#
+#  NOTE: /tools is intentionally NOT ignored.
+#  tools/check-vendor-size.sh is a source file, referenced by the
+#  "composer check-vendor-size" script and by DEPLOY.md.
+#
+#  NOTE: storage/framework, storage/logs, storage/app and
+#  bootstrap/cache are each governed by their own nested
+#  .gitignore (already tracked), so they are NOT listed here.
+# ==============================================================
+
+# --------------------------------------------------------------
+# 1. Dependencies
+# --------------------------------------------------------------
+/vendor
 /node_modules
+
+# --------------------------------------------------------------
+# 2. Compiled assets (Vite / Tailwind)
+# --------------------------------------------------------------
 /public/build
 /public/hot
 /public/storage
+/node_modules/.vite
+/.vite
+
+# --------------------------------------------------------------
+# 3. Environment & secrets
+#    .env.example MUST stay tracked — `composer setup` copies
+#    it to .env on a fresh clone.
+# --------------------------------------------------------------
+.env
+.env.*
+!.env.example
+.env.backup
+.env.production
+.env.local
+.env.*.local
+
+# Composer credentials
+/auth.json
+
+# --------------------------------------------------------------
+# 4. Laravel runtime & generated files
+# --------------------------------------------------------------
 /storage/*.key
 /storage/pail
-/vendor
-Homestead.json
-Homestead.yaml
+/bootstrap/ssr
+
+# Maintenance & down-mode markers
+*.down
+
+# --------------------------------------------------------------
+# 5. Database
+#    database/.gitignore already ignores *.sqlite* — kept here
+#    as well for defence in depth.
+# --------------------------------------------------------------
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+/database/*.sqlite*
+
+# --------------------------------------------------------------
+# 6. Tests & coverage
+# --------------------------------------------------------------
+/.phpunit.result.cache
+/.phpunit.cache
+/coverage
+/tests/.phpunit.result.cache
+/.nyc_output
+/.pest
+
+# --------------------------------------------------------------
+# 7. PHP tooling
+# --------------------------------------------------------------
+/.phpactor.json
+/.php-cs-fixer.cache
+/.php-cs-fixer.php
+/.php-cs-fixer.dist.php
+/.phpstan.cache
+/.phpstan.neon
+/.phpstan.neon.dist
+/.psalm.xml
+/.psalm.cache
+/.rector.cache
+/.phpmd.xml
+/.phpmd.xml.dist
+
+# --------------------------------------------------------------
+# 8. Editors & IDEs
+# --------------------------------------------------------------
+/.idea
+/.vscode
+/.zed
+/.fleet
+/.nova
+/.vs
+/.history
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+.buildpath
+
+# --------------------------------------------------------------
+# 9. OS / filesystem noise
+# --------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.fuse_hidden*
+ehthumbs.db
 Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# --------------------------------------------------------------
+# 10. Logs & process output
+# --------------------------------------------------------------
+*.log
+/logs
+*.err
+*.out
+nohup.out
+
